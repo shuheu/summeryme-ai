@@ -31,6 +31,10 @@ development:
 test:
   <<: *default
   database: summerymeai_test
+  username: <%= ENV.fetch("DB_USERNAME", "user") %>
+  password: <%= ENV.fetch("DB_PASSWORD", "password") %>
+  host: <%= ENV.fetch("DB_HOST", "db") %>
+  authentication_plugin: caching_sha2_password
 
 # As with config/credentials.yml, you never want to store sensitive information,
 # like your database password, in your source code. If your source code is
