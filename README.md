@@ -2,7 +2,7 @@
 
 ## About The Project
 
-読みたいのに読めないの人が読めるようになるAIサービス
+読みたいのに読めない人が読めるようになるAIサービス
 
 ## Getting Started
 
