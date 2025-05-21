@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'rails_helper'
 
 RSpec.describe TodosController, type: :controller do
@@ -21,9 +23,9 @@ RSpec.describe TodosController, type: :controller do
 
   describe 'POST #create' do
     it '新規タスクを作成できること' do
-      expect {
+      expect do
         post :create, params: { todo: { title: '新しいタスク', description: '新しい説明' } }
-      }.to change(Todo, :count).by(1)
+      end.to change(Todo, :count).by(1)
       expect(response).to have_http_status(:created)
     end
 
@@ -43,9 +45,9 @@ RSpec.describe TodosController, type: :controller do
 
   describe 'DELETE #destroy' do
     it 'タスクを削除できること' do
-      expect {
+      expect do
         delete :destroy, params: { id: todo.id }
-      }.to change(Todo, :count).by(-1)
+      end.to change(Todo, :count).by(-1)
       expect(response).to have_http_status(:no_content)
     end
   end
