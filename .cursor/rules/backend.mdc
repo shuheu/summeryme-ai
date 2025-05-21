@@ -32,6 +32,10 @@ fix
 
 docker compose run --rm api bundle exec rubocop -A
 
+## test
+
+docker compose run --rm api bundle exec rspec
+
 # github actions
 
 github actionsはリポジトリのルートの.github ディレクトリを利用する
