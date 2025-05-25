@@ -1,4 +1,18 @@
 services:
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    restart: always
+    ports:
+      - 8080:8080
+    depends_on:
+      - db
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
   db:
     image: mysql:8.3
     environment:
@@ -17,3 +31,4 @@ services:
 
 volumes:
   mysql-data:
+  node_modules:
