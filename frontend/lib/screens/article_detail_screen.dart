@@ -66,231 +66,240 @@ class ArticleDetailScreen extends StatelessWidget {
 
           // Article content
           SliverToBoxAdapter(
-            child: Container(
-              constraints: BoxConstraints(maxWidth: maxWidth),
-              margin: EdgeInsets.symmetric(horizontal: isTablet ? 48.0 : 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 24),
+            child: Center(
+              child: Container(
+                constraints: BoxConstraints(maxWidth: maxWidth),
+                margin: AppResponsive.getHorizontalPadding(context),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: isTablet ? 32 : 24),
 
-                  // Article metadata
-                  Row(
-                    children: [
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                        decoration: BoxDecoration(
-                          color: AppColors.primary.withOpacity(0.1),
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        child: Text(
-                          article.source,
-                          style: AppTextStyles.bodySmall(isTablet).copyWith(
-                            color: AppColors.primary,
-                            fontWeight: FontWeight.w600,
+                    // Article metadata
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 12,
+                            vertical: 6,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.primary.withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            article.source,
+                            style: AppTextStyles.bodySmall(isTablet).copyWith(
+                              color: AppColors.primary,
+                              fontWeight: FontWeight.w600,
+                            ),
                           ),
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Text(
-                        article.timeAgo,
-                        style: AppTextStyles.bodySmall(isTablet),
-                      ),
-                      const Spacer(),
-                      Icon(
-                        Icons.access_time,
-                        size: 16,
-                        color: AppColors.textSecondary,
-                      ),
-                      const SizedBox(width: 4),
-                      Text(
-                        article.readTime,
-                        style: AppTextStyles.bodySmall(isTablet),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-
-                  // Article title
-                  Text(
-                    article.title,
-                    style: AppTextStyles.headline1(
-                      isTablet,
-                    ).copyWith(fontSize: isTablet ? 36 : 32),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Article summary/intro
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: AppColors.surfaceVariant,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(
-                        color: AppColors.primary.withOpacity(0.2),
-                        width: 1,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.auto_awesome,
-                              color: AppColors.primary,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'AI Summary',
-                              style: AppTextStyles.labelMedium(
-                                isTablet,
-                              ).copyWith(color: AppColors.primary),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
+                        const SizedBox(width: 12),
                         Text(
-                          article.summary,
-                          style: AppTextStyles.bodyMedium(
-                            isTablet,
-                          ).copyWith(height: 1.6, fontStyle: FontStyle.italic),
+                          article.timeAgo,
+                          style: AppTextStyles.bodySmall(isTablet),
+                        ),
+                        const Spacer(),
+                        Icon(
+                          Icons.access_time,
+                          size: 16,
+                          color: AppColors.textSecondary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          article.readTime,
+                          style: AppTextStyles.bodySmall(isTablet),
                         ),
                       ],
                     ),
-                  ),
-                  const SizedBox(height: 32),
+                    const SizedBox(height: 20),
 
-                  // Original article link section
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(12),
-                      border: Border.all(color: AppColors.border, width: 1),
-                      boxShadow: AppShadows.light,
+                    // Article title
+                    Text(
+                      article.title,
+                      style: AppTextStyles.headline1(
+                        isTablet,
+                      ).copyWith(fontSize: isTablet ? 36 : 32),
                     ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Icon(
-                              Icons.link,
-                              color: AppColors.primary,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              '元記事を読む',
-                              style: AppTextStyles.labelMedium(
-                                isTablet,
-                              ).copyWith(color: AppColors.primary),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
+                    const SizedBox(height: 24),
 
-                        // OGP preview
-                        Container(
-                          decoration: BoxDecoration(
-                            color: AppColors.surfaceVariant,
-                            borderRadius: BorderRadius.circular(8),
-                            border: Border.all(
-                              color: AppColors.borderLight,
-                              width: 1,
+                    // Article summary/intro
+                    Container(
+                      padding: EdgeInsets.all(isTablet ? 24 : 20),
+                      decoration: BoxDecoration(
+                        color: AppColors.surfaceVariant,
+                        borderRadius: BorderRadius.circular(isTablet ? 16 : 12),
+                        border: Border.all(
+                          color: AppColors.primary.withOpacity(0.2),
+                          width: 1,
+                        ),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.auto_awesome,
+                                color: AppColors.primary,
+                                size: isTablet ? 24 : 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'AI Summary',
+                                style: AppTextStyles.labelMedium(
+                                  isTablet,
+                                ).copyWith(color: AppColors.primary),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            article.summary,
+                            style: AppTextStyles.bodyMedium(isTablet).copyWith(
+                              height: 1.6,
+                              fontStyle: FontStyle.italic,
                             ),
                           ),
-                          child: InkWell(
-                            onTap: () {
-                              // TODO: 元記事のURLを開く
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('元記事を開きます')),
-                              );
-                            },
-                            borderRadius: BorderRadius.circular(8),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                children: [
-                                  // OGP image placeholder
-                                  Container(
-                                    width: 80,
-                                    height: 80,
-                                    decoration: BoxDecoration(
-                                      gradient: _getSourceGradient(
-                                        article.source,
-                                      ),
-                                      borderRadius: BorderRadius.circular(8),
-                                    ),
-                                    child: Icon(
-                                      Icons.article_outlined,
-                                      color: Colors.white.withOpacity(0.8),
-                                      size: 32,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 16),
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment:
-                                          CrossAxisAlignment.start,
-                                      children: [
-                                        Text(
-                                          article.title,
-                                          style: AppTextStyles.bodyMedium(
-                                            isTablet,
-                                          ).copyWith(
-                                            fontWeight: FontWeight.w600,
-                                          ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                        const SizedBox(height: 4),
-                                        Text(
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Original article link section
+                    Container(
+                      padding: EdgeInsets.all(isTablet ? 24 : 20),
+                      decoration: BoxDecoration(
+                        color: AppColors.surface,
+                        borderRadius: BorderRadius.circular(isTablet ? 16 : 12),
+                        border: Border.all(color: AppColors.border, width: 1),
+                        boxShadow: AppShadows.light,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.link,
+                                color: AppColors.primary,
+                                size: isTablet ? 24 : 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                '元記事を読む',
+                                style: AppTextStyles.labelMedium(
+                                  isTablet,
+                                ).copyWith(color: AppColors.primary),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+
+                          // OGP preview
+                          Container(
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceVariant,
+                              borderRadius: BorderRadius.circular(
+                                isTablet ? 12 : 8,
+                              ),
+                              border: Border.all(
+                                color: AppColors.borderLight,
+                                width: 1,
+                              ),
+                            ),
+                            child: InkWell(
+                              onTap: () {
+                                // TODO: 元記事のURLを開く
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(content: Text('元記事を開きます')),
+                                );
+                              },
+                              borderRadius: BorderRadius.circular(
+                                isTablet ? 12 : 8,
+                              ),
+                              child: Padding(
+                                padding: EdgeInsets.all(isTablet ? 20 : 16),
+                                child: Row(
+                                  children: [
+                                    // OGP image placeholder
+                                    Container(
+                                      width: isTablet ? 96 : 80,
+                                      height: isTablet ? 96 : 80,
+                                      decoration: BoxDecoration(
+                                        gradient: _getSourceGradient(
                                           article.source,
-                                          style: AppTextStyles.bodySmall(
-                                            isTablet,
-                                          ).copyWith(
-                                            color: AppColors.textSecondary,
-                                          ),
                                         ),
-                                        const SizedBox(height: 8),
-                                        Row(
-                                          children: [
-                                            Icon(
-                                              Icons.open_in_new,
-                                              size: 16,
-                                              color: AppColors.primary,
+                                        borderRadius: BorderRadius.circular(
+                                          isTablet ? 12 : 8,
+                                        ),
+                                      ),
+                                      child: Icon(
+                                        Icons.article_outlined,
+                                        color: Colors.white.withOpacity(0.8),
+                                        size: isTablet ? 40 : 32,
+                                      ),
+                                    ),
+                                    SizedBox(width: isTablet ? 20 : 16),
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            article.title,
+                                            style: AppTextStyles.bodyMedium(
+                                              isTablet,
+                                            ).copyWith(
+                                              fontWeight: FontWeight.w600,
                                             ),
-                                            const SizedBox(width: 4),
-                                            Text(
-                                              '記事を読む',
-                                              style: AppTextStyles.bodySmall(
-                                                isTablet,
-                                              ).copyWith(
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 4),
+                                          Text(
+                                            article.source,
+                                            style: AppTextStyles.bodySmall(
+                                              isTablet,
+                                            ).copyWith(
+                                              color: AppColors.textSecondary,
+                                            ),
+                                          ),
+                                          const SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.open_in_new,
+                                                size: isTablet ? 18 : 16,
                                                 color: AppColors.primary,
                                               ),
-                                            ),
-                                          ],
-                                        ),
-                                      ],
+                                              const SizedBox(width: 4),
+                                              Text(
+                                                '記事を読む',
+                                                style: AppTextStyles.bodySmall(
+                                                  isTablet,
+                                                ).copyWith(
+                                                  color: AppColors.primary,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 48),
-                ],
+                    SizedBox(height: isTablet ? 64 : 48),
+                  ],
+                ),
               ),
             ),
           ),
