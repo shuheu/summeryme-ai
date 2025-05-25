@@ -74,36 +74,34 @@ class _SignupScreenState extends State<SignupScreen> {
           icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.pop(context),
         ),
-        title:
-            kDebugMode
-                ? const Text(
-                  'Debug Mode',
-                  style: TextStyle(color: Colors.red, fontSize: 16),
-                )
-                : null,
-        actions:
-            kDebugMode
-                ? [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (context) => const MainTabScreen(),
-                        ),
-                      );
-                    },
-                    child: const Text(
-                      'Skip Auth',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+        title: kDebugMode
+            ? const Text(
+                'Debug Mode',
+                style: TextStyle(color: Colors.red, fontSize: 16),
+              )
+            : null,
+        actions: kDebugMode
+            ? [
+                TextButton(
+                  onPressed: () {
+                    Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute<void>(
+                        builder: (context) => const MainTabScreen(),
                       ),
+                    );
+                  },
+                  child: const Text(
+                    'Skip Auth',
+                    style: TextStyle(
+                      color: Colors.red,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 14,
                     ),
                   ),
-                ]
-                : null,
+                ),
+              ]
+            : null,
       ),
       body: SafeArea(
         child: Center(
@@ -397,25 +395,24 @@ class _SignupScreenState extends State<SignupScreen> {
                           ),
                           elevation: 0,
                         ),
-                        child:
-                            _isLoading
-                                ? const SizedBox(
-                                  height: 20,
-                                  width: 20,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.white,
-                                    ),
-                                  ),
-                                )
-                                : Text(
-                                  'アカウント作成',
-                                  style: TextStyle(
-                                    fontSize: isTablet ? 18 : 16,
-                                    fontWeight: FontWeight.w600,
+                        child: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Colors.white,
                                   ),
                                 ),
+                              )
+                            : Text(
+                                'アカウント作成',
+                                style: TextStyle(
+                                  fontSize: isTablet ? 18 : 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                              ),
                       ),
                     ),
                     const SizedBox(height: 24),

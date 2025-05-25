@@ -266,14 +266,13 @@ class SettingsScreen extends StatelessWidget {
           color: textColor ?? Colors.black87,
         ),
       ),
-      trailing:
-          trailing ??
+      trailing: trailing ??
           (showArrow
               ? const Icon(
-                Icons.arrow_forward_ios,
-                color: Colors.grey,
-                size: 16,
-              )
+                  Icons.arrow_forward_ios,
+                  color: Colors.grey,
+                  size: 16,
+                )
               : null),
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

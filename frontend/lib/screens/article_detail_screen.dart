@@ -236,7 +236,9 @@ class ArticleDetailScreen extends StatelessWidget {
                                       ),
                                       child: Icon(
                                         Icons.article_outlined,
-                                        color: Colors.white.withValues(alpha: 0.8),
+                                        color: Colors.white.withValues(
+                                          alpha: 0.8,
+                                        ),
                                         size: isTablet ? 40 : 32,
                                       ),
                                     ),

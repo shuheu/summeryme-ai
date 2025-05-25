@@ -40,72 +40,73 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
-      appBar:
-          kDebugMode
-              ? AppBar(
-                backgroundColor: Colors.transparent,
-                elevation: 0,
-                title: Container(
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 8,
-                    vertical: 4,
+      appBar: kDebugMode
+          ? AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
                   ),
-                  decoration: BoxDecoration(
-                    color: Colors.orange.withValues(alpha: 0.1),
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
+                ),
+                child: const Text(
+                  '🚧 Debug Mode',
+                  style: TextStyle(
+                    color: Colors.orange,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
                   ),
-                  child: const Text(
-                    '🚧 Debug Mode',
-                    style: TextStyle(
-                      color: Colors.orange,
-                      fontSize: 14,
-                      fontWeight: FontWeight.w600,
+                ),
+              ),
+              actions: [
+                Container(
+                  margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (context) => const MainTabScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.skip_next,
+                      size: 18,
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      'Skip Auth',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
                     ),
                   ),
                 ),
-                actions: [
-                  Container(
-                    margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
-                    child: ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute<void>(
-                            builder: (context) => const MainTabScreen(),
-                          ),
-                        );
-                      },
-                      icon: const Icon(
-                        Icons.skip_next,
-                        size: 18,
-                        color: Colors.white,
-                      ),
-                      label: const Text(
-                        'Skip Auth',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.orange,
-                        foregroundColor: Colors.white,
-                        elevation: 2,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 12,
-                          vertical: 6,
-                        ),
-                      ),
-                    ),
-                  ),
-                ],
-              )
-              : null,
+              ],
+            )
+          : null,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -140,7 +141,9 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF667eea).withValues(alpha: 0.4),
+                              color: const Color(
+                                0xFF667eea,
+                              ).withValues(alpha: 0.4),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                               spreadRadius: 0,
@@ -157,18 +160,17 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       // App name with gradient text
                       ShaderMask(
-                        shaderCallback:
-                            (bounds) => const LinearGradient(
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                              colors: [
-                                Color(0xFF667eea),
-                                Color(0xFF764ba2),
-                                Color(0xFF6B73FF),
-                                Color(0xFF000DFF),
-                              ],
-                              stops: [0.0, 0.3, 0.7, 1.0],
-                            ).createShader(bounds),
+                        shaderCallback: (bounds) => const LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            Color(0xFF667eea),
+                            Color(0xFF764ba2),
+                            Color(0xFF6B73FF),
+                            Color(0xFF000DFF),
+                          ],
+                          stops: [0.0, 0.3, 0.7, 1.0],
+                        ).createShader(bounds),
                         child: Text(
                           'summeryme.ai',
                           style: TextStyle(
@@ -183,12 +185,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
                       // Subtitle with gradient
                       ShaderMask(
-                        shaderCallback:
-                            (bounds) => const LinearGradient(
-                              begin: Alignment.centerLeft,
-                              end: Alignment.centerRight,
-                              colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                            ).createShader(bounds),
+                        shaderCallback: (bounds) => const LinearGradient(
+                          begin: Alignment.centerLeft,
+                          end: Alignment.centerRight,
+                          colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                        ).createShader(bounds),
                         child: Text(
                           'AIが記事をサマリーして音声で聞ける',
                           style: TextStyle(
@@ -242,37 +243,35 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     child: ElevatedButton.icon(
                       onPressed: _isLoading ? null : _googleLogin,
-                      icon:
-                          _isLoading
-                              ? const SizedBox(
-                                height: 20,
-                                width: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Color(0xFF007AFF),
-                                  ),
-                                ),
-                              )
-                              : Container(
-                                padding: const EdgeInsets.all(2),
-                                decoration: BoxDecoration(
-                                  color: Colors.white,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Image.network(
-                                  'https://developers.google.com/identity/images/g-logo.png',
-                                  height: 20,
-                                  width: 20,
-                                  errorBuilder:
-                                      (context, error, stackTrace) =>
-                                          const Icon(
-                                            Icons.g_mobiledata,
-                                            size: 24,
-                                            color: Colors.blue,
-                                          ),
+                      icon: _isLoading
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                strokeWidth: 2,
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Color(0xFF007AFF),
                                 ),
                               ),
+                            )
+                          : Container(
+                              padding: const EdgeInsets.all(2),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Image.network(
+                                'https://developers.google.com/identity/images/g-logo.png',
+                                height: 20,
+                                width: 20,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    const Icon(
+                                  Icons.g_mobiledata,
+                                  size: 24,
+                                  color: Colors.blue,
+                                ),
+                              ),
+                            ),
                       label: Text(
                         _isLoading ? 'ログイン中...' : 'Googleでログイン',
                         style: TextStyle(
@@ -310,10 +309,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     child: Column(
                       children: [
                         ShaderMask(
-                          shaderCallback:
-                              (bounds) => const LinearGradient(
-                                colors: [Color(0xFF667eea), Color(0xFF764ba2)],
-                              ).createShader(bounds),
+                          shaderCallback: (bounds) => const LinearGradient(
+                            colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                          ).createShader(bounds),
                           child: Text(
                             '主な機能',
                             style: TextStyle(

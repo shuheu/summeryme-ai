@@ -66,8 +66,8 @@ class _MainTabScreenState extends State<MainTabScreen> {
             children: [
               if (isSelected)
                 ShaderMask(
-                  shaderCallback:
-                      (bounds) => AppGradients.primary.createShader(bounds),
+                  shaderCallback: (bounds) =>
+                      AppGradients.primary.createShader(bounds),
                   child: Icon(icon, color: Colors.white, size: 22),
                 )
               else

@@ -121,15 +121,14 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors:
-                        isFirst
-                            ? [const Color(0xFF4A90E2), const Color(0xFF357ABD)]
-                            : article.source == 'TechCrunch'
+                    colors: isFirst
+                        ? [const Color(0xFF4A90E2), const Color(0xFF357ABD)]
+                        : article.source == 'TechCrunch'
                             ? [const Color(0xFF4A90A4), const Color(0xFF357A8A)]
                             : [
-                              const Color(0xFF6B8E23),
-                              const Color(0xFF556B2F),
-                            ],
+                                const Color(0xFF6B8E23),
+                                const Color(0xFF556B2F),
+                              ],
                   ),
                 ),
                 child: const Center(
@@ -310,154 +309,153 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,
-      builder:
-          (context) => Container(
-            height: MediaQuery.of(context).size.height * 0.75,
-            decoration: const BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.only(
-                topLeft: Radius.circular(20),
-                topRight: Radius.circular(20),
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(isTablet ? 32.0 : 24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Handle bar
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.textTertiary,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
               ),
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(isTablet ? 32.0 : 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+              const SizedBox(height: 24),
+
+              // Title
+              Text('新しい記事を追加', style: AppTextStyles.headline3(isTablet)),
+              const SizedBox(height: 8),
+              Text(
+                '後で読みたい記事のURLを追加してください',
+                style: AppTextStyles.bodyMedium(
+                  isTablet,
+                ).copyWith(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 32),
+
+              // URL input
+              Text('記事URL', style: AppTextStyles.labelMedium(isTablet)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _urlController,
+                decoration: InputDecoration(
+                  hintText: 'https://example.com/article',
+                  prefixIcon: const Icon(Icons.link),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.primary),
+                  ),
+                  filled: true,
+                  fillColor: AppColors.surfaceVariant,
+                ),
+                keyboardType: TextInputType.url,
+              ),
+              const SizedBox(height: 24),
+
+              // Title input (optional)
+              Text(
+                'タイトル（オプション）',
+                style: AppTextStyles.labelMedium(isTablet),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _titleController,
+                decoration: InputDecoration(
+                  hintText: '記事のタイトルを入力',
+                  prefixIcon: const Icon(Icons.title),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.primary),
+                  ),
+                  filled: true,
+                  fillColor: AppColors.surfaceVariant,
+                ),
+              ),
+              const Spacer(),
+
+              // Buttons
+              Row(
                 children: [
-                  // Handle bar
-                  Center(
-                    child: Container(
-                      width: 40,
-                      height: 4,
-                      decoration: BoxDecoration(
-                        color: AppColors.textTertiary,
-                        borderRadius: BorderRadius.circular(2),
-                      ),
-                    ),
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Title
-                  Text('新しい記事を追加', style: AppTextStyles.headline3(isTablet)),
-                  const SizedBox(height: 8),
-                  Text(
-                    '後で読みたい記事のURLを追加してください',
-                    style: AppTextStyles.bodyMedium(
-                      isTablet,
-                    ).copyWith(color: AppColors.textSecondary),
-                  ),
-                  const SizedBox(height: 32),
-
-                  // URL input
-                  Text('記事URL', style: AppTextStyles.labelMedium(isTablet)),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _urlController,
-                    decoration: InputDecoration(
-                      hintText: 'https://example.com/article',
-                      prefixIcon: const Icon(Icons.link),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.border),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.border),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.primary),
-                      ),
-                      filled: true,
-                      fillColor: AppColors.surfaceVariant,
-                    ),
-                    keyboardType: TextInputType.url,
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Title input (optional)
-                  Text(
-                    'タイトル（オプション）',
-                    style: AppTextStyles.labelMedium(isTablet),
-                  ),
-                  const SizedBox(height: 8),
-                  TextField(
-                    controller: _titleController,
-                    decoration: InputDecoration(
-                      hintText: '記事のタイトルを入力',
-                      prefixIcon: const Icon(Icons.title),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.border),
-                      ),
-                      enabledBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.border),
-                      ),
-                      focusedBorder: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                        borderSide: const BorderSide(color: AppColors.primary),
-                      ),
-                      filled: true,
-                      fillColor: AppColors.surfaceVariant,
-                    ),
-                  ),
-                  const Spacer(),
-
-                  // Buttons
-                  Row(
-                    children: [
-                      Expanded(
-                        child: OutlinedButton(
-                          onPressed: () {
-                            _urlController.clear();
-                            _titleController.clear();
-                            Navigator.pop(context);
-                          },
-                          style: OutlinedButton.styleFrom(
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            side: const BorderSide(color: AppColors.border),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                          ),
-                          child: Text(
-                            'キャンセル',
-                            style: AppTextStyles.labelMedium(
-                              isTablet,
-                            ).copyWith(color: AppColors.textSecondary),
-                          ),
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        _urlController.clear();
+                        _titleController.clear();
+                        Navigator.pop(context);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: AppColors.border),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
-                      const SizedBox(width: 16),
-                      Expanded(
-                        child: ElevatedButton(
-                          onPressed: () => _addArticle(context),
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: AppColors.primary,
-                            foregroundColor: Colors.white,
-                            padding: const EdgeInsets.symmetric(vertical: 16),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            elevation: 0,
-                          ),
-                          child: Text(
-                            '追加',
-                            style: AppTextStyles.labelMedium(
-                              isTablet,
-                            ).copyWith(color: Colors.white),
-                          ),
-                        ),
+                      child: Text(
+                        'キャンセル',
+                        style: AppTextStyles.labelMedium(
+                          isTablet,
+                        ).copyWith(color: AppColors.textSecondary),
                       ),
-                    ],
+                    ),
                   ),
-                  SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => _addArticle(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        '追加',
+                        style: AppTextStyles.labelMedium(
+                          isTablet,
+                        ).copyWith(color: Colors.white),
+                      ),
+                    ),
+                  ),
                 ],
               ),
-            ),
+              SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+            ],
           ),
+        ),
+      ),
     );
   }
 

@@ -57,70 +57,70 @@ class AppColors {
 class AppTextStyles {
   // Headlines
   static TextStyle headline1(bool isTablet) => TextStyle(
-    fontSize: isTablet ? 32 : 28,
-    fontWeight: FontWeight.bold,
-    color: AppColors.textPrimary,
-    height: 1.2,
-  );
+        fontSize: isTablet ? 32 : 28,
+        fontWeight: FontWeight.bold,
+        color: AppColors.textPrimary,
+        height: 1.2,
+      );
 
   static TextStyle headline2(bool isTablet) => TextStyle(
-    fontSize: isTablet ? 28 : 24,
-    fontWeight: FontWeight.bold,
-    color: AppColors.textPrimary,
-    height: 1.3,
-  );
+        fontSize: isTablet ? 28 : 24,
+        fontWeight: FontWeight.bold,
+        color: AppColors.textPrimary,
+        height: 1.3,
+      );
 
   static TextStyle headline3(bool isTablet) => TextStyle(
-    fontSize: isTablet ? 24 : 20,
-    fontWeight: FontWeight.bold,
-    color: AppColors.textPrimary,
-    height: 1.3,
-  );
+        fontSize: isTablet ? 24 : 20,
+        fontWeight: FontWeight.bold,
+        color: AppColors.textPrimary,
+        height: 1.3,
+      );
 
   // Body Text
   static TextStyle bodyLarge(bool isTablet) => TextStyle(
-    fontSize: isTablet ? 18 : 16,
-    color: AppColors.textPrimary,
-    height: 1.5,
-  );
+        fontSize: isTablet ? 18 : 16,
+        color: AppColors.textPrimary,
+        height: 1.5,
+      );
 
   static TextStyle bodyMedium(bool isTablet) => TextStyle(
-    fontSize: isTablet ? 16 : 14,
-    color: AppColors.textPrimary,
-    height: 1.5,
-  );
+        fontSize: isTablet ? 16 : 14,
+        color: AppColors.textPrimary,
+        height: 1.5,
+      );
 
   static TextStyle bodySmall(bool isTablet) => TextStyle(
-    fontSize: isTablet ? 14 : 12,
-    color: AppColors.textSecondary,
-    height: 1.4,
-  );
+        fontSize: isTablet ? 14 : 12,
+        color: AppColors.textSecondary,
+        height: 1.4,
+      );
 
   // Labels
   static TextStyle labelLarge(bool isTablet) => TextStyle(
-    fontSize: isTablet ? 18 : 16,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
-  );
+        fontSize: isTablet ? 18 : 16,
+        fontWeight: FontWeight.w600,
+        color: AppColors.textPrimary,
+      );
 
   static TextStyle labelMedium(bool isTablet) => TextStyle(
-    fontSize: isTablet ? 16 : 14,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textPrimary,
-  );
+        fontSize: isTablet ? 16 : 14,
+        fontWeight: FontWeight.w600,
+        color: AppColors.textPrimary,
+      );
 
   static TextStyle labelSmall(bool isTablet) => TextStyle(
-    fontSize: isTablet ? 12 : 10,
-    fontWeight: FontWeight.w600,
-    color: AppColors.textSecondary,
-  );
+        fontSize: isTablet ? 12 : 10,
+        fontWeight: FontWeight.w600,
+        color: AppColors.textSecondary,
+      );
 
   // Caption
   static TextStyle caption(bool isTablet) => TextStyle(
-    fontSize: isTablet ? 14 : 12,
-    color: AppColors.textSecondary,
-    fontWeight: FontWeight.w500,
-  );
+        fontSize: isTablet ? 14 : 12,
+        color: AppColors.textSecondary,
+        fontWeight: FontWeight.w500,
+      );
 }
 
 class AppTheme {
@@ -198,54 +198,54 @@ class AppTheme {
 
 class AppGradients {
   static LinearGradient get primary => const LinearGradient(
-    colors: AppColors.primaryGradient,
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+        colors: AppColors.primaryGradient,
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
 
   static LinearGradient get secondary => const LinearGradient(
-    colors: AppColors.secondaryGradient,
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+        colors: AppColors.secondaryGradient,
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
 
   static LinearGradient get accent => const LinearGradient(
-    colors: AppColors.accentGradient,
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+        colors: AppColors.accentGradient,
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
 
   static LinearGradient get success => const LinearGradient(
-    colors: AppColors.successGradient,
-    begin: Alignment.topLeft,
-    end: Alignment.bottomRight,
-  );
+        colors: AppColors.successGradient,
+        begin: Alignment.topLeft,
+        end: Alignment.bottomRight,
+      );
 }
 
 class AppShadows {
   static List<BoxShadow> get light => [
-    BoxShadow(
-      color: AppColors.shadowLight,
-      blurRadius: 10,
-      offset: const Offset(0, 2),
-    ),
-  ];
+        BoxShadow(
+          color: AppColors.shadowLight,
+          blurRadius: 10,
+          offset: const Offset(0, 2),
+        ),
+      ];
 
   static List<BoxShadow> get medium => [
-    BoxShadow(
-      color: AppColors.shadowMedium,
-      blurRadius: 20,
-      offset: const Offset(0, 4),
-    ),
-  ];
+        BoxShadow(
+          color: AppColors.shadowMedium,
+          blurRadius: 20,
+          offset: const Offset(0, 4),
+        ),
+      ];
 
   static List<BoxShadow> get heavy => [
-    BoxShadow(
-      color: AppColors.shadowDark,
-      blurRadius: 30,
-      offset: const Offset(0, 8),
-    ),
-  ];
+        BoxShadow(
+          color: AppColors.shadowDark,
+          blurRadius: 30,
+          offset: const Offset(0, 8),
+        ),
+      ];
 }
 
 // Responsive helper

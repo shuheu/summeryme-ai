@@ -228,14 +228,12 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                         child: Text(
                           article.title,
                           style: AppTextStyles.labelMedium(isTablet).copyWith(
-                            color:
-                                article.isRead
-                                    ? AppColors.textSecondary
-                                    : AppColors.textPrimary,
-                            fontWeight:
-                                article.isRead
-                                    ? FontWeight.normal
-                                    : FontWeight.w600,
+                            color: article.isRead
+                                ? AppColors.textSecondary
+                                : AppColors.textPrimary,
+                            fontWeight: article.isRead
+                                ? FontWeight.normal
+                                : FontWeight.w600,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
