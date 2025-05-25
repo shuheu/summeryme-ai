@@ -1,0 +1,60 @@
+name: Lint and Format Check (backend_ts)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    paths:
+      - 'backend_ts/**'
+  pull_request:
+    branches: [ "main", "master" ]
+    paths:
+      - 'backend_ts/**'
+
+jobs:
+  lint-and-format:
+    name: Lint and Format
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend_ts
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: false
+
+      - name: Get pnpm store directory
+        id: pnpm-cache
+        shell: bash
+        run: |
+          echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_OUTPUT
+
+      - name: Setup pnpm cache
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.pnpm-cache.outputs.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Run Prettier check
+        run: pnpm format-check
+
+      - name: Run ESLint
+        # The worker previously used ESLINT_USE_FLAT_CONFIG=false for linting.
+        # Adding it here for consistency in the CI environment.
+        env:
+          ESLINT_USE_FLAT_CONFIG: false
+        run: pnpm lint
