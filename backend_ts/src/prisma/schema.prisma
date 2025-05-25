@@ -15,13 +15,61 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model Todo {
-  id          Int      @id @default(autoincrement())
-  title       String   @db.VarChar(255)
-  description String?  @db.Text
-  completed   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+model User {
+  id        Int      @id @default(autoincrement())
+  uid       String   @unique @db.VarChar(255)
+  name      String   @db.VarChar(255)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
-  @@map("todos")
+  savedArticles SavedArticle[]
+  userDailySummaries UserDailySummary[]
+
+  @@map("users")
+}
+
+model SavedArticle {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  title     String   @db.VarChar(255)
+  url       String   @db.VarChar(1024)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  savedArticleSummary SavedArticleSummary?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@map("saved_articles")
+}
+
+model SavedArticleSummary {
+  id        Int      @id @default(autoincrement())
+  savedArticleId Int @unique
+  summary     String   @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  savedArticle SavedArticle @relation(fields: [savedArticleId], references: [id], onDelete: Cascade)
+
+  @@map("saved_article_summaries")
+}
+
+model UserDailySummary {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  summary   String   @db.Text
+  audioUrl  String?  @db.VarChar(255)
+  generatedDate DateTime @db.Date
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
+  @@unique([userId, generatedDate])
+  @@map("user_daily_summaries")
 }
