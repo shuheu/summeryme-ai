@@ -42,7 +42,7 @@ class _MainTabScreenState extends State<MainTabScreen> {
               children: [
                 _buildNavItem(Icons.auto_awesome, 'For You', 0),
                 _buildNavItem(Icons.bookmark_outline, 'Saved', 1),
-                _buildNavItem(Icons.settings_outlined, 'Settings', 2),
+                _buildNavItem(Icons.settings_outlined, '設定', 2),
               ],
             ),
           ),
