@@ -3,9 +3,8 @@ import '../models/article.dart';
 import '../themes/app_theme.dart';
 
 class ArticleDetailScreen extends StatelessWidget {
-  final Article article;
-
   const ArticleDetailScreen({super.key, required this.article});
+  final Article article;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +23,7 @@ class ArticleDetailScreen extends StatelessWidget {
             leading: Container(
               margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
               child: IconButton(
@@ -36,7 +35,7 @@ class ArticleDetailScreen extends StatelessWidget {
               Container(
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
@@ -57,7 +56,7 @@ class ArticleDetailScreen extends StatelessWidget {
                   child: Icon(
                     Icons.article_outlined,
                     size: isTablet ? 120 : 100,
-                    color: Colors.white.withOpacity(0.8),
+                    color: Colors.white.withValues(alpha: 0.8),
                   ),
                 ),
               ),
@@ -84,7 +83,7 @@ class ArticleDetailScreen extends StatelessWidget {
                             vertical: 6,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.primary.withOpacity(0.1),
+                            color: AppColors.primary.withValues(alpha: 0.1),
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
@@ -101,7 +100,7 @@ class ArticleDetailScreen extends StatelessWidget {
                           style: AppTextStyles.bodySmall(isTablet),
                         ),
                         const Spacer(),
-                        Icon(
+                        const Icon(
                           Icons.access_time,
                           size: 16,
                           color: AppColors.textSecondary,
@@ -131,7 +130,7 @@ class ArticleDetailScreen extends StatelessWidget {
                         color: AppColors.surfaceVariant,
                         borderRadius: BorderRadius.circular(isTablet ? 16 : 12),
                         border: Border.all(
-                          color: AppColors.primary.withOpacity(0.2),
+                          color: AppColors.primary.withValues(alpha: 0.2),
                           width: 1,
                         ),
                       ),
@@ -237,7 +236,7 @@ class ArticleDetailScreen extends StatelessWidget {
                                       ),
                                       child: Icon(
                                         Icons.article_outlined,
-                                        color: Colors.white.withOpacity(0.8),
+                                        color: Colors.white.withValues(alpha: 0.8),
                                         size: isTablet ? 40 : 32,
                                       ),
                                     ),

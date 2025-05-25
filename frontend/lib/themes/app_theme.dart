@@ -49,9 +49,9 @@ class AppColors {
   static const Color info = Color(0xFF007AFF);
 
   // Shadow Colors
-  static Color shadowLight = Colors.black.withOpacity(0.05);
-  static Color shadowMedium = Colors.black.withOpacity(0.1);
-  static Color shadowDark = Colors.black.withOpacity(0.2);
+  static Color shadowLight = Colors.black.withValues(alpha: 0.05);
+  static Color shadowMedium = Colors.black.withValues(alpha: 0.1);
+  static Color shadowDark = Colors.black.withValues(alpha: 0.2);
 }
 
 class AppTextStyles {
@@ -132,7 +132,6 @@ class AppTheme {
         brightness: Brightness.light,
         primary: AppColors.primary,
         surface: AppColors.surface,
-        background: AppColors.background,
       ),
       scaffoldBackgroundColor: AppColors.background,
       appBarTheme: const AppBarTheme(

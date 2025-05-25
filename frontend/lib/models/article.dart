@@ -1,14 +1,4 @@
 class Article {
-  final String id;
-  final String title;
-  final String source;
-  final String timeAgo;
-  final String summary;
-  final String imageUrl;
-  final bool isRead;
-  final bool isSaved;
-  final String readTime;
-
   Article({
     required this.id,
     required this.title,
@@ -20,6 +10,15 @@ class Article {
     this.isSaved = false,
     required this.readTime,
   });
+  final String id;
+  final String title;
+  final String source;
+  final String timeAgo;
+  final String summary;
+  final String imageUrl;
+  final bool isRead;
+  final bool isSaved;
+  final String readTime;
 
   Article copyWith({
     String? id,

@@ -2,8 +2,6 @@ import 'package:flutter/material.dart';
 import 'saved_articles_screen.dart';
 import 'today_digest_screen.dart';
 import 'settings_screen.dart';
-import '../models/article.dart';
-import 'article_detail_screen.dart';
 import '../themes/app_theme.dart';
 
 class MainTabScreen extends StatefulWidget {
@@ -60,19 +58,20 @@ class _MainTabScreenState extends State<MainTabScreen> {
             _currentIndex = index;
           });
         },
-        child: Container(
+        child: SizedBox(
           height: 44,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.min,
             children: [
-              isSelected
-                  ? ShaderMask(
-                    shaderCallback:
-                        (bounds) => AppGradients.primary.createShader(bounds),
-                    child: Icon(icon, color: Colors.white, size: 22),
-                  )
-                  : Icon(icon, color: Colors.grey, size: 22),
+              if (isSelected)
+                ShaderMask(
+                  shaderCallback:
+                      (bounds) => AppGradients.primary.createShader(bounds),
+                  child: Icon(icon, color: Colors.white, size: 22),
+                )
+              else
+                Icon(icon, color: Colors.grey, size: 22),
               const SizedBox(height: 2),
               Text(
                 label,

@@ -37,7 +37,7 @@ class _SignupScreenState extends State<SignupScreen> {
       });
 
       // シミュレートされた登録処理
-      await Future.delayed(const Duration(seconds: 2));
+      await Future<void>.delayed(const Duration(seconds: 2));
 
       setState(() {
         _isLoading = false;
@@ -46,7 +46,7 @@ class _SignupScreenState extends State<SignupScreen> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const MainTabScreen()),
+          MaterialPageRoute<void>(builder: (context) => const MainTabScreen()),
         );
       }
     } else if (!_agreeToTerms) {
@@ -88,7 +88,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     onPressed: () {
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(
+                        MaterialPageRoute<void>(
                           builder: (context) => const MainTabScreen(),
                         ),
                       );
@@ -484,7 +484,7 @@ class _SignupScreenState extends State<SignupScreen> {
                           onTap: () {
                             Navigator.pushReplacement(
                               context,
-                              MaterialPageRoute(
+                              MaterialPageRoute<void>(
                                 builder: (context) => const LoginScreen(),
                               ),
                             );

@@ -1,0 +1,48 @@
+name: PR Check
+
+on:
+  push:
+    branches: [ master ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/pr-check.yml'
+  pull_request:
+    branches: [ master ]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/pr-check.yml'
+
+jobs:
+  quick-check:
+    name: Quick Check
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        flutter-version: '3.7.2'
+        channel: 'stable'
+        cache: true
+
+    - name: Get dependencies
+      run: flutter pub get
+
+    - name: Check formatting
+      run: dart format --output=none --set-exit-if-changed .
+
+    - name: Apply automatic fixes
+      run: dart fix --apply
+
+    - name: Analyze code
+      run: flutter analyze --fatal-infos
+
+    # testはないので、コメントアウト
+    # - name: Run tests
+    #   run: flutter test
+
+    - name: Check build (Android)
+      run: flutter build apk --debug

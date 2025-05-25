@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
-import 'signup_screen.dart';
 import '../main_tab_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -19,7 +18,7 @@ class _LoginScreenState extends State<LoginScreen> {
     });
 
     // TODO: Google ログイン処理を実装
-    await Future.delayed(const Duration(seconds: 2));
+    await Future<void>.delayed(const Duration(seconds: 2));
 
     setState(() {
       _isLoading = false;
@@ -28,7 +27,7 @@ class _LoginScreenState extends State<LoginScreen> {
     if (mounted) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const MainTabScreen()),
+        MaterialPageRoute<void>(builder: (context) => const MainTabScreen()),
       );
     }
   }
@@ -52,9 +51,9 @@ class _LoginScreenState extends State<LoginScreen> {
                     vertical: 4,
                   ),
                   decoration: BoxDecoration(
-                    color: Colors.orange.withOpacity(0.1),
+                    color: Colors.orange.withValues(alpha: 0.1),
                     borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                    border: Border.all(color: Colors.orange.withValues(alpha: 0.3)),
                   ),
                   child: const Text(
                     '🚧 Debug Mode',
@@ -72,7 +71,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       onPressed: () {
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(
+                          MaterialPageRoute<void>(
                             builder: (context) => const MainTabScreen(),
                           ),
                         );
@@ -141,7 +140,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                           boxShadow: [
                             BoxShadow(
-                              color: const Color(0xFF667eea).withOpacity(0.4),
+                              color: const Color(0xFF667eea).withValues(alpha: 0.4),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                               spreadRadius: 0,
@@ -235,7 +234,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       border: Border.all(color: const Color(0xFFE8E8E8)),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.1),
+                          color: Colors.black.withValues(alpha: 0.1),
                           blurRadius: 10,
                           offset: const Offset(0, 4),
                         ),
@@ -302,7 +301,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       borderRadius: BorderRadius.circular(20),
                       boxShadow: [
                         BoxShadow(
-                          color: Colors.black.withOpacity(0.05),
+                          color: Colors.black.withValues(alpha: 0.05),
                           blurRadius: 20,
                           offset: const Offset(0, 10),
                         ),

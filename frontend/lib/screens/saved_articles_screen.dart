@@ -118,7 +118,7 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                     color: AppColors.surfaceVariant,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: TextField(
+                  child: const TextField(
                     decoration: InputDecoration(
                       hintText: '検索',
                       hintStyle: TextStyle(color: AppColors.textSecondary),
@@ -127,7 +127,7 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                         color: AppColors.textSecondary,
                       ),
                       border: InputBorder.none,
-                      contentPadding: const EdgeInsets.symmetric(
+                      contentPadding: EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 12,
                       ),
@@ -193,7 +193,7 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
+            MaterialPageRoute<void>(
               builder: (context) => ArticleDetailScreen(article: article),
             ),
           );
@@ -246,7 +246,7 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                         Container(
                           width: 8,
                           height: 8,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             color: AppColors.primary,
                             shape: BoxShape.circle,
                           ),
@@ -262,7 +262,7 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                       ),
                       const Spacer(),
                       if (article.isRead)
-                        Icon(
+                        const Icon(
                           Icons.check_circle_outline,
                           size: 16,
                           color: AppColors.success,

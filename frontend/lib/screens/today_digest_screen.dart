@@ -65,7 +65,7 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text("For You", style: AppTextStyles.headline2(isTablet)),
+        title: Text('For You', style: AppTextStyles.headline2(isTablet)),
       ),
       body: Center(
         child: Container(
@@ -101,7 +101,7 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
         onTap: () {
           Navigator.push(
             context,
-            MaterialPageRoute(
+            MaterialPageRoute<void>(
               builder: (context) => DigestDetailScreen(article: article),
             ),
           );
@@ -153,15 +153,15 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
               // Article date and metadata
               Row(
                 children: [
-                  Icon(
+                  const Icon(
                     Icons.calendar_today,
                     size: 14,
                     color: AppColors.textSecondary,
                   ),
                   const SizedBox(width: 4),
-                  Text(
+                  const Text(
                     '2024年12月20日',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 13,
                       color: AppColors.textSecondary,
                       fontWeight: FontWeight.w500,
@@ -228,7 +228,7 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.3),
+                      color: AppColors.primary.withValues(alpha: 0.3),
                       blurRadius: 12,
                       offset: const Offset(0, 6),
                     ),
@@ -247,7 +247,7 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
                   icon: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.2),
+                      color: Colors.white.withValues(alpha: 0.2),
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(
@@ -274,7 +274,7 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
                           vertical: 2,
                         ),
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.2),
+                          color: Colors.white.withValues(alpha: 0.2),
                           borderRadius: BorderRadius.circular(12),
                         ),
                         child: const Text(
@@ -306,7 +306,7 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
 
-    showModalBottomSheet(
+    showModalBottomSheet<void>(
       context: context,
       isScrollControlled: true,
       backgroundColor: Colors.transparent,

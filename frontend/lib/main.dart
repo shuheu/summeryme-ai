@@ -3,7 +3,6 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
 import 'screens/auth/login_screen.dart';
-import 'screens/main_tab_screen.dart';
 import 'themes/app_theme.dart';
 
 void main() {

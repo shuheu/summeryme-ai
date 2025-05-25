@@ -3,9 +3,8 @@ import '../models/article.dart';
 import '../themes/app_theme.dart';
 
 class DigestDetailScreen extends StatelessWidget {
-  final Article article;
-
   const DigestDetailScreen({super.key, required this.article});
+  final Article article;
 
   @override
   Widget build(BuildContext context) {
@@ -24,7 +23,7 @@ class DigestDetailScreen extends StatelessWidget {
             leading: Container(
               margin: const EdgeInsets.all(8),
               decoration: BoxDecoration(
-                color: Colors.black.withOpacity(0.3),
+                color: Colors.black.withValues(alpha: 0.3),
                 shape: BoxShape.circle,
               ),
               child: IconButton(
@@ -36,7 +35,7 @@ class DigestDetailScreen extends StatelessWidget {
               Container(
                 margin: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
-                  color: Colors.black.withOpacity(0.3),
+                  color: Colors.black.withValues(alpha: 0.3),
                   shape: BoxShape.circle,
                 ),
                 child: IconButton(
@@ -74,7 +73,7 @@ class DigestDetailScreen extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
+                              color: Colors.white.withValues(alpha: 0.2),
                               shape: BoxShape.circle,
                             ),
                             child: Icon(
@@ -143,7 +142,7 @@ class DigestDetailScreen extends StatelessWidget {
                               ),
                             ),
                             const Spacer(),
-                            Icon(
+                            const Icon(
                               Icons.schedule,
                               size: 16,
                               color: AppColors.textSecondary,
@@ -163,7 +162,7 @@ class DigestDetailScreen extends StatelessWidget {
                         const SizedBox(height: 8),
                         Row(
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.calendar_today,
                               size: 16,
                               color: AppColors.textSecondary,
@@ -176,7 +175,7 @@ class DigestDetailScreen extends StatelessWidget {
                               ).copyWith(color: AppColors.textSecondary),
                             ),
                             const SizedBox(width: 16),
-                            Icon(
+                            const Icon(
                               Icons.access_time,
                               size: 16,
                               color: AppColors.textSecondary,
@@ -204,13 +203,13 @@ class DigestDetailScreen extends StatelessWidget {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppColors.primary.withOpacity(0.05),
-                          AppColors.primary.withOpacity(0.1),
+                          AppColors.primary.withValues(alpha: 0.05),
+                          AppColors.primary.withValues(alpha: 0.1),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(16),
                       border: Border.all(
-                        color: AppColors.primary.withOpacity(0.2),
+                        color: AppColors.primary.withValues(alpha: 0.2),
                         width: 1,
                       ),
                     ),
@@ -317,13 +316,13 @@ class DigestDetailScreen extends StatelessWidget {
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                         colors: [
-                          AppColors.primary.withOpacity(0.1),
-                          AppColors.primary.withOpacity(0.05),
+                          AppColors.primary.withValues(alpha: 0.1),
+                          AppColors.primary.withValues(alpha: 0.05),
                         ],
                       ),
                       borderRadius: BorderRadius.circular(20),
                       border: Border.all(
-                        color: AppColors.primary.withOpacity(0.3),
+                        color: AppColors.primary.withValues(alpha: 0.3),
                         width: 1,
                       ),
                     ),
@@ -338,7 +337,7 @@ class DigestDetailScreen extends StatelessWidget {
                             shape: BoxShape.circle,
                             boxShadow: [
                               BoxShadow(
-                                color: AppColors.primary.withOpacity(0.3),
+                                color: AppColors.primary.withValues(alpha: 0.3),
                                 blurRadius: 20,
                                 offset: const Offset(0, 8),
                               ),
@@ -401,7 +400,7 @@ class DigestDetailScreen extends StatelessWidget {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Icon(
+                            const Icon(
                               Icons.access_time,
                               size: 16,
                               color: AppColors.textSecondary,
