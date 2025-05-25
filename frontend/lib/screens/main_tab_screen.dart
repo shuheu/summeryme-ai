@@ -27,18 +27,25 @@ class _MainTabScreenState extends State<MainTabScreen> {
     return Scaffold(
       body: _screens[_currentIndex],
       bottomNavigationBar: Container(
-        height: 60,
-        padding: const EdgeInsets.symmetric(vertical: 8),
-        decoration: const BoxDecoration(
-          color: AppColors.surface,
-          border: Border(top: BorderSide(color: AppColors.border, width: 1)),
-        ),
-        child: Row(
-          children: [
-            _buildNavItem(Icons.auto_awesome, 'For You', 0),
-            _buildNavItem(Icons.bookmark_outline, 'Saved', 1),
-            _buildNavItem(Icons.settings_outlined, 'Settings', 2),
-          ],
+        color: AppColors.surface, // SafeAreaの背景色を設定
+        child: SafeArea(
+          child: Container(
+            height: 60,
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            decoration: const BoxDecoration(
+              color: AppColors.surface,
+              border: Border(
+                top: BorderSide(color: AppColors.border, width: 1),
+              ),
+            ),
+            child: Row(
+              children: [
+                _buildNavItem(Icons.auto_awesome, 'For You', 0),
+                _buildNavItem(Icons.bookmark_outline, 'Saved', 1),
+                _buildNavItem(Icons.settings_outlined, 'Settings', 2),
+              ],
+            ),
+          ),
         ),
       ),
     );
