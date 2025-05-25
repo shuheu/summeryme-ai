@@ -5,16 +5,14 @@ on:
     paths:
       - 'frontend/**'
       - '.github/workflows/pr-check.yml'
-  pull_request:
-    branches: [ master ]
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/pr-check.yml'
 
 jobs:
   quick-check:
     name: Quick Check
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
 
     steps:
     - name: Checkout code
