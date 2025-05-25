@@ -1,0 +1,43 @@
+name: Lint and Format Check (backend_ts)
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    paths:
+      - 'backend_ts/**'
+  pull_request:
+    branches: [ "main", "master" ]
+    paths:
+      - 'backend_ts/**'
+
+jobs:
+  lint-and-format:
+    name: Lint and Format
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./backend_ts
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v3
+        with:
+          version: 8
+          run_install: true
+
+      - name: Run Prettier check
+        run: pnpm format-check
+
+      - name: Run ESLint
+        # The worker previously used ESLINT_USE_FLAT_CONFIG=false for linting.
+        # Adding it here for consistency in the CI environment.
+        env:
+          ESLINT_USE_FLAT_CONFIG: false
+        run: pnpm lint
