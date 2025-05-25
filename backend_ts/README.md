@@ -20,3 +20,9 @@ http://localhost:8080
 ```
 npx prisma migrate dev --name <file_name>
 ```
+
+# DB初期化
+
+```
+npx prisma migrate reset
+```
