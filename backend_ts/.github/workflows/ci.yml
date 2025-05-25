@@ -2,9 +2,8 @@ name: Backend CI
 
 on:
   push:
-    branches: [ main ] # Or your default branch
-  pull_request:
-    branches: [ main ] # Or your default branch
+    paths:
+      - 'backend_ts/**/*.ts'
 
 jobs:
   test: # Changed job name to 'test' for clarity
