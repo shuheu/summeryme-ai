@@ -2,7 +2,6 @@ name: PR Check
 
 on:
   push:
-    branches: [ master ]
     paths:
       - 'frontend/**'
       - '.github/workflows/pr-check.yml'
