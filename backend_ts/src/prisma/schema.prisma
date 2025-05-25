@@ -25,6 +25,7 @@ model User {
   savedArticles SavedArticle[]
   userDailySummaries UserDailySummary[]
 
+  @@index([uid])
   @@map("users")
 }
 
