@@ -1,0 +1,38 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [ main ] # Or your default branch
+  pull_request:
+    branches: [ main ] # Or your default branch
+
+jobs:
+  test: # Changed job name to 'test' for clarity
+    runs-on: ubuntu-latest
+    defaults: # Add defaults for working directory
+      run:
+        working-directory: ./backend_ts
+
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x] # Test on multiple Node.js versions
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4 # Updated to v4
+
+      - name: Set up Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4 # Updated to v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'pnpm' # Enable caching for pnpm
+          cache-dependency-path: backend_ts/pnpm-lock.yaml # Specify pnpm lock file path
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile # Use frozen lockfile for CI
+
+      - name: Run tests
+        run: pnpm test

@@ -6,6 +6,8 @@ import { PrismaClient } from './prisma/generated/prisma/index.js';
 const app = new Hono();
 const prisma = new PrismaClient();
 
+export { app }; // Export the app instance
+
 app.get('/', (c) => {
   return c.text('Hello Hono!');
 });
