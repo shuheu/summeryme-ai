@@ -40,32 +40,67 @@ class _LoginScreenState extends State<LoginScreen> {
     final maxWidth = isTablet ? 400.0 : double.infinity;
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F7),
+      backgroundColor: const Color(0xFFF8FAFF),
       appBar:
           kDebugMode
               ? AppBar(
                 backgroundColor: Colors.transparent,
                 elevation: 0,
-                title: const Text(
-                  'Debug Mode',
-                  style: TextStyle(color: Colors.red, fontSize: 16),
+                title: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.orange.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(8),
+                    border: Border.all(color: Colors.orange.withOpacity(0.3)),
+                  ),
+                  child: const Text(
+                    '🚧 Debug Mode',
+                    style: TextStyle(
+                      color: Colors.orange,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
                 ),
                 actions: [
-                  TextButton(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => const MainTabScreen(),
+                  Container(
+                    margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
+                    child: ElevatedButton.icon(
+                      onPressed: () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const MainTabScreen(),
+                          ),
+                        );
+                      },
+                      icon: const Icon(
+                        Icons.skip_next,
+                        size: 18,
+                        color: Colors.white,
+                      ),
+                      label: const Text(
+                        'Skip Auth',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
                         ),
-                      );
-                    },
-                    child: const Text(
-                      'Skip Auth',
-                      style: TextStyle(
-                        color: Colors.red,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 14,
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        foregroundColor: Colors.white,
+                        elevation: 2,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                       ),
                     ),
                   ),
@@ -86,51 +121,86 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // Logo and title
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [Color(0xFF007AFF), Color(0xFF5856D6)],
-                      ),
-                      borderRadius: BorderRadius.circular(20),
-                      boxShadow: [
-                        BoxShadow(
-                          color: const Color(0xFF007AFF).withOpacity(0.3),
-                          blurRadius: 20,
-                          offset: const Offset(0, 10),
+                  Column(
+                    children: [
+                      // AI Icon with gradient
+                      Container(
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          gradient: const LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [
+                              Color(0xFF667eea), // Purple-blue
+                              Color(0xFF764ba2), // Deep purple
+                              Color(0xFF6B73FF), // Electric blue
+                              Color(0xFF000DFF), // Deep blue
+                            ],
+                            stops: [0.0, 0.3, 0.7, 1.0],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: const Color(0xFF667eea).withOpacity(0.4),
+                              blurRadius: 20,
+                              offset: const Offset(0, 8),
+                              spreadRadius: 0,
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
-                    child: Column(
-                      children: [
-                        Icon(
+                        child: Icon(
                           Icons.auto_awesome,
-                          size: isTablet ? 80 : 64,
+                          size: isTablet ? 64 : 48,
                           color: Colors.white,
                         ),
-                        const SizedBox(height: 16),
-                        Text(
+                      ),
+                      const SizedBox(height: 24),
+
+                      // App name with gradient text
+                      ShaderMask(
+                        shaderCallback:
+                            (bounds) => const LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Color(0xFF667eea),
+                                Color(0xFF764ba2),
+                                Color(0xFF6B73FF),
+                                Color(0xFF000DFF),
+                              ],
+                              stops: [0.0, 0.3, 0.7, 1.0],
+                            ).createShader(bounds),
+                        child: Text(
                           'summeryme.ai',
                           style: TextStyle(
-                            fontSize: isTablet ? 32 : 28,
+                            fontSize: isTablet ? 36 : 32,
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
                           ),
                           textAlign: TextAlign.center,
                         ),
-                        const SizedBox(height: 8),
-                        Text(
+                      ),
+                      const SizedBox(height: 12),
+
+                      // Subtitle with gradient
+                      ShaderMask(
+                        shaderCallback:
+                            (bounds) => const LinearGradient(
+                              begin: Alignment.centerLeft,
+                              end: Alignment.centerRight,
+                              colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                            ).createShader(bounds),
+                        child: Text(
                           'AIが記事をサマリーして音声で聞ける',
                           style: TextStyle(
                             fontSize: isTablet ? 18 : 16,
-                            color: Colors.white.withOpacity(0.9),
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
                           ),
                           textAlign: TextAlign.center,
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                   SizedBox(height: isTablet ? 64 : 48),
 
@@ -138,13 +208,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   Text(
                     'ようこそ！',
                     style: TextStyle(
-                      fontSize: isTablet ? 28 : 24,
+                      fontSize: isTablet ? 32 : 28,
                       fontWeight: FontWeight.bold,
                       color: Colors.black87,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 12),
                   Text(
                     'Googleアカウントでログインして\n記事の音声サマリーを楽しもう',
                     style: TextStyle(
@@ -156,7 +226,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: isTablet ? 48 : 40),
 
-                  // Google login button - Main feature
+                  // Google login button
                   Container(
                     height: 56,
                     decoration: BoxDecoration(
@@ -226,82 +296,48 @@ class _LoginScreenState extends State<LoginScreen> {
 
                   // Features preview
                   Container(
-                    padding: const EdgeInsets.all(20),
+                    padding: const EdgeInsets.all(24),
                     decoration: BoxDecoration(
                       color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE8E8E8)),
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 20,
+                          offset: const Offset(0, 10),
+                        ),
+                      ],
                     ),
                     child: Column(
                       children: [
-                        Text(
-                          '主な機能',
-                          style: TextStyle(
-                            fontSize: isTablet ? 18 : 16,
-                            fontWeight: FontWeight.w600,
-                            color: Colors.black87,
+                        ShaderMask(
+                          shaderCallback:
+                              (bounds) => const LinearGradient(
+                                colors: [Color(0xFF667eea), Color(0xFF764ba2)],
+                              ).createShader(bounds),
+                          child: Text(
+                            '主な機能',
+                            style: TextStyle(
+                              fontSize: isTablet ? 20 : 18,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                         ),
+                        const SizedBox(height: 20),
+                        _buildFeatureRow(
+                          Icons.headphones,
+                          '記事を音声で聞ける',
+                          isTablet,
+                        ),
                         const SizedBox(height: 16),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.headphones,
-                              color: Color(0xFF007AFF),
-                              size: 20,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                '記事を音声で聞ける',
-                                style: TextStyle(
-                                  fontSize: isTablet ? 16 : 14,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                            ),
-                          ],
+                        _buildFeatureRow(
+                          Icons.auto_awesome,
+                          'AIが記事を要約',
+                          isTablet,
                         ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.auto_awesome,
-                              color: Color(0xFF007AFF),
-                              size: 20,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                'AIが記事を要約',
-                                style: TextStyle(
-                                  fontSize: isTablet ? 16 : 14,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 12),
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.bookmark,
-                              color: Color(0xFF007AFF),
-                              size: 20,
-                            ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                '記事を保存・管理',
-                                style: TextStyle(
-                                  fontSize: isTablet ? 16 : 14,
-                                  color: Colors.grey[700],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
+                        const SizedBox(height: 16),
+                        _buildFeatureRow(Icons.bookmark, '記事を保存・管理', isTablet),
                       ],
                     ),
                   ),
@@ -311,6 +347,25 @@ class _LoginScreenState extends State<LoginScreen> {
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildFeatureRow(IconData icon, String text, bool isTablet) {
+    return Row(
+      children: [
+        Icon(icon, color: const Color(0xFF667eea), size: 24),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(
+              fontSize: isTablet ? 16 : 14,
+              color: Colors.grey[700],
+              fontWeight: FontWeight.w500,
+            ),
+          ),
+        ),
+      ],
     );
   }
 }
