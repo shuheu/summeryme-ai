@@ -4,7 +4,7 @@ on:
   push:
     paths:
       - 'frontend/**'
-      - '.github/workflows/pr-check.yml'
+      - '.github/workflows/pr-check-frontend.yml'
 
 jobs:
   quick-check:
