@@ -1,0 +1,22 @@
+# Terraform Variables Example
+# このファイルをコピーして terraform.tfvars として使用してください
+
+# 基本設定
+project_id  = "numeric-skill-460414-d3"
+region      = "asia-northeast1"
+environment = "production"
+
+# Cloud SQL設定
+db_tier      = "db-f1-micro"  # 本番環境では db-n1-standard-1 などを検討
+db_disk_size = 10             # 本番環境では 20GB以上を推奨
+
+# Cloud Run設定
+container_image = "asia-northeast1-docker.pkg.dev/numeric-skill-460414-d3/cloud-run-source-deploy/backend-api:latest"
+cpu_limit       = "1000m"    # 1 vCPU
+memory_limit    = "1Gi"      # 1GB RAM
+min_instances   = 0          # コスト最適化のため0
+max_instances   = 10         # トラフィックに応じて調整
+
+# アプリケーション設定
+log_level           = "info"  # debug, info, warn, error
+allow_public_access = true    # パブリックアクセスを許可

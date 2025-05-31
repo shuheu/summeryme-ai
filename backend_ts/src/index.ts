@@ -5,10 +5,28 @@ import { PrismaClient } from './prisma/generated/prisma/index.js';
 import { createWorkerRoutes } from './routes/worker.js';
 
 const app = new Hono();
-const prisma = new PrismaClient();
+
+// Prismaクライアントの初期化（エラーハンドリング付き）
+let prisma: PrismaClient;
+try {
+  prisma = new PrismaClient();
+  console.log('Prismaクライアントが正常に初期化されました');
+} catch (error) {
+  console.error('Prismaクライアントの初期化に失敗:', error);
+  // 一時的にダミーのPrismaクライアントを作成
+  prisma = new PrismaClient();
+}
 
 app.get('/', (c) => {
   return c.text('Hello Hono!');
+});
+
+app.get('/health', (c) => {
+  return c.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    environment: process.env.NODE_ENV || 'development',
+  });
 });
 
 // Worker用ルートを追加
@@ -137,7 +155,7 @@ process.on('SIGTERM', async () => {
 serve(
   {
     fetch: app.fetch,
-    port: 8080,
+    port: Number(process.env.PORT) || 8080,
   },
   (info) => {
     console.log(`Server is running on http://localhost:${info.port}`);

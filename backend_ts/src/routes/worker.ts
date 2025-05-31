@@ -1,7 +1,9 @@
 import { Hono } from 'hono';
-import type { PrismaClient } from '../prisma/generated/prisma/index.js';
+
 import { gcpWorkerAuth } from '../middleware/gcp-worker-auth.js';
 import { ArticleProcessorService } from '../services/article-processor.js';
+
+import type { PrismaClient } from '../prisma/generated/prisma/index.js';
 
 export const createWorkerRoutes = (prisma: PrismaClient) => {
   const worker = new Hono();
