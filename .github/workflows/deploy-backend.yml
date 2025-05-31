@@ -93,9 +93,9 @@ jobs:
             --max-instances=10 \
             --timeout=900 \
             --set-env-vars="NODE_ENV=${{ github.event.inputs.environment }},LOG_LEVEL=info,GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }},GCP_REGION=${{ env.REGION }}" \
-            --set-cloudsql-instances=${{ env.PROJECT_ID }}:${{ env.REGION }}:${{ env.CLOUDSQL_INSTANCE }} \
-            --set-secrets="DB_PASSWORD=db-password:latest" \
-            --set-env-vars="DATABASE_URL=mysql://summeryme_user:\$${DB_PASSWORD}@localhost:3306/summeryme_production?socket=/cloudsql/${{ env.PROJECT_ID }}:${{ env.REGION }}:${{ env.CLOUDSQL_INSTANCE }}"
+        # --set-cloudsql-instances=${{ env.PROJECT_ID }}:${{ env.REGION }}:${{ env.CLOUDSQL_INSTANCE }} \
+        # --set-secrets="DB_PASSWORD=db-password:latest" \
+        # --set-env-vars="DATABASE_URL=mysql://summeryme_user:\$${DB_PASSWORD}@localhost:3306/summeryme_production?socket=/cloudsql/${{ env.PROJECT_ID }}:${{ env.REGION }}:${{ env.CLOUDSQL_INSTANCE }}"
 
       - name: Run database migration
         if: ${{ github.event.inputs.run_migration == 'true' }}
