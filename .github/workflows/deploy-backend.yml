@@ -53,8 +53,6 @@ jobs:
         run: pnpm install --frozen-lockfile
 
       - name: Run linting
-        env:
-          ESLINT_USE_FLAT_CONFIG: false
         run: pnpm lint
 
       - name: Run format check
