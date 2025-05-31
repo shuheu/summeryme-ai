@@ -32,7 +32,10 @@ export const gcpWorkerAuth = async (c: Context, next: Next) => {
     // 許可されたジョブ名からのアクセスかチェック
     if (allowedJobNames.length > 0 && xCloudSchedulerJobName) {
       if (!allowedJobNames.includes(xCloudSchedulerJobName)) {
-        console.warn('許可されていないジョブからのアクセス:', xCloudSchedulerJobName);
+        console.warn(
+          '許可されていないジョブからのアクセス:',
+          xCloudSchedulerJobName,
+        );
         return c.json({ error: 'アクセスが拒否されました' }, 403);
       }
     }

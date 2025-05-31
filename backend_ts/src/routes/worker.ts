@@ -15,7 +15,8 @@ export const createWorkerRoutes = (prisma: PrismaClient) => {
    * 毎時実行を想定
    */
   worker.post('/process-articles', async (c) => {
-    console.log("🚀 ~ worker.post ~ c:", c)
+    console.log('🚀 ~ worker.post ~ c:', c);
+
     const startTime = Date.now();
 
     // try {
@@ -57,7 +58,7 @@ export const createWorkerRoutes = (prisma: PrismaClient) => {
    * 日次実行を想定
    */
   worker.post('/generate-daily-summaries', async (c) => {
-    console.log("🚀 ~ worker.post ~ c:", c)
+    console.log('🚀 ~ worker.post ~ c:', c);
     // const startTime = Date.now();
 
     // try {
@@ -102,7 +103,7 @@ export const createWorkerRoutes = (prisma: PrismaClient) => {
    * ヘルスチェック（Cloud Scheduler監視用）
    */
   worker.get('/health', async (c) => {
-    console.log("🚀 ~ worker.get ~ c:", c)
+    console.log('🚀 ~ worker.get ~ c:', c);
     // try {
     //   // データベース接続確認
     //   await prisma.$queryRaw`SELECT 1`;
@@ -126,7 +127,6 @@ export const createWorkerRoutes = (prisma: PrismaClient) => {
     //   }, 503);
     // }
   });
-
 
   return worker;
 };
