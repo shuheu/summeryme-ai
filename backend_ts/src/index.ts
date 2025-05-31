@@ -7,6 +7,8 @@ import { globalPrisma } from './lib/dbClient.js';
 
 const app = new Hono();
 
+export { app }; // Export the app instance
+
 app.get('/', (c) => {
   return c.text('Hello Hono!');
 });
@@ -24,7 +26,7 @@ process.on('SIGINT', async () => {
 serve(
   {
     fetch: app.fetch,
-    port: 8080,
+    port: 3000,
   },
   (info) => {
     console.log(`Server is running on http://localhost:${info.port}`);

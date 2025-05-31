@@ -1,18 +1,10 @@
-- Server 側の Prisma Client を生成する。
-
 ```
-npx prisma generate
-```
-
-- 環境の起動
-
-```
-docker compose build
-docker compose up -d
+npm install
+npm run dev
 ```
 
 ```
-http://localhost:8080
+open http://localhost:3000
 ```
 
 # migration
