@@ -1,13 +1,12 @@
 import { Hono } from 'hono';
 
 import { gcpWorkerAuth } from '../middleware/gcp-worker-auth.js';
-import { ArticleProcessorService } from '../services/article-processor.js';
 
 import type { PrismaClient } from '../prisma/generated/prisma/index.js';
 
-export const createWorkerRoutes = (prisma: PrismaClient) => {
+export const createWorkerRoutes = (_prisma: PrismaClient) => {
   const worker = new Hono();
-  // const articleProcessor = new ArticleProcessorService(prisma);
+  // const articleProcessor = new ArticleProcessorService(_prisma);
 
   // Google Cloud Scheduler用の認証を適用
   worker.use('*', gcpWorkerAuth);
@@ -19,7 +18,7 @@ export const createWorkerRoutes = (prisma: PrismaClient) => {
   worker.post('/process-articles', async (c) => {
     console.log('🚀 ~ worker.post ~ c:', c);
 
-    const startTime = Date.now();
+    // const startTime = Date.now();
 
     // try {
     //   const body = await c.req.json().catch(() => ({}));

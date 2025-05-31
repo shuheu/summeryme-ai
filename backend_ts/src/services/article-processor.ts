@@ -8,14 +8,14 @@ export interface ProcessingResult {
 }
 
 export class ArticleProcessorService {
-  constructor(private prisma: PrismaClient) {}
+  constructor(private _prisma: PrismaClient) {}
 
   /**
    * 未要約の記事を取得
    */
   // async getUnprocessedArticles(limit: number = 10) {
   //   try {
-  //     const articles = await this.prisma.savedArticle.findMany({
+  //     const articles = await this._prisma.savedArticle.findMany({
   //       where: {
   //         savedArticleSummary: null,
   //       },
@@ -74,7 +74,7 @@ export class ArticleProcessorService {
   //             // const summary = await this.generateAISummary(article.url);
   //             const mockSummary = `【AI要約】${article.title}\n\nこの記事の主要なポイントを要約した内容です。実際の実装では、記事のコンテンツを取得してAIで要約処理を行います。`;
 
-  //             await this.prisma.savedArticleSummary.create({
+  //             await this._prisma.savedArticleSummary.create({
   //               data: {
   //                 savedArticleId: article.id,
   //                 summary: mockSummary,
@@ -115,7 +115,7 @@ export class ArticleProcessorService {
   //   endOfDay.setHours(23, 59, 59, 999);
 
   //   // 指定日に要約済み記事があるユーザーを取得
-  //   const users = await this.prisma.user.findMany({
+  //   const users = await this._prisma.user.findMany({
   //     where: {
   //       savedArticles: {
   //         some: {
@@ -177,7 +177,7 @@ export class ArticleProcessorService {
   //     for (const user of users) {
   //       try {
   //         // 既に日次要約が存在するかチェック
-  //         const existingSummary = await this.prisma.userDailySummary.findUnique({
+  //         const existingSummary = await this._prisma.userDailySummary.findUnique({
   //           where: {
   //             userId_generatedDate: {
   //               userId: user.id,
@@ -198,7 +198,7 @@ export class ArticleProcessorService {
   //           // const audioUrl = await this.generatePodcastAudio(dailySummary.summary);
   //           const mockAudioUrl = `https://storage.googleapis.com/your-bucket/audio/${dailySummary.id}_${targetDate.toISOString().split('T')[0]}.mp3`;
 
-  //           await this.prisma.userDailySummary.update({
+  //           await this._prisma.userDailySummary.update({
   //             where: { id: dailySummary.id },
   //             data: { audioUrl: mockAudioUrl },
   //           });
@@ -235,7 +235,7 @@ export class ArticleProcessorService {
   //   const endOfDay = new Date(targetDate);
   //   endOfDay.setHours(23, 59, 59, 999);
 
-  //   const articles = await this.prisma.savedArticle.findMany({
+  //   const articles = await this._prisma.savedArticle.findMany({
   //     where: {
   //       userId,
   //       createdAt: {
@@ -261,7 +261,7 @@ export class ArticleProcessorService {
   //   // 記事要約を結合して日次要約を作成
   //   const combinedSummary = this.createCombinedSummary(articles);
 
-  //   const dailySummary = await this.prisma.userDailySummary.create({
+  //   const dailySummary = await this._prisma.userDailySummary.create({
   //     data: {
   //       userId,
   //       summary: combinedSummary,

@@ -5,3 +5,4 @@ master.key
 .specstory
 github-actions-key.json
 backend_ts/cloud-sql-proxy
+dist
