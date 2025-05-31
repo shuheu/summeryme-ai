@@ -2,9 +2,9 @@ name: Full Backend Deployment Pipeline
 
 on:
   # TODO: test用
-  push:
-    branches:
-      - 'feat/**'
+  # push:
+  #   branches:
+  #     - 'feat/**'
   workflow_dispatch:
     inputs:
       environment:
