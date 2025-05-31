@@ -2,11 +2,11 @@ name: Lint and Format Check (backend_ts)
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: ['main', 'master']
     paths:
       - 'backend_ts/**'
   pull_request:
-    branches: [ "main", "master" ]
+    branches: ['main', 'master']
     paths:
       - 'backend_ts/**'
 
@@ -38,6 +38,4 @@ jobs:
       - name: Run ESLint
         # The worker previously used ESLINT_USE_FLAT_CONFIG=false for linting.
         # Adding it here for consistency in the CI environment.
-        env:
-          ESLINT_USE_FLAT_CONFIG: false
         run: pnpm lint
