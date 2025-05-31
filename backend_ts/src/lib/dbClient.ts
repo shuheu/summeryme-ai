@@ -1,4 +1,4 @@
-import { PrismaClient } from '@/prisma/generated/prisma/index.js';
+import { PrismaClient } from '../prisma/generated/prisma/index.js';
 
 /** グローバル空間に型を定義する（TypeScriptの場合） */
 declare global {

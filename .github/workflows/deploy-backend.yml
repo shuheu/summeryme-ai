@@ -22,11 +22,11 @@ on:
         type: boolean
 
 env:
-  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID || 'numeric-skill-460414-d3' }}
   REGION: ${{ vars.GCP_REGION || 'asia-northeast1' }}
   SERVICE_NAME: ${{ vars.GCP_SERVICE_NAME || 'backend-api' }}
   MIGRATION_JOB_NAME: migrate-job
-  CLOUDSQL_INSTANCE: ${{ vars.CLOUDSQL_INSTANCE || 'summeryme-db' }}
+  CLOUDSQL_INSTANCE: summeryme-db
 
 jobs:
   deploy:
@@ -56,11 +56,11 @@ jobs:
       - name: Generate Prisma client
         run: pnpm prisma generate
 
-      # - name: Run linting
-      #   run: pnpm lint
+      - name: Run linting
+        run: pnpm lint
 
-      # - name: Run format check
-      #   run: pnpm format-check
+      - name: Run format check
+        run: pnpm format-check
 
       - name: Build application
         run: pnpm build
@@ -80,15 +80,6 @@ jobs:
           gcloud config set project ${{ env.PROJECT_ID }}
           gcloud config set run/region ${{ env.REGION }}
 
-      - name: Debug Cloud SQL configuration
-        run: |
-          echo "Project ID: ${{ env.PROJECT_ID }}"
-          echo "Region: ${{ env.REGION }}"
-          echo "Cloud SQL Instance: ${{ env.CLOUDSQL_INSTANCE }}"
-          echo "Full Cloud SQL connection string: ${{ env.PROJECT_ID }}:${{ env.REGION }}:${{ env.CLOUDSQL_INSTANCE }}"
-          echo "Listing Cloud SQL instances..."
-          gcloud sql instances list
-
       - name: Deploy to Cloud Run
         run: |
           gcloud run deploy ${{ env.SERVICE_NAME }} \
@@ -101,15 +92,13 @@ jobs:
             --min-instances=0 \
             --max-instances=10 \
             --timeout=900 \
-            --set-env-vars="NODE_ENV=${{ github.event.inputs.environment }},LOG_LEVEL=info,GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }},GCP_REGION=${{ env.REGION }}"
-            # Cloud SQL接続は一時的に無効化（デバッグ後に有効化）
-            # --set-cloudsql-instances=${{ env.PROJECT_ID }}:${{ env.REGION }}:${{ env.CLOUDSQL_INSTANCE }} \
-            # --set-secrets="DB_PASSWORD=db-password:latest" \
-            # --set-env-vars="DATABASE_URL=mysql://summeryme_user:\$${DB_PASSWORD}@localhost:3306/summeryme_production?socket=/cloudsql/${{ env.PROJECT_ID }}:${{ env.REGION }}:${{ env.CLOUDSQL_INSTANCE }}"
+            --set-env-vars="NODE_ENV=${{ github.event.inputs.environment }},LOG_LEVEL=info,GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }},GCP_REGION=${{ env.REGION }}" \
+            --set-cloudsql-instances=${{ env.PROJECT_ID }}:${{ env.REGION }}:${{ env.CLOUDSQL_INSTANCE }} \
+            --set-secrets="DB_PASSWORD=db-password:latest" \
+            --set-env-vars="DATABASE_URL=mysql://summeryme_user:\$${DB_PASSWORD}@localhost:3306/summeryme_production?socket=/cloudsql/${{ env.PROJECT_ID }}:${{ env.REGION }}:${{ env.CLOUDSQL_INSTANCE }}"
 
       - name: Run database migration
-        if: false # 一時的に無効化（Cloud SQL設定後に有効化）
-        # if: ${{ github.event.inputs.run_migration == 'true' }}
+        if: ${{ github.event.inputs.run_migration == 'true' }}
         run: |
           echo "Running database migration..."
           gcloud run jobs execute ${{ env.MIGRATION_JOB_NAME }} \
@@ -129,10 +118,11 @@ jobs:
         run: |
           echo "Performing health check..."
           sleep 30  # Wait for service to be ready
-          # 一時的にヘルスチェックを無効化（Cloud SQL設定後に有効化）
-          echo "Health check temporarily disabled"
-          # curl -f ${{ steps.get-url.outputs.SERVICE_URL }}/health || exit 1
-          echo "Health check passed!"
+          curl -f ${{ steps.get-url.outputs.SERVICE_URL }}/health/basic || exit 1
+          echo "Basic health check passed!"
+          echo "Testing database health check..."
+          curl -f ${{ steps.get-url.outputs.SERVICE_URL }}/health || echo "Database health check failed (this is expected if DB connection issues exist)"
+          echo "Health check completed!"
 
       - name: Deployment summary
         run: |

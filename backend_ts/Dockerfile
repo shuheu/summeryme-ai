@@ -19,7 +19,15 @@ RUN npx prisma generate
 RUN pnpm run build
 
 # Prismaの生成されたファイルをdistフォルダにコピー
-RUN mkdir -p dist/prisma && cp -r src/prisma/generated dist/prisma/
+RUN mkdir -p dist/prisma/generated && cp -r src/prisma/generated/* dist/prisma/generated/
+
+# デバッグ: ファイル構造を確認
+RUN echo "=== Checking dist structure ===" && \
+    ls -la dist/ && \
+    echo "=== Checking prisma structure ===" && \
+    ls -la dist/prisma/ && \
+    echo "=== Checking generated structure ===" && \
+    ls -la dist/prisma/generated/ || echo "Generated directory not found"
 
 # 本番依存関係のみを再インストール
 RUN pnpm install --frozen-lockfile --prod && pnpm store prune

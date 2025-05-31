@@ -12,12 +12,42 @@ app.get('/', (c) => {
   return c.text('Hello summeryme.ai!');
 });
 
-app.get('/health', (c) => {
+// 基本的なヘルスチェック（データベース接続なし）
+app.get('/health/basic', (c) => {
   return c.json({
     status: 'healthy',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
+    service: 'backend-api',
   });
+});
+
+// 完全なヘルスチェック（データベース接続含む）
+app.get('/health', async (c) => {
+  try {
+    // データベース接続をテスト
+    await globalPrisma.$queryRaw`SELECT 1`;
+
+    return c.json({
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      environment: process.env.NODE_ENV || 'development',
+      database: 'connected',
+    });
+  } catch (error) {
+    console.error('Health check failed:', error);
+
+    return c.json(
+      {
+        status: 'unhealthy',
+        timestamp: new Date().toISOString(),
+        environment: process.env.NODE_ENV || 'development',
+        database: 'disconnected',
+        error: error instanceof Error ? error.message : 'Unknown error',
+      },
+      503,
+    );
+  }
 });
 
 // Worker用ルートを追加
