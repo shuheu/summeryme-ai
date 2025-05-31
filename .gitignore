@@ -3,3 +3,6 @@ master.key
 
 # specstory cursor拡張機能
 .specstory
+github-actions-key.json
+backend_ts/cloud-sql-proxy
+dist

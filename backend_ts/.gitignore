@@ -29,3 +29,11 @@ lerna-debug.log*
 
 /src/prisma/generated/prisma
 .pnpm-store
+
+# Cloud SQL Proxy バイナリ（Git管理不要）
+cloud-sql-proxy
+cloud-sql-proxy.*
+
+# ローカル開発環境用設定ファイル
+.env.local
+.env.development
