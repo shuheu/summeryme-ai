@@ -20,6 +20,7 @@
 ## 🔧 技術スタック
 
 ### Backend (Cloud Run)
+
 - **フレームワーク**: Hono v4.7.10
 - **言語**: TypeScript (ESNext, NodeNext)
 - **ORM**: Prisma v6.8.2
@@ -27,12 +28,14 @@
 - **パッケージマネージャー**: pnpm
 
 ### Database (Cloud SQL)
+
 - **データベース**: MySQL 8.0
 - **インスタンスタイプ**: db-f1-micro (コスト最適化)
 - **ストレージ**: 10GB HDD
 - **リージョン**: asia-northeast1-b
 
 ### Infrastructure
+
 - **プラットフォーム**: Google Cloud Platform
 - **プロジェクトID**: your-gcp-project-id
 - **プロジェクト名**: summeryme-ai
@@ -41,6 +44,7 @@
 ## 📊 リソース詳細
 
 ### Cloud Run サービス
+
 ```yaml
 サービス名: backend-api
 URL: https://backend-api-422364792408.asia-northeast1.run.app
@@ -69,6 +73,7 @@ Cloud SQL接続:
 ```
 
 ### Cloud SQL インスタンス
+
 ```yaml
 インスタンス名: summeryme-db
 データベースバージョン: MYSQL_8_0
@@ -96,6 +101,7 @@ Cloud SQL接続:
 ## 🔐 セキュリティ設定
 
 ### IAM権限
+
 ```yaml
 サービスアカウント: 422364792408-compute@developer.gserviceaccount.com
 
@@ -106,6 +112,7 @@ Cloud SQL接続:
 ```
 
 ### Secret Manager
+
 ```yaml
 シークレット名: db-password
 バージョン: 1
@@ -116,12 +123,14 @@ Cloud SQL接続:
 ## 🚀 API エンドポイント
 
 ### パブリックエンドポイント
+
 ```
 GET  /                 - Hello Hono! メッセージ
 GET  /health          - サーバーヘルスチェック
 ```
 
 ### Worker エンドポイント (GCP認証必要)
+
 ```
 POST /worker/process-articles           - 記事要約処理
 POST /worker/generate-daily-summaries   - 日次要約生成
@@ -131,6 +140,7 @@ GET  /worker/health                     - Workerヘルスチェック
 ## 📁 データベーススキーマ
 
 ### テーブル構成
+
 ```sql
 -- ユーザー管理
 users (
@@ -184,6 +194,7 @@ user_daily_summaries (
 Terraformを使用したInfrastructure as Codeによるデプロイメント
 
 #### 1. 前提条件
+
 ```bash
 # Terraformのインストール
 brew install terraform
@@ -195,6 +206,7 @@ gcloud config set project your-gcp-project-id
 ```
 
 #### 2. Terraformセットアップ
+
 ```bash
 # Terraformディレクトリに移動
 cd terraform/
@@ -243,6 +255,7 @@ make migrate
 #### 4. インポート詳細手順
 
 ##### 📋 インポート前チェック
+
 ```bash
 # 現在のGCPリソース状況を確認
 make project-info
@@ -252,6 +265,7 @@ make import-check
 ```
 
 出力例：
+
 ```
 === インポート可能なリソースをチェック中 ===
 プロジェクト: numeric-skill-460414-d3
@@ -270,12 +284,14 @@ db-password
 ```
 
 ##### 🚀 一括インポート実行
+
 ```bash
 # 全リソースを自動的にインポート
 make import-all
 ```
 
 このコマンドは以下を順次実行：
+
 1. **Google Cloud APIs** (8個) - 必要なAPIサービスを有効化
 2. **Secret Manager** - データベースパスワード管理
 3. **Cloud SQL** - インスタンス、データベース、ユーザー
@@ -283,6 +299,7 @@ make import-all
 5. **Cloud Run** - アプリケーションサービスとIAM設定
 
 ##### 🔧 個別インポート（必要に応じて）
+
 ```bash
 # 特定リソースのみインポート
 make import-cloud-run      # Cloud Runサービス
@@ -292,6 +309,7 @@ make import-apis           # Google Cloud APIs
 ```
 
 ##### 📊 インポート結果確認
+
 ```bash
 # Terraformで管理されているリソース一覧
 make state
@@ -304,6 +322,7 @@ make apply
 ```
 
 #### 5. 既存リソースのインポート（初回のみ）
+
 ```bash
 # 既存リソースをTerraform管理下に移行
 make import-cloud-run
@@ -314,6 +333,7 @@ make import-secret
 ### 方法2: 手動デプロイ
 
 #### 1. 前提条件
+
 ```bash
 # Google Cloud SDKのインストール
 brew install --cask google-cloud-sdk
@@ -324,6 +344,7 @@ gcloud config set project your-gcp-project-id
 ```
 
 #### 2. 必要なAPIの有効化
+
 ```bash
 gcloud services enable run.googleapis.com
 gcloud services enable sqladmin.googleapis.com
@@ -333,6 +354,7 @@ gcloud services enable containerregistry.googleapis.com
 ```
 
 #### 3. Cloud SQLインスタンス作成
+
 ```bash
 # インスタンス作成
 gcloud sql instances create summeryme-db \
@@ -356,12 +378,14 @@ gcloud sql users create summeryme_user \
 ```
 
 #### 4. Secret Manager設定
+
 ```bash
 # パスワードをSecret Managerに保存
 echo -n "$DB_PASSWORD" | gcloud secrets create db-password --data-file=-
 ```
 
 #### 5. Cloud Runデプロイ
+
 ```bash
 # アプリケーションデプロイ
 gcloud run deploy backend-api \
@@ -389,6 +413,7 @@ gcloud run services update backend-api \
 ```
 
 #### 6. データベースマイグレーション
+
 ```bash
 # マイグレーションジョブ作成
 gcloud run jobs create migrate-job \
@@ -405,6 +430,7 @@ gcloud run jobs execute migrate-job --region=asia-northeast1
 ```
 
 #### 7. IAM権限設定
+
 ```bash
 # Cloud SQL Client権限
 gcloud projects add-iam-policy-binding your-gcp-project-id \
@@ -439,11 +465,13 @@ make project-info
 ```
 
 ### ヘルスチェック
+
 ```bash
 curl https://backend-api-422364792408.asia-northeast1.run.app/health
 ```
 
 期待されるレスポンス:
+
 ```json
 {
   "status": "healthy",
@@ -453,6 +481,7 @@ curl https://backend-api-422364792408.asia-northeast1.run.app/health
 ```
 
 ### ログ確認
+
 ```bash
 # Cloud Runログ
 gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=backend-api" --limit=20
@@ -464,11 +493,13 @@ gcloud logging read "resource.type=cloudsql_database" --limit=20
 ## 💰 コスト最適化
 
 ### 現在の設定
+
 - **Cloud SQL**: db-f1-micro (月額約$7-10)
 - **Cloud Run**: 従量課金 (リクエスト数とCPU時間に基づく)
 - **Secret Manager**: 月額約$0.06 (10,000アクセスまで)
 
 ### コスト削減のポイント
+
 1. **最小インスタンス数**: 0 (アイドル時は課金なし)
 2. **HDDストレージ**: SSDより安価
 3. **自動スケーリング**: トラフィックに応じて自動調整
@@ -477,6 +508,7 @@ gcloud logging read "resource.type=cloudsql_database" --limit=20
 ## 🚨 監視・アラート
 
 ### 推奨監視項目
+
 - Cloud Runインスタンス数
 - レスポンス時間
 - エラー率
@@ -484,6 +516,7 @@ gcloud logging read "resource.type=cloudsql_database" --limit=20
 - データベースCPU使用率
 
 ### ログ分析
+
 - 構造化ログ出力
 - Cloud Loggingでの集約
 - エラートラッキング
@@ -491,6 +524,7 @@ gcloud logging read "resource.type=cloudsql_database" --limit=20
 ## 🔄 CI/CD パイプライン
 
 ### GitHub Actions設定例
+
 ```yaml
 name: Deploy to Cloud Run
 on:
@@ -513,6 +547,7 @@ jobs:
 ```
 
 ### Terraform CI/CD
+
 ```yaml
 name: Terraform CI/CD
 on:
@@ -551,6 +586,7 @@ jobs:
 ### よくある問題
 
 1. **インポートエラー**
+
    ```bash
    # リソースが既に管理されている場合
    terraform state rm google_cloud_run_v2_service.main
@@ -562,16 +598,19 @@ jobs:
    ```
 
 2. **データベース接続エラー**
+
    - Cloud SQL Proxyの設定確認
    - IAM権限の確認
    - 環境変数の確認
 
 3. **デプロイエラー**
+
    - Dockerfileの構文確認
    - 依存関係の確認
    - ビルドログの確認
 
 4. **パフォーマンス問題**
+
    - メモリ・CPU設定の調整
    - 同時実行数の調整
    - データベースクエリの最適化
@@ -584,6 +623,7 @@ jobs:
 ### インポート関連のトラブルシューティング
 
 #### リソースが見つからない場合
+
 ```bash
 # リソースの存在確認
 gcloud run services list --region=asia-northeast1
@@ -595,6 +635,7 @@ gcloud run deploy backend-api --source . --region=asia-northeast1
 ```
 
 #### 設定差分が大きい場合
+
 ```bash
 # 段階的に適用
 make apply-cloud-run
@@ -605,6 +646,7 @@ make apply
 ```
 
 #### パスワード不整合
+
 ```bash
 # 既存パスワードの確認
 gcloud secrets versions access latest --secret="db-password"
@@ -614,6 +656,7 @@ gcloud secrets versions access latest --secret="db-password"
 ```
 
 ### サポート連絡先
+
 - 開発チーム: [連絡先情報]
 - GCPサポート: [サポートケース作成]
 
@@ -624,6 +667,7 @@ gcloud secrets versions access latest --secret="db-password"
 **作成者**: AI Assistant
 
 ### 基本情報
+
 - **プロジェクトID**: your-gcp-project-id
 - **リージョン**: asia-northeast1-b
 - **環境**: 本番環境

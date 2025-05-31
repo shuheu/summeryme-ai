@@ -3,6 +3,7 @@
 ## 🚀 本番環境情報
 
 ### サービスURL
+
 ```
 https://backend-api-422364792408.asia-northeast1.run.app
 ```
@@ -10,6 +11,7 @@ https://backend-api-422364792408.asia-northeast1.run.app
 ## 📋 基本情報
 
 ### 本番環境
+
 - **プロジェクトID**: `your-gcp-project-id`
 - **リージョン**: `asia-northeast1`
 - **Cloud Runサービス**: `backend-api`
@@ -19,6 +21,7 @@ https://backend-api-422364792408.asia-northeast1.run.app
 ## 🔧 よく使うコマンド
 
 ### Terraform操作
+
 ```bash
 # Terraformディレクトリに移動
 cd terraform/
@@ -46,6 +49,7 @@ make state
 ```
 
 ### 既存リソースのインポート
+
 ```bash
 # インポート可能なリソース確認
 make import-check
@@ -65,6 +69,7 @@ make plan
 ```
 
 ### Cloud Run操作
+
 ```bash
 # サービス一覧
 gcloud run services list --region=asia-northeast1
@@ -86,6 +91,7 @@ gcloud run services update backend-api --region=asia-northeast1 --memory=1Gi --c
 ```
 
 ### Cloud SQL操作
+
 ```bash
 # インスタンス一覧
 gcloud sql instances list
@@ -104,6 +110,7 @@ gcloud sql users list --instance=summeryme-db
 ```
 
 ### Secret Manager操作
+
 ```bash
 # シークレット一覧
 gcloud secrets list
@@ -119,6 +126,7 @@ echo -n "secret_value" | gcloud secrets create secret-name --data-file=-
 ```
 
 ### Prisma操作
+
 ```bash
 # クライアント生成
 npx prisma generate
@@ -139,11 +147,13 @@ npx prisma studio
 ## 🔍 ヘルスチェック・テスト
 
 ### 基本ヘルスチェック
+
 ```bash
 curl https://backend-api-422364792408.asia-northeast1.run.app/health
 ```
 
 ### Worker認証テスト（要GCP認証）
+
 ```bash
 # 認証トークン取得
 TOKEN=$(gcloud auth print-identity-token)
@@ -156,6 +166,7 @@ curl -H "Authorization: Bearer $TOKEN" \
 ## 📊 監視・ログ
 
 ### Cloud Runログ
+
 ```bash
 # 最新ログ
 gcloud logging read "resource.type=cloud_run_revision AND resource.labels.service_name=backend-api" --limit=50
@@ -170,6 +181,7 @@ gcloud logging read "resource.type=cloud_run_revision AND resource.labels.servic
 ```
 
 ### Cloud SQLログ
+
 ```bash
 # Cloud SQLログ
 gcloud logging read "resource.type=cloudsql_database" --limit=20
@@ -183,6 +195,7 @@ gcloud logging read "resource.type=cloudsql_database AND textPayload:connection"
 ### よくある問題と解決方法
 
 #### 1. Terraformインポートエラー
+
 ```bash
 # リソース状態確認
 make state
@@ -196,6 +209,7 @@ make plan
 ```
 
 #### 2. データベース接続エラー
+
 ```bash
 # 環境変数確認
 gcloud run services describe backend-api --region=asia-northeast1 --format="value(spec.template.spec.containers[0].env[].name,spec.template.spec.containers[0].env[].value)"
@@ -210,6 +224,7 @@ gcloud sql instances describe summeryme-db --format="value(state)"
 ```
 
 #### 3. デプロイエラー
+
 ```bash
 # ビルドログ確認
 gcloud builds list --limit=5
@@ -219,6 +234,7 @@ gcloud builds describe [BUILD_ID]
 ```
 
 #### 4. パフォーマンス問題
+
 ```bash
 # インスタンス数確認
 gcloud run services describe backend-api --region=asia-northeast1 --format="value(status.traffic[0].revisionName)"
@@ -228,6 +244,7 @@ gcloud monitoring metrics list --filter="metric.type:run.googleapis.com"
 ```
 
 #### 5. インポート関連の問題
+
 ```bash
 # 既存リソース確認
 make import-check
@@ -257,6 +274,7 @@ make apply-cloud-sql
 ## 🔄 デプロイメント
 
 ### Terraformデプロイ（推奨）
+
 ```bash
 # 新規デプロイ
 cd terraform/
@@ -274,6 +292,7 @@ make apply
 ```
 
 ### 緊急デプロイ
+
 ```bash
 # 現在のディレクトリからデプロイ
 cd /Users/mbashh/dev/summeryme-ai/backend_ts
@@ -286,6 +305,7 @@ gcloud run deploy backend-api \
 ```
 
 ### ロールバック
+
 ```bash
 # リビジョン一覧
 gcloud run revisions list --service=backend-api --region=asia-northeast1
@@ -299,6 +319,7 @@ gcloud run services update-traffic backend-api \
 ## 💰 コスト監視
 
 ### 現在のコスト確認
+
 ```bash
 # Cloud SQLコスト概算
 gcloud sql instances describe summeryme-db --format="value(settings.tier,settings.dataDiskSizeGb)"
@@ -311,6 +332,7 @@ gcloud run services describe backend-api --region=asia-northeast1 \
 ## 🔐 セキュリティ
 
 ### 権限確認
+
 ```bash
 # サービスアカウント権限
 gcloud projects get-iam-policy your-gcp-project-id \
@@ -322,6 +344,7 @@ gcloud secrets get-iam-policy db-password
 ```
 
 ### セキュリティ設定更新
+
 ```bash
 # 認証必須に変更
 gcloud run services remove-iam-policy-binding backend-api \
@@ -339,6 +362,7 @@ gcloud run services add-iam-policy-binding backend-api \
 ## 📱 開発環境
 
 ### ローカル開発
+
 ```bash
 # 依存関係インストール
 pnpm install
@@ -358,6 +382,7 @@ pnpm format
 ```
 
 ### Docker開発
+
 ```bash
 # 開発用コンテナ起動
 docker compose up -d

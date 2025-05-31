@@ -5,6 +5,7 @@ Hono + TypeScript + Prisma + MySQL を使用したバックエンドAPI
 ## 🚀 クイックスタート
 
 ### 本番環境（Cloud Run）
+
 ```bash
 # ヘルスチェック
 curl https://backend-api-422364792408.asia-northeast1.run.app/health
@@ -15,6 +16,7 @@ curl -H "Authorization: Bearer $(gcloud auth print-identity-token)" \
 ```
 
 ### ローカル開発
+
 ```bash
 # 依存関係のインストール
 pnpm install
@@ -56,10 +58,12 @@ pnpm dev
 ## 🔌 API エンドポイント
 
 ### パブリックエンドポイント
+
 - `GET /` - Hello Hono! メッセージ
 - `GET /health` - サーバーヘルスチェック
 
 ### Worker エンドポイント（GCP認証必要）
+
 - `POST /worker/process-articles` - 記事要約処理
 - `POST /worker/generate-daily-summaries` - 日次要約生成
 - `GET /worker/health` - Workerヘルスチェック
@@ -89,6 +93,7 @@ backend_ts/
 ## 🛠️ 開発手順
 
 ### 1. 環境セットアップ
+
 ```bash
 # Node.js v22のインストール（推奨）
 nvm install 22
@@ -102,6 +107,7 @@ pnpm install
 ```
 
 ### 2. データベース設定
+
 ```bash
 # 環境変数の設定
 cp .env.example .env
@@ -117,6 +123,7 @@ pnpm prisma migrate dev
 ```
 
 ### 3. 開発サーバー起動
+
 ```bash
 # 開発モード（ホットリロード）
 pnpm dev
@@ -129,6 +136,7 @@ pnpm start
 ```
 
 ### 4. データベース操作
+
 ```bash
 # Prisma Studio（GUI）
 pnpm prisma studio
@@ -143,6 +151,7 @@ pnpm prisma migrate reset
 ## 🚀 デプロイ方法
 
 ### Terraform（推奨）
+
 ```bash
 # Terraformディレクトリに移動
 cd ../terraform/
@@ -159,6 +168,7 @@ make migrate
 ```
 
 ### 手動デプロイ
+
 ```bash
 # Cloud Runにデプロイ
 gcloud run deploy backend-api \
@@ -172,6 +182,7 @@ gcloud run deploy backend-api \
 ## 🌐 本番環境
 
 ### Cloud Run サービス
+
 - **URL**: https://backend-api-422364792408.asia-northeast1.run.app
 - **リージョン**: asia-northeast1
 - **CPU**: 1 vCPU
@@ -179,6 +190,7 @@ gcloud run deploy backend-api \
 - **インスタンス**: 0-10（自動スケーリング）
 
 ### Cloud SQL データベース
+
 - **インスタンス**: summeryme-db
 - **バージョン**: MySQL 8.0
 - **ティア**: db-f1-micro
@@ -188,11 +200,13 @@ gcloud run deploy backend-api \
 ## 🔐 セキュリティ
 
 ### 認証・認可
+
 - **Worker API**: GCP Identity Token認証
 - **データベース**: Cloud SQL Proxy + Secret Manager
 - **権限**: 最小権限の原則
 
 ### 機密情報管理
+
 - **パスワード**: Google Secret Manager
 - **環境変数**: Cloud Run環境変数
 - **接続**: Cloud SQL Proxy（Unix Socket）
@@ -200,12 +214,14 @@ gcloud run deploy backend-api \
 ## 💰 コスト情報
 
 ### 月額概算（軽微な使用）
+
 - **Cloud SQL**: $7-10（db-f1-micro）
 - **Cloud Run**: $0-5（従量課金）
 - **Secret Manager**: $0.06（10,000アクセス）
 - **合計**: 約$7-15/月
 
 ### コスト最適化
+
 - 最小インスタンス数: 0（アイドル時無料）
 - HDDストレージ使用
 - 自動スケーリング
@@ -214,6 +230,7 @@ gcloud run deploy backend-api \
 ## 📊 監視・ログ
 
 ### ログ確認
+
 ```bash
 # Cloud Runログ
 gcloud logging read "resource.type=cloud_run_revision" --limit=20
@@ -223,6 +240,7 @@ gcloud logging read "resource.labels.service_name=backend-api" --limit=20
 ```
 
 ### メトリクス
+
 - レスポンス時間
 - エラー率
 - インスタンス数
@@ -231,11 +249,13 @@ gcloud logging read "resource.labels.service_name=backend-api" --limit=20
 ## 🔧 トラブルシューティング
 
 ### よくある問題
+
 1. **データベース接続エラー**: Cloud SQL Proxy設定確認
 2. **認証エラー**: GCP権限設定確認
 3. **デプロイエラー**: Dockerfileとビルドログ確認
 
 ### デバッグ
+
 ```bash
 # ローカルでのデバッグ
 pnpm dev
@@ -257,12 +277,14 @@ pnpm prisma db pull
 ## 🤝 開発ガイドライン
 
 ### コーディング規約
+
 - TypeScript Strict Mode
 - ESLint + Prettier
 - 関数型プログラミング推奨
 - エラーハンドリング必須
 
 ### Git ワークフロー
+
 - feature ブランチでの開発
 - Pull Request レビュー
 - main ブランチへの自動デプロイ
