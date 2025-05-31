@@ -2,6 +2,7 @@ import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 
 import { PrismaClient } from './prisma/generated/prisma/index.js';
+import { createWorkerRoutes } from './routes/worker.js';
 
 const app = new Hono();
 const prisma = new PrismaClient();
@@ -9,6 +10,10 @@ const prisma = new PrismaClient();
 app.get('/', (c) => {
   return c.text('Hello Hono!');
 });
+
+// Worker用ルートを追加
+const workerRoutes = createWorkerRoutes(prisma);
+app.route('/worker', workerRoutes);
 
 // Todo CRUD エンドポイント
 
@@ -120,6 +125,11 @@ app.get('/', (c) => {
 
 // Prismaクライアントの接続を適切に終了
 process.on('SIGINT', async () => {
+  await prisma.$disconnect();
+  process.exit(0);
+});
+
+process.on('SIGTERM', async () => {
   await prisma.$disconnect();
   process.exit(0);
 });
