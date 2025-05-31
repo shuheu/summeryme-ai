@@ -1,8 +1,8 @@
-# Terraform Variables Example
-# このファイルをコピーして terraform.tfvars として使用してください
+# Terraform Variables for Summeryme AI Backend
+# このファイルをコピーして terraform.tfvars を作成し、実際の値を設定してください
 
 # 基本設定
-project_id  = "numeric-skill-460414-d3"
+project_id  = "your-gcp-project-id"
 region      = "asia-northeast1"
 environment = "production"
 
@@ -11,11 +11,11 @@ db_tier      = "db-f1-micro"  # 本番環境では db-n1-standard-1 などを検
 db_disk_size = 10             # 本番環境では 20GB以上を推奨
 
 # Cloud Run設定
-container_image = "asia-northeast1-docker.pkg.dev/numeric-skill-460414-d3/cloud-run-source-deploy/backend-api:latest"
+container_image = "your-region-docker.pkg.dev/your-project/your-repo/your-app:latest"
 cpu_limit       = "1000m"    # 1 vCPU
 memory_limit    = "1Gi"      # 1GB RAM
 min_instances   = 0          # コスト最適化のため0
-max_instances   = 10         # トラフィックに応じて調整
+max_instances   = 1          # ハッカソン用：最大1インスタンス
 
 # アプリケーション設定
 log_level           = "info"  # debug, info, warn, error

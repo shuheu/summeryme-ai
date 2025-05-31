@@ -23,7 +23,7 @@ on:
         type: boolean
 
 env:
-  PROJECT_ID: ${{ vars.GCP_PROJECT_ID || 'numeric-skill-460414-d3' }}
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   REGION: ${{ vars.GCP_REGION || 'asia-northeast1' }}
   SERVICE_NAME: ${{ vars.GCP_SERVICE_NAME || 'backend-api' }}
 

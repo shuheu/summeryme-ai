@@ -3,9 +3,10 @@
 # Local .terraform directories
 **/.terraform/*
 
-# .tfstate files
+# .tfstate files - 機密情報を含むため絶対にコミットしない
 *.tfstate
 *.tfstate.*
+terraform.tfstate*
 
 # Crash log files
 crash.log
@@ -41,3 +42,34 @@ terraform.rc
 # Ignore temporary files
 *.tmp
 *.temp
+
+# 追加のセキュリティ対策
+# Terraform Cloud credentials
+.terraform.d/
+terraform.rc
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS generated files
+Thumbs.db
+
+# Google Cloud credentials (絶対にコミットしない)
+*.json
+!terraform.tfvars.example
+!package.json
+!tsconfig.json
+
+# Service account keys
+*-key.json
+*_key.json
+service-account*.json
+github-actions-key.json
