@@ -679,6 +679,7 @@ gcloud secrets versions access latest --secret="db-password"
 新しいワークフローでは以下の手順でデプロイされます：
 
 1. **ソースコードのビルド**
+
    ```bash
    pnpm install --frozen-lockfile
    pnpm prisma generate
@@ -686,12 +687,14 @@ gcloud secrets versions access latest --secret="db-password"
    ```
 
 2. **Dockerイメージのビルド**
+
    ```bash
    docker build -t asia-northeast1-docker.pkg.dev/PROJECT_ID/backend/backend-api:COMMIT_SHA .
    docker build -t asia-northeast1-docker.pkg.dev/PROJECT_ID/backend/backend-api:latest .
    ```
 
 3. **Artifact Registryへのプッシュ**
+
    ```bash
    docker push asia-northeast1-docker.pkg.dev/PROJECT_ID/backend/backend-api:COMMIT_SHA
    docker push asia-northeast1-docker.pkg.dev/PROJECT_ID/backend/backend-api:latest
