@@ -10,6 +10,12 @@ console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('PORT:', process.env.PORT);
 console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
 console.log('DATABASE_URL length:', process.env.DATABASE_URL?.length || 0);
+console.log('DB_PASSWORD exists:', !!process.env.DB_PASSWORD);
+console.log('DB_PASSWORD length:', process.env.DB_PASSWORD?.length || 0);
+console.log(
+  'DATABASE_URL contains placeholder:',
+  process.env.DATABASE_URL?.includes('${DB_PASSWORD}') || false,
+);
 console.log(
   'All env vars starting with DB:',
   Object.keys(process.env).filter((key) => key.startsWith('DB')),
@@ -37,6 +43,10 @@ app.get('/health/basic', (c) => {
     environment: process.env.NODE_ENV || 'development',
     database_url_exists: !!process.env.DATABASE_URL,
     database_url_length: process.env.DATABASE_URL?.length || 0,
+    db_password_exists: !!process.env.DB_PASSWORD,
+    db_password_length: process.env.DB_PASSWORD?.length || 0,
+    database_url_has_placeholder:
+      process.env.DATABASE_URL?.includes('${DB_PASSWORD}') || false,
     service: 'backend-api',
   });
 });
@@ -60,6 +70,9 @@ app.get('/health', async (c) => {
       environment: process.env.NODE_ENV || 'development',
       database: 'connected',
       database_url_exists: !!process.env.DATABASE_URL,
+      db_password_exists: !!process.env.DB_PASSWORD,
+      database_url_has_placeholder:
+        process.env.DATABASE_URL?.includes('${DB_PASSWORD}') || false,
     });
   } catch (error) {
     console.error('Health check failed:', error);
@@ -72,6 +85,9 @@ app.get('/health', async (c) => {
         environment: process.env.NODE_ENV || 'development',
         database: 'disconnected',
         database_url_exists: !!process.env.DATABASE_URL,
+        db_password_exists: !!process.env.DB_PASSWORD,
+        database_url_has_placeholder:
+          process.env.DATABASE_URL?.includes('${DB_PASSWORD}') || false,
         error: error instanceof Error ? error.message : 'Unknown error',
       },
       503,
@@ -106,5 +122,10 @@ serve(
   (info) => {
     console.log(`Server is running on http://localhost:${info.port}`);
     console.log('DATABASE_URL at server start:', !!process.env.DATABASE_URL);
+    console.log('DB_PASSWORD at server start:', !!process.env.DB_PASSWORD);
+    console.log(
+      'DATABASE_URL has placeholder:',
+      process.env.DATABASE_URL?.includes('${DB_PASSWORD}') || false,
+    );
   },
 );
