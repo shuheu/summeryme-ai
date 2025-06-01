@@ -18,8 +18,8 @@ RUN npx prisma generate
 # TypeScriptのビルド
 RUN pnpm run build
 
-# Prismaの生成されたファイルを正しいパスにコピー（@/エイリアス対応）
-RUN mkdir -p dist/src/prisma/generated && cp -r src/prisma/generated/* dist/src/prisma/generated/
+# Prismaの生成されたファイルをdistフォルダにコピー
+RUN mkdir -p dist/prisma/generated && cp -r src/prisma/generated/* dist/prisma/generated/
 
 # デバッグ: ファイル構造を確認
 RUN echo "=== Checking dist structure ===" && \
