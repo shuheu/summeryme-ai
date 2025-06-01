@@ -6,7 +6,7 @@ on:
       - 'backend/**/*.rb'
       - 'backend/.rubocop*'
       - 'backend/Gemfile*'
-      - '.github/workflows/lint.yml'
+      - '.github/workflows/lint-rails.yml'
 
 jobs:
   rubocop:
