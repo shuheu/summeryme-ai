@@ -1,19 +1,6 @@
 name: 🚀 [Deploy] Infrastructure with Terraform
 
 on:
-  push:
-    branches:
-      - master
-      - 'feat/**' # TODO: test用
-    paths:
-      - 'terraform/**'
-      - '.github/workflows/deploy-infrastructure.yml'
-  pull_request:
-    branches:
-      - main
-    paths:
-      - 'terraform/**'
-      - '.github/workflows/deploy-infrastructure.yml'
   workflow_dispatch:
     inputs:
       action:
