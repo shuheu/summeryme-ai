@@ -1,10 +1,6 @@
 name: 🚀 [Deploy] Backend to Cloud Run
 
 on:
-  # TODO: test用
-  push:
-    branches:
-      - 'feat/**'
   workflow_dispatch:
     inputs:
       environment:

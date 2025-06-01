@@ -2,9 +2,9 @@ name: 🚀 [Deploy] Infrastructure with Terraform
 
 on:
   # TODO: test用
-  # push:
-  #   branches:
-  #     - 'feat/**'
+  push:
+    branches:
+      - 'feat/**'
   workflow_dispatch:
     inputs:
       action:
