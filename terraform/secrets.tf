@@ -9,9 +9,19 @@ resource "random_password" "db_password" {
   lower   = true
   numeric = true
 
+  # MySQL互換性のため問題のある特殊文字を除外
+  override_special = "!@#$%^&*()-_=+[]{}|;:,.<>?"
+
+  # シングルクォート、ダブルクォート、バックスラッシュを除外
+  # MySQLで問題を起こす可能性のある文字を避ける
+
   # パスワードの再生成を防ぐ
   keepers = {
     version = "1"
+  }
+
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
@@ -23,6 +33,13 @@ resource "google_secret_manager_secret" "db_password" {
 
   replication {
     auto {}
+  }
+
+  # TTL設定（90日でローテーション推奨）
+  ttl = "7776000s" # 90 days
+
+  lifecycle {
+    prevent_destroy = true
   }
 
   depends_on = [google_project_service.required_apis]

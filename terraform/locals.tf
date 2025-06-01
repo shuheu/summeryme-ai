@@ -18,7 +18,7 @@ locals {
   # Cloud SQL接続文字列
   cloud_sql_connection_name = "${var.project_id}:${var.region}:${local.db_name}"
 
-  # データベース接続URL
+  # データベース接続URL（Cloud Run内でのUnix Socket接続用）
   database_url = "mysql://${local.db_user}:$${DB_PASSWORD}@localhost:3306/${local.database}?socket=/cloudsql/${local.cloud_sql_connection_name}"
 
   # 必要なGoogle Cloud APIs
