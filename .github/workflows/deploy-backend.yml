@@ -65,7 +65,30 @@ jobs:
           echo "✅ gcloud project set to: $(gcloud config get-value project)"
 
       - name: Configure Docker for Artifact Registry
-        run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+        run: |
+          echo "🔧 Configuring Docker for Artifact Registry..."
+          echo "PROJECT_ID: ${{ env.PROJECT_ID }}"
+          echo "REGION: ${{ env.REGION }}"
+
+          # 変数の検証
+          if [ -z "${{ env.REGION }}" ]; then
+            echo "❌ エラー: REGION変数が設定されていません"
+            exit 1
+          fi
+
+          REGISTRY_URL="${{ env.REGION }}-docker.pkg.dev"
+          echo "Registry URL: ${REGISTRY_URL}"
+
+          # Artifact Registryの認証設定
+          gcloud auth configure-docker "${REGISTRY_URL}" --quiet
+
+          # 設定の確認
+          if gcloud auth list --filter="status:ACTIVE" --format="value(account)" | head -1 >/dev/null; then
+            echo "✅ Docker configured for Artifact Registry"
+          else
+            echo "❌ エラー: Docker認証設定に失敗しました"
+            exit 1
+          fi
 
       - name: Verify Artifact Registry repository
         run: |
