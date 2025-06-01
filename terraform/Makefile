@@ -171,6 +171,15 @@ import-apis: check-project ## 既存のAPIサービスをインポート
 		terraform import "google_project_service.required_apis[\"$$api\"]" $(PROJECT_ID)/$$api || echo "$$api のインポートに失敗（既に有効化済みの可能性）"; \
 	done
 
+import-artifact-registry: check-project ## 既存のArtifact Registryリポジトリをインポート
+	@echo "Artifact Registryリポジトリをインポート中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
+	@if gcloud artifacts repositories describe backend --location=$(REGION) >/dev/null 2>&1; then \
+		terraform import google_artifact_registry_repository.backend projects/$(PROJECT_ID)/locations/$(REGION)/repositories/backend; \
+	else \
+		echo "backend リポジトリが見つかりません（新規作成されます）"; \
+	fi
+
 import-cloud-run-iam: check-project ## 既存のCloud Run IAM設定をインポート
 	@echo "Cloud Run IAM設定をインポート中..."
 	@echo "プロジェクト: $(PROJECT_ID)"
@@ -179,64 +188,6 @@ import-cloud-run-iam: check-project ## 既存のCloud Run IAM設定をインポ�
 	else \
 		echo "パブリックアクセス設定が見つかりません（新規作成されます）"; \
 	fi
-
-import-all: check-project ## 全ての既存リソースを一括インポート
-	@echo "🚀 全リソースの一括インポートを開始します..."
-	@echo "プロジェクト: $(PROJECT_ID)"
-	@echo ""
-	@echo "=== 1. APIサービスのインポート ==="
-	@$(MAKE) import-apis || true
-	@echo ""
-	@echo "=== 2. Secret Managerのインポート ==="
-	@$(MAKE) import-secret || true
-	@$(MAKE) import-secret-version || true
-	@echo ""
-	@echo "=== 3. Cloud SQLのインポート ==="
-	@$(MAKE) import-cloud-sql || true
-	@$(MAKE) import-cloud-sql-database || true
-	@$(MAKE) import-cloud-sql-user || true
-	@echo ""
-	@echo "=== 4. サービスアカウントのインポート ==="
-	@$(MAKE) import-service-accounts || true
-	@echo ""
-	@echo "=== 5. Cloud Runのインポート ==="
-	@$(MAKE) import-cloud-run || true
-	@$(MAKE) import-cloud-run-job || true
-	@$(MAKE) import-cloud-run-iam || true
-	@echo ""
-	@echo "🎉 一括インポートが完了しました！"
-	@echo ""
-	@echo "次のステップ:"
-	@echo "1. terraform plan で差分を確認"
-	@echo "2. 必要に応じて terraform apply で同期"
-
-import-check: check-project ## インポート可能なリソースをチェック
-	@echo "=== インポート可能なリソースをチェック中 ==="
-	@echo "プロジェクト: $(PROJECT_ID)"
-	@echo ""
-	@echo "Cloud Runサービス:"
-	@gcloud run services list --region=$(REGION) --format="table(metadata.name,status.url)" || echo "  なし"
-	@echo ""
-	@echo "Cloud Run Jobs:"
-	@gcloud run jobs list --region=$(REGION) --format="table(metadata.name)" || echo "  なし"
-	@echo ""
-	@echo "Cloud SQLインスタンス:"
-	@gcloud sql instances list --format="table(name,databaseVersion,region)" || echo "  なし"
-	@echo ""
-	@echo "Cloud SQLデータベース:"
-	@gcloud sql databases list --instance=summeryme-db --format="table(name,charset,collation)" 2>/dev/null || echo "  なし"
-	@echo ""
-	@echo "Cloud SQLユーザー:"
-	@gcloud sql users list --instance=summeryme-db --format="table(name,host)" 2>/dev/null || echo "  なし"
-	@echo ""
-	@echo "Secret Manager:"
-	@gcloud secrets list --format="table(name)" || echo "  なし"
-	@echo ""
-	@echo "サービスアカウント:"
-	@gcloud iam service-accounts list --format="table(email,displayName)" | grep -E "(backend-api-sa|github-actions)" || echo "  関連するサービスアカウントなし"
-	@echo ""
-	@echo "有効なAPI:"
-	@gcloud services list --enabled --filter="name:(run.googleapis.com OR sqladmin.googleapis.com OR secretmanager.googleapis.com)" --format="table(name)" || echo "  なし"
 
 # 環境別操作
 setup-dev: check-project ## 開発環境用の設定ファイルを作成
@@ -314,3 +265,6 @@ setup: init setup-prod validate ## 初期セットアップを実行
 	@echo "1. terraform.tfvarsファイルを確認・編集"
 	@echo "2. make plan でプランを確認"
 	@echo "3. make apply でリソースを作成"
+
+# 全体インポート
+import-all: import-apis import-service-accounts import-cloud-sql import-cloud-sql-database import-cloud-run import-cloud-run-job import-secret import-artifact-registry ## 全てのリソースをインポート

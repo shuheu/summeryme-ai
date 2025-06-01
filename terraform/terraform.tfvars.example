@@ -11,7 +11,10 @@ db_tier      = "db-f1-micro"  # 本番環境では db-n1-standard-1 などを検
 db_disk_size = 10             # 本番環境では 20GB以上を推奨
 
 # Cloud Run設定
-container_image = "your-region-docker.pkg.dev/your-project/your-repo/your-app:latest"
+# container_image は空文字列の場合、自動的に生成されます
+# 手動で指定する場合は以下の形式を使用してください
+container_image = ""  # 自動生成: {region}-docker.pkg.dev/{project_id}/backend/backend-api:latest
+# container_image = "asia-northeast1-docker.pkg.dev/your-project/backend/backend-api:v1.0.0"  # 手動指定の例
 cpu_limit       = "1000m"    # 1 vCPU
 memory_limit    = "1Gi"      # 1GB RAM
 min_instances   = 0          # コスト最適化のため0

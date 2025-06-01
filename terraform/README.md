@@ -94,6 +94,15 @@ make migrate
 - Artifact Registry API
 - Cloud Logging API
 - Cloud Monitoring API
+- Compute API
+- Service Networking API
+- VPC Access API
+
+### Artifact Registry
+- **リポジトリ**: `backend`
+- **形式**: Docker
+- **場所**: asia-northeast1
+- **用途**: Dockerイメージの保存
 
 ### Cloud SQL
 - **インスタンス**: `summeryme-db`

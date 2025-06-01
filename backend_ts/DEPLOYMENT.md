@@ -671,3 +671,54 @@ gcloud secrets versions access latest --secret="db-password"
 - **プロジェクトID**: your-gcp-project-id
 - **リージョン**: asia-northeast1-b
 - **環境**: 本番環境
+
+## 🐳 Docker イメージビルド方式
+
+### GitHub Actions での自動デプロイ
+
+新しいワークフローでは以下の手順でデプロイされます：
+
+1. **ソースコードのビルド**
+   ```bash
+   pnpm install --frozen-lockfile
+   pnpm prisma generate
+   pnpm build
+   ```
+
+2. **Dockerイメージのビルド**
+   ```bash
+   docker build -t asia-northeast1-docker.pkg.dev/PROJECT_ID/backend/backend-api:COMMIT_SHA .
+   docker build -t asia-northeast1-docker.pkg.dev/PROJECT_ID/backend/backend-api:latest .
+   ```
+
+3. **Artifact Registryへのプッシュ**
+   ```bash
+   docker push asia-northeast1-docker.pkg.dev/PROJECT_ID/backend/backend-api:COMMIT_SHA
+   docker push asia-northeast1-docker.pkg.dev/PROJECT_ID/backend/backend-api:latest
+   ```
+
+4. **Cloud Runへのデプロイ**
+   ```bash
+   gcloud run deploy backend-api \
+     --image=asia-northeast1-docker.pkg.dev/PROJECT_ID/backend/backend-api:COMMIT_SHA \
+     --platform=managed \
+     --region=asia-northeast1
+   ```
+
+### ローカルでのDockerビルド
+
+```bash
+# イメージビルド
+docker build -t backend-api .
+
+# ローカル実行
+docker run -p 8080:8080 \
+  -e DATABASE_URL="mysql://user:password@host:3306/database" \
+  backend-api
+
+# Artifact Registryへのプッシュ（認証済みの場合）
+docker tag backend-api asia-northeast1-docker.pkg.dev/PROJECT_ID/backend/backend-api:v1.0.0
+docker push asia-northeast1-docker.pkg.dev/PROJECT_ID/backend/backend-api:v1.0.0
+```
+
+## 📋 Terraform での管理

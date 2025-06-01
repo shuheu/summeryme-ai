@@ -22,9 +22,17 @@ No modules.
 
 | Name | Type |
 |------|------|
+| [google_artifact_registry_repository.backend](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/artifact_registry_repository) | resource |
+| [google_artifact_registry_repository_iam_member.cloud_run_reader](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/artifact_registry_repository_iam_member) | resource |
+| [google_artifact_registry_repository_iam_member.github_actions_writer](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/artifact_registry_repository_iam_member) | resource |
 | [google_cloud_run_service_iam_member.public_access](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_service_iam_member) | resource |
 | [google_cloud_run_v2_job.migrate](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_job) | resource |
 | [google_cloud_run_v2_service.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_service) | resource |
+| [google_compute_global_address.private_ip_address](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_address) | resource |
+| [google_compute_network.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_network) | resource |
+| [google_compute_router.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_router) | resource |
+| [google_compute_router_nat.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_router_nat) | resource |
+| [google_compute_subnetwork.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork) | resource |
 | [google_project_iam_member.cloud_run_secret_accessor](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_iam_member.cloud_run_sql_client](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_iam_member.github_actions_editor](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
@@ -37,9 +45,11 @@ No modules.
 | [google_secret_manager_secret_version.db_password](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version) | resource |
 | [google_service_account.cloud_run](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
 | [google_service_account.github_actions](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
+| [google_service_networking_connection.private_vpc_connection](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_networking_connection) | resource |
 | [google_sql_database.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database) | resource |
 | [google_sql_database_instance.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance) | resource |
 | [google_sql_user.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_user) | resource |
+| [google_vpc_access_connector.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/vpc_access_connector) | resource |
 | [random_password.db_password](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
 
 ## Inputs
@@ -49,7 +59,7 @@ No modules.
 | <a name="input_allow_public_access"></a> [allow\_public\_access](#input\_allow\_public\_access) | Allow unauthenticated public access to Cloud Run service | `bool` | `true` | no |
 | <a name="input_backup_enabled"></a> [backup\_enabled](#input\_backup\_enabled) | Enable automated backups for Cloud SQL (recommended for production) | `bool` | `null` | no |
 | <a name="input_binary_log_enabled"></a> [binary\_log\_enabled](#input\_binary\_log\_enabled) | Enable binary logging for Cloud SQL (required for point-in-time recovery) | `bool` | `null` | no |
-| <a name="input_container_image"></a> [container\_image](#input\_container\_image) | Container image URL to deploy to Cloud Run | `string` | n/a | yes |
+| <a name="input_container_image"></a> [container\_image](#input\_container\_image) | Container image URL to deploy to Cloud Run | `string` | `""` | no |
 | <a name="input_cpu_limit"></a> [cpu\_limit](#input\_cpu\_limit) | CPU limit for Cloud Run service (e.g., '1000m' = 1 vCPU) | `string` | `"1000m"` | no |
 | <a name="input_db_disk_size"></a> [db\_disk\_size](#input\_db\_disk\_size) | Cloud SQL disk size in GB (minimum 10GB for MySQL) | `number` | `10` | no |
 | <a name="input_db_tier"></a> [db\_tier](#input\_db\_tier) | Cloud SQL instance machine type (affects performance and cost) | `string` | `"db-f1-micro"` | no |
@@ -67,6 +77,8 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_artifact_registry_repository_name"></a> [artifact\_registry\_repository\_name](#output\_artifact\_registry\_repository\_name) | Name of the Artifact Registry repository |
+| <a name="output_artifact_registry_repository_url"></a> [artifact\_registry\_repository\_url](#output\_artifact\_registry\_repository\_url) | URL of the Artifact Registry repository |
 | <a name="output_cloud_run_service_account_email"></a> [cloud\_run\_service\_account\_email](#output\_cloud\_run\_service\_account\_email) | Email address of the Cloud Run service account |
 | <a name="output_cloud_run_service_account_id"></a> [cloud\_run\_service\_account\_id](#output\_cloud\_run\_service\_account\_id) | Unique ID of the Cloud Run service account |
 | <a name="output_cloud_run_service_id"></a> [cloud\_run\_service\_id](#output\_cloud\_run\_service\_id) | Full resource ID of the Cloud Run service |
@@ -77,6 +89,7 @@ No modules.
 | <a name="output_cloud_sql_instance_ip_address"></a> [cloud\_sql\_instance\_ip\_address](#output\_cloud\_sql\_instance\_ip\_address) | Private IP address of the Cloud SQL instance |
 | <a name="output_cloud_sql_instance_name"></a> [cloud\_sql\_instance\_name](#output\_cloud\_sql\_instance\_name) | Name of the Cloud SQL instance |
 | <a name="output_cloud_sql_instance_public_ip_address"></a> [cloud\_sql\_instance\_public\_ip\_address](#output\_cloud\_sql\_instance\_public\_ip\_address) | Public IP address of the Cloud SQL instance (if enabled) |
+| <a name="output_container_image_url"></a> [container\_image\_url](#output\_container\_image\_url) | Full container image URL used by Cloud Run |
 | <a name="output_database_name"></a> [database\_name](#output\_database\_name) | Name of the application database |
 | <a name="output_database_url_template"></a> [database\_url\_template](#output\_database\_url\_template) | Database URL template (replace DB\_PASSWORD with actual password) |
 | <a name="output_database_user"></a> [database\_user](#output\_database\_user) | Database user name for application connections |
@@ -91,3 +104,8 @@ No modules.
 | <a name="output_region"></a> [region](#output\_region) | Google Cloud Region where resources are deployed |
 | <a name="output_resource_summary"></a> [resource\_summary](#output\_resource\_summary) | Summary of all created resources |
 | <a name="output_useful_commands"></a> [useful\_commands](#output\_useful\_commands) | Useful commands for managing the deployed resources |
+| <a name="output_vpc_connector_name"></a> [vpc\_connector\_name](#output\_vpc\_connector\_name) | Name of the VPC access connector |
+| <a name="output_vpc_network_id"></a> [vpc\_network\_id](#output\_vpc\_network\_id) | ID of the VPC network |
+| <a name="output_vpc_network_name"></a> [vpc\_network\_name](#output\_vpc\_network\_name) | Name of the VPC network |
+| <a name="output_vpc_subnet_cidr"></a> [vpc\_subnet\_cidr](#output\_vpc\_subnet\_cidr) | CIDR range of the VPC subnet |
+| <a name="output_vpc_subnet_name"></a> [vpc\_subnet\_name](#output\_vpc\_subnet\_name) | Name of the VPC subnet |
