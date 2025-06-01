@@ -1,7 +1,7 @@
 # Makefile for Terraform Operations
 # Summeryme AI Backend Infrastructure
 
-.PHONY: help init plan apply destroy validate format check clean import output state
+.PHONY: help init plan apply destroy validate format check clean import output state lint lint-fix
 
 # 動的にGCPプロジェクトIDを取得
 PROJECT_ID := $(shell gcloud config get-value project 2>/dev/null)
@@ -60,7 +60,36 @@ validate: ## 設定ファイルの検証
 format: ## 設定ファイルのフォーマット
 	terraform fmt -recursive
 
-check: validate format ## 検証とフォーマットを実行
+lint: ## TerraformコードのLint実行（tflintが必要）
+	@if command -v tflint >/dev/null 2>&1; then \
+		echo "🔍 TerraformコードのLintを実行中..."; \
+		tflint --init; \
+		tflint; \
+		echo "✅ Lintが完了しました"; \
+	else \
+		echo "❌ tflintがインストールされていません"; \
+		echo "以下のコマンドでインストールしてください:"; \
+		echo "  brew install tflint"; \
+		echo "または"; \
+		echo "  curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash"; \
+	fi
+
+lint-fix: ## TerraformコードのLint実行（自動修正可能な問題を修正）
+	@if command -v tflint >/dev/null 2>&1; then \
+		echo "🔧 TerraformコードのLintを実行中（自動修正モード）..."; \
+		tflint --init; \
+		tflint --fix; \
+		echo "✅ Lintと自動修正が完了しました"; \
+	else \
+		echo "❌ tflintがインストールされていません"; \
+		echo "以下のコマンドでインストールしてください:"; \
+		echo "  brew install tflint"; \
+		echo "または"; \
+		echo "  curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash"; \
+	fi
+
+
+check: validate format lint ## 検証、フォーマット、Lintを実行
 
 # 情報表示
 output: ## 出力値を表示

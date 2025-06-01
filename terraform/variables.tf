@@ -155,33 +155,4 @@ variable "allow_public_access" {
 # 高度な設定 (Optional)
 # =============================================================================
 
-variable "labels" {
-  description = "Additional labels to apply to all resources"
-  type        = map(string)
-  default     = {}
 
-  validation {
-    condition = alltrue([
-      for k, v in var.labels : can(regex("^[a-z][a-z0-9_-]{0,62}$", k))
-    ])
-    error_message = "Label keys must start with a letter and contain only lowercase letters, numbers, underscores, and hyphens."
-  }
-}
-
-variable "enable_deletion_protection" {
-  description = "Enable deletion protection for critical resources (Cloud SQL)"
-  type        = bool
-  default     = true
-}
-
-variable "backup_enabled" {
-  description = "Enable automated backups for Cloud SQL (recommended for production)"
-  type        = bool
-  default     = null # Will be determined by environment in locals
-}
-
-variable "binary_log_enabled" {
-  description = "Enable binary logging for Cloud SQL (required for point-in-time recovery)"
-  type        = bool
-  default     = null # Will be determined by environment in locals
-}

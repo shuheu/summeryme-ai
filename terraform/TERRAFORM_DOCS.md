@@ -57,15 +57,11 @@ No modules.
 | Name | Description | Type | Default | Required |
 |------|-------------|------|---------|:--------:|
 | <a name="input_allow_public_access"></a> [allow\_public\_access](#input\_allow\_public\_access) | Allow unauthenticated public access to Cloud Run service | `bool` | `true` | no |
-| <a name="input_backup_enabled"></a> [backup\_enabled](#input\_backup\_enabled) | Enable automated backups for Cloud SQL (recommended for production) | `bool` | `null` | no |
-| <a name="input_binary_log_enabled"></a> [binary\_log\_enabled](#input\_binary\_log\_enabled) | Enable binary logging for Cloud SQL (required for point-in-time recovery) | `bool` | `null` | no |
 | <a name="input_container_image"></a> [container\_image](#input\_container\_image) | Container image URL to deploy to Cloud Run | `string` | n/a | yes |
 | <a name="input_cpu_limit"></a> [cpu\_limit](#input\_cpu\_limit) | CPU limit for Cloud Run service (e.g., '1000m' = 1 vCPU) | `string` | `"1000m"` | no |
 | <a name="input_db_disk_size"></a> [db\_disk\_size](#input\_db\_disk\_size) | Cloud SQL disk size in GB (minimum 10GB for MySQL) | `number` | `10` | no |
 | <a name="input_db_tier"></a> [db\_tier](#input\_db\_tier) | Cloud SQL instance machine type (affects performance and cost) | `string` | `"db-f1-micro"` | no |
-| <a name="input_enable_deletion_protection"></a> [enable\_deletion\_protection](#input\_enable\_deletion\_protection) | Enable deletion protection for critical resources (Cloud SQL) | `bool` | `true` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment name (affects resource naming and configuration) | `string` | `"production"` | no |
-| <a name="input_labels"></a> [labels](#input\_labels) | Additional labels to apply to all resources | `map(string)` | `{}` | no |
 | <a name="input_log_level"></a> [log\_level](#input\_log\_level) | Application log level (affects verbosity of logs) | `string` | `"info"` | no |
 | <a name="input_max_instances"></a> [max\_instances](#input\_max\_instances) | Maximum number of Cloud Run instances | `number` | `10` | no |
 | <a name="input_memory_limit"></a> [memory\_limit](#input\_memory\_limit) | Memory limit for Cloud Run service (e.g., '1Gi', '512Mi') | `string` | `"1Gi"` | no |
