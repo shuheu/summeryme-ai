@@ -108,6 +108,7 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
+            const comment = `## 🔍 Terraform Plan Results
             ### ✅ Validation Status
             - 📝 Format Check: Passed
             - ✅ Validation: Passed
