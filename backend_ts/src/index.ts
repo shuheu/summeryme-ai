@@ -3,11 +3,27 @@ import { Hono } from 'hono';
 
 import savedArticleRouter from './apis/savedArticle.js';
 import userDailySummaryRouter from './apis/userDailySummery.js';
-import { globalPrisma } from './lib/dbClient.js';
+
+// 環境変数の詳細なデバッグ情報
+console.log('=== Environment Variables Debug ===');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('PORT:', process.env.PORT);
+console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
+console.log('DATABASE_URL length:', process.env.DATABASE_URL?.length || 0);
+console.log(
+  'All env vars starting with DB:',
+  Object.keys(process.env).filter((key) => key.startsWith('DB')),
+);
+console.log(
+  'All env vars starting with DATABASE:',
+  Object.keys(process.env).filter((key) => key.startsWith('DATABASE')),
+);
+console.log('===================================');
+
+// Prismaクライアントのインポートを遅延させる
+let globalPrisma: any;
 
 const app = new Hono();
-
-console.log('DATABASE_URL:', process.env.DATABASE_URL);
 
 app.get('/', (c) => {
   return c.text('Hello summeryme.ai!');
@@ -19,7 +35,8 @@ app.get('/health/basic', (c) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
-    database_url: process.env.DATABASE_URL,
+    database_url_exists: !!process.env.DATABASE_URL,
+    database_url_length: process.env.DATABASE_URL?.length || 0,
     service: 'backend-api',
   });
 });
@@ -27,6 +44,13 @@ app.get('/health/basic', (c) => {
 // 完全なヘルスチェック（データベース接続含む）
 app.get('/health', async (c) => {
   try {
+    // Prismaクライアントを動的にインポート
+    if (!globalPrisma) {
+      console.log('Dynamically importing Prisma client...');
+      const { globalPrisma: prisma } = await import('./lib/dbClient.js');
+      globalPrisma = prisma;
+    }
+
     // データベース接続をテスト
     await globalPrisma.$queryRaw`SELECT 1`;
 
@@ -35,9 +59,11 @@ app.get('/health', async (c) => {
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'development',
       database: 'connected',
+      database_url_exists: !!process.env.DATABASE_URL,
     });
   } catch (error) {
     console.error('Health check failed:', error);
+    console.error('DATABASE_URL at error time:', !!process.env.DATABASE_URL);
 
     return c.json(
       {
@@ -45,6 +71,7 @@ app.get('/health', async (c) => {
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || 'development',
         database: 'disconnected',
+        database_url_exists: !!process.env.DATABASE_URL,
         error: error instanceof Error ? error.message : 'Unknown error',
       },
       503,
@@ -52,17 +79,22 @@ app.get('/health', async (c) => {
   }
 });
 
+// 動的にルーターをインポート
 app.route('/api/saved-articles', savedArticleRouter);
 app.route('/api/user-daily-summaries', userDailySummaryRouter);
 
 // Prismaクライアントの接続を適切に終了
 process.on('SIGINT', async () => {
-  await globalPrisma.$disconnect();
+  if (globalPrisma) {
+    await globalPrisma.$disconnect();
+  }
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-  await globalPrisma.$disconnect();
+  if (globalPrisma) {
+    await globalPrisma.$disconnect();
+  }
   process.exit(0);
 });
 
@@ -73,5 +105,6 @@ serve(
   },
   (info) => {
     console.log(`Server is running on http://localhost:${info.port}`);
+    console.log('DATABASE_URL at server start:', !!process.env.DATABASE_URL);
   },
 );
