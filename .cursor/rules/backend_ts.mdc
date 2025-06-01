@@ -7,7 +7,7 @@ alwaysApply: false
 
 以下のディレクトリで作業すること
 <working_dir>
-<path>/backned_ts</path>
+<path>/backend_ts</path>
 </working_dir>
 
 # Backend TypeScript Project Rules
