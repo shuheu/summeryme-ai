@@ -1,0 +1,18 @@
+# Terraform Variables for Summeryme AI Backend
+# このファイルをコピーして terraform.tfvars を作成し、実際の値を設定してください
+
+# 必須項目
+project_id      = "your-gcp-project-id"
+container_image = "asia-northeast1-docker.pkg.dev/your-project/backend/backend-api:latest"
+
+# オプション項目（デフォルト値から変更したい場合のみ設定）
+# region          = "asia-northeast1"  # デフォルト値
+# environment     = "production"       # デフォルト値
+# db_tier         = "db-f1-micro"      # デフォルト値
+# db_disk_size    = 10                 # デフォルト値
+# cpu_limit       = "1000m"           # デフォルト値
+# memory_limit    = "1Gi"             # デフォルト値
+# min_instances   = 0                 # デフォルト値
+# max_instances   = 2                 # デフォルト値（ハッカソン用）
+# log_level       = "info"            # デフォルト値
+# allow_public_access = true          # デフォルト値

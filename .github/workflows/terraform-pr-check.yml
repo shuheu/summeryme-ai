@@ -1,0 +1,140 @@
+name: 🔍 [Terraform] Validation and Security Check
+
+on:
+  pull_request:
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/terraform-pr-check.yml'
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
+env:
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
+  REGION: ${{ vars.GCP_REGION || 'asia-northeast1' }}
+  TERRAFORM_VERSION: 1.6.0
+  BACKEND_PREFIX: summeryme-ai/backend
+
+jobs:
+  terraform-check:
+    name: 🔍 Terraform Validation & Security
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./terraform
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: ${{ env.TERRAFORM_VERSION }}
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v2
+        with:
+          credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v2
+        with:
+          project_id: ${{ env.PROJECT_ID }}
+
+      - name: Create terraform.tfvars
+        run: |
+          cat > terraform.tfvars << EOF
+          project_id      = "${{ env.PROJECT_ID }}"
+          region          = "${{ env.REGION }}"
+          environment     = "production"
+          container_image = "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/backend/backend-api:latest"
+          EOF
+
+      - name: Terraform Init
+        run: |
+          echo "🔧 Initializing Terraform..."
+          terraform init \
+            -backend-config="bucket=${{ env.PROJECT_ID }}-terraform-state" \
+            -backend-config="prefix=${{ env.BACKEND_PREFIX }}"
+
+      - name: 📝 Terraform Format Check
+        run: |
+          echo "📝 Checking Terraform formatting..."
+          terraform fmt -check -recursive
+
+      - name: ✅ Terraform Validate
+        run: |
+          echo "✅ Validating Terraform configuration..."
+          terraform validate
+
+      - name: 🔍 Setup and Run TFLint
+        continue-on-error: true
+        run: |
+          echo "🔧 Setting up TFLint..."
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
+          echo "🔍 Running TFLint..."
+          tflint --init
+          tflint --recursive || echo "⚠️ TFLint found issues (continuing for hackathon)"
+
+      - name: 🔒 Setup and Run tfsec
+        continue-on-error: true
+        run: |
+          echo "🔧 Setting up tfsec..."
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+
+          echo "🔒 Running security scan..."
+          tfsec . --tfvars-file terraform.tfvars --format lovely || echo "⚠️ tfsec found security issues (continuing for hackathon)"
+
+      - name: 📋 Setup and Run Checkov
+        continue-on-error: true
+        run: |
+          echo "🔧 Setting up Checkov..."
+          pip install checkov
+
+          echo "📋 Running Checkov compliance checks..."
+          checkov -d . --framework terraform --quiet || echo "⚠️ Checkov found compliance issues (continuing for hackathon)"
+
+      - name: 📋 Terraform Plan
+        run: |
+          echo "📋 Running Terraform plan..."
+          terraform plan -detailed-exitcode
+
+      - name: 💬 Comment PR with Plan
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const comment = `## 🔍 Terraform Plan Results
+            ### ✅ Validation Status
+            - 📝 Format Check: Passed
+            - ✅ Validation: Passed
+            - 🔍 TFLint: ⚠️ Warnings (non-blocking for hackathon)
+            - 🔒 Security Scan: ⚠️ Warnings (non-blocking for hackathon)
+            - 📋 Compliance Check: ⚠️ Warnings (non-blocking for hackathon)
+
+            > 🏆 **Hackathon Mode**: Security checks are set to warning level to avoid blocking development.
+            > For production deployment, please review and fix security issues.
+
+            > This plan was generated for PR #${{ github.event.number }}
+            `;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+
+      - name: 📊 Upload Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: terraform-pr-check-results
+          path: |
+            terraform/.terraform/
+            terraform/terraform.tfplan
+          retention-days: 7

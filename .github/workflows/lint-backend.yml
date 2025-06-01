@@ -1,12 +1,12 @@
-name: Lint and Format Check (backend_ts)
+name: '🔍 [BACKEND] Lint'
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: ['main', 'master']
     paths:
       - 'backend_ts/**'
   pull_request:
-    branches: [ "main", "master" ]
+    branches: ['main', 'master']
     paths:
       - 'backend_ts/**'
 
@@ -29,7 +29,7 @@ jobs:
       - name: Set up pnpm
         uses: pnpm/action-setup@v3
         with:
-          version: 8
+          version: 10.11.0
           run_install: true
 
       - name: Run Prettier check
@@ -38,6 +38,4 @@ jobs:
       - name: Run ESLint
         # The worker previously used ESLINT_USE_FLAT_CONFIG=false for linting.
         # Adding it here for consistency in the CI environment.
-        env:
-          ESLINT_USE_FLAT_CONFIG: false
         run: pnpm lint
