@@ -23,6 +23,7 @@ locals {
 
   # 必要なGoogle Cloud APIs
   required_apis = [
+    "cloudresourcemanager.googleapis.com",
     "run.googleapis.com",
     "sqladmin.googleapis.com",
     "secretmanager.googleapis.com",
