@@ -182,7 +182,7 @@ jobs:
           echo "✅ Cloud Runサービスのデプロイ成功"
 
       - name: Run database migration
-        if: ${{ github.event.inputs.run_migration == 'true' }}
+        if: ${{ github.event.inputs.run_migration }}
         working-directory: ./terraform
         run: |
           echo "🔄 データベースマイグレーションを実行中..."
