@@ -3,7 +3,7 @@ name: 🚀 [Deploy] Infrastructure with Terraform
 on:
   push:
     branches:
-      - main
+      - master
       - 'feat/**' # TODO: test用
     paths:
       - 'terraform/**'
@@ -29,6 +29,11 @@ on:
         description: 'Terraform target (optional)'
         required: false
         type: string
+
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
 
 env:
   PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}

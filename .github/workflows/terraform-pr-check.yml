@@ -6,6 +6,11 @@ on:
       - 'terraform/**'
       - '.github/workflows/terraform-pr-check.yml'
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 env:
   PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   REGION: ${{ vars.GCP_REGION || 'asia-northeast1' }}
