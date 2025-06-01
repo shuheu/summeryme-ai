@@ -102,38 +102,26 @@ jobs:
 
       - name: Build Docker image
         run: |
-          # イメージタグの定義
-          IMAGE_BASE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/backend/backend-api"
-          IMAGE_SHA="${IMAGE_BASE}:${{ github.sha }}"
-          IMAGE_LATEST="${IMAGE_BASE}:latest"
-
           echo "🔨 Building Docker image..."
-          echo "Base: ${IMAGE_BASE}"
-          echo "SHA tag: ${IMAGE_SHA}"
-          echo "Latest tag: ${IMAGE_LATEST}"
+          echo "PROJECT_ID: ${{ env.PROJECT_ID }}"
+          echo "REGION: ${{ env.REGION }}"
+          echo "SHA: ${{ github.sha }}"
 
           # Docker イメージのビルド（1回のみ）
-          docker build -t "${IMAGE_SHA}" .
+          docker build -t "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/backend/backend-api:${{ github.sha }}" .
 
           # latestタグを追加
-          docker tag "${IMAGE_SHA}" "${IMAGE_LATEST}"
+          docker tag "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/backend/backend-api:${{ github.sha }}" "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/backend/backend-api:latest"
 
           echo "✅ Docker image built successfully with both tags"
 
       - name: Push Docker image
         run: |
-          # イメージタグの定義
-          IMAGE_BASE="${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/backend/backend-api"
-          IMAGE_SHA="${IMAGE_BASE}:${{ github.sha }}"
-          IMAGE_LATEST="${IMAGE_BASE}:latest"
-
           echo "📤 Pushing Docker images..."
-          echo "SHA tag: ${IMAGE_SHA}"
-          echo "Latest tag: ${IMAGE_LATEST}"
 
           # Docker イメージのプッシュ
-          docker push "${IMAGE_SHA}"
-          docker push "${IMAGE_LATEST}"
+          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/backend/backend-api:${{ github.sha }}"
+          docker push "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/backend/backend-api:latest"
 
           echo "✅ Docker images pushed successfully"
 
