@@ -7,6 +7,8 @@ import { globalPrisma } from './lib/dbClient.js';
 
 const app = new Hono();
 
+console.log('DATABASE_URL:', process.env.DATABASE_URL);
+
 app.get('/', (c) => {
   return c.text('Hello summeryme.ai!');
 });
