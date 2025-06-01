@@ -25,6 +25,7 @@ env:
   PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   REGION: ${{ vars.GCP_REGION || 'asia-northeast1' }}
   TERRAFORM_VERSION: 1.6.0
+  BACKEND_PREFIX: summeryme-ai/backend
 
 jobs:
   terraform:
@@ -63,9 +64,19 @@ jobs:
           EOF
 
       - name: Terraform Init
-        run: terraform init
+        run: |
+          echo "🔧 Initializing Terraform with GCS backend..."
+          echo "Backend bucket: ${{ env.PROJECT_ID }}-terraform-state"
+          echo "Backend prefix: ${{ env.BACKEND_PREFIX }}"
 
-      - name: 🔍 Run Terraform Lint Checks
+          # GCSバックエンドでTerraformを初期化
+          terraform init \
+            -backend-config="bucket=${{ env.PROJECT_ID }}-terraform-state" \
+            -backend-config="prefix=${{ env.BACKEND_PREFIX }}"
+
+          echo "✅ Terraform initialized with GCS backend"
+
+      - name: �� Run Terraform Lint Checks
         run: |
           echo "🔍 Running comprehensive Terraform lint checks..."
 

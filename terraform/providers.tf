@@ -19,11 +19,12 @@ terraform {
     }
   }
 
-  # リモートバックエンド設定（本番環境では有効化推奨）
-  # backend "gcs" {
-  #   bucket = "your-terraform-state-bucket"
-  #   prefix = "summeryme-ai/backend"
-  # }
+  # GCSリモートバックエンド設定
+  # 注意: backendブロックでは変数を使用できないため、固定値を使用
+  # バケット名は初期化時に -backend-config で動的に指定
+  backend "gcs" {
+    prefix = "summeryme-ai/backend"
+  }
 }
 
 # Google Cloud Provider

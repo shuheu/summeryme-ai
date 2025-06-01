@@ -2,6 +2,52 @@
 
 このディレクトリには、Summeryme AI BackendのGCPリソースをTerraformで管理するための設定ファイルが含まれています。
 
+## 🗄️ 状態管理（GCS Backend）
+
+このプロジェクトでは、Terraformの状態ファイルをGoogle Cloud Storage（GCS）で管理しています。
+
+### GCS Backend設定
+- **バケット**: `{PROJECT_ID}-terraform-state`（動的に設定）
+- **プレフィックス**: `summeryme-ai/backend`（`providers.tf`で定義）
+- **バージョニング**: 有効
+- **場所**: asia-northeast1
+
+### 🔐 設定方法
+
+プロジェクトIDは`locals.tf`で変数として管理され、初期化時に動的に設定されます：
+
+```bash
+# GCSバックエンドで初期化
+make init
+
+# または直接実行
+terraform init -backend-config="bucket=$(gcloud config get-value project)-terraform-state"
+```
+
+### 状態管理コマンド
+```bash
+# GCSバックエンドで初期化
+make init
+
+# ローカル状態からGCSに移行
+make migrate-to-gcs
+
+# ローカル状態ファイルのバックアップ
+make backup-local-state
+
+# ローカル状態で初期化（開発用）
+make init-local
+
+# バックエンド設定情報を確認
+terraform output backend_configuration
+```
+
+### 利点
+- **チーム共有**: 複数の開発者が同じ状態を共有
+- **安全性**: 状態ファイルの暗号化とバージョニング
+- **CI/CD対応**: GitHub Actionsでの自動デプロイ
+- **ロック機能**: 同時実行の防止
+
 ## 📁 ファイル構成（ベストプラクティス準拠）
 
 ```

@@ -79,6 +79,7 @@ No modules.
 |------|-------------|
 | <a name="output_artifact_registry_repository_name"></a> [artifact\_registry\_repository\_name](#output\_artifact\_registry\_repository\_name) | Name of the Artifact Registry repository |
 | <a name="output_artifact_registry_repository_url"></a> [artifact\_registry\_repository\_url](#output\_artifact\_registry\_repository\_url) | URL of the Artifact Registry repository |
+| <a name="output_backend_configuration"></a> [backend\_configuration](#output\_backend\_configuration) | GCS backend configuration for Terraform state management |
 | <a name="output_cloud_run_service_account_email"></a> [cloud\_run\_service\_account\_email](#output\_cloud\_run\_service\_account\_email) | Email address of the Cloud Run service account |
 | <a name="output_cloud_run_service_account_id"></a> [cloud\_run\_service\_account\_id](#output\_cloud\_run\_service\_account\_id) | Unique ID of the Cloud Run service account |
 | <a name="output_cloud_run_service_id"></a> [cloud\_run\_service\_id](#output\_cloud\_run\_service\_id) | Full resource ID of the Cloud Run service |
@@ -89,7 +90,7 @@ No modules.
 | <a name="output_cloud_sql_instance_ip_address"></a> [cloud\_sql\_instance\_ip\_address](#output\_cloud\_sql\_instance\_ip\_address) | Private IP address of the Cloud SQL instance |
 | <a name="output_cloud_sql_instance_name"></a> [cloud\_sql\_instance\_name](#output\_cloud\_sql\_instance\_name) | Name of the Cloud SQL instance |
 | <a name="output_cloud_sql_instance_public_ip_address"></a> [cloud\_sql\_instance\_public\_ip\_address](#output\_cloud\_sql\_instance\_public\_ip\_address) | Public IP address of the Cloud SQL instance (if enabled) |
-| <a name="output_container_image_url"></a> [container\_image\_url](#output\_container\_image\_url) | Full container image URL used by Cloud Run |
+| <a name="output_container_image_url"></a> [container\_image\_url](#output\_container\_image\_url) | Full URL of the container image used for deployment |
 | <a name="output_database_name"></a> [database\_name](#output\_database\_name) | Name of the application database |
 | <a name="output_database_url_template"></a> [database\_url\_template](#output\_database\_url\_template) | Database URL template (replace DB\_PASSWORD with actual password) |
 | <a name="output_database_user"></a> [database\_user](#output\_database\_user) | Database user name for application connections |

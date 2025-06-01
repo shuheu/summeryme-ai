@@ -7,6 +7,10 @@
 PROJECT_ID := $(shell gcloud config get-value project 2>/dev/null)
 REGION := asia-northeast1
 
+# Terraformバックエンド設定
+BACKEND_BUCKET := $(PROJECT_ID)-terraform-state
+BACKEND_PREFIX := summeryme-ai/backend
+
 # プロジェクトIDが設定されているかチェック
 check-project:
 	@if [ -z "$(PROJECT_ID)" ]; then \
@@ -29,7 +33,13 @@ help: ## このヘルプメッセージを表示
 
 # 基本操作
 init: check-project ## Terraformを初期化
-	terraform init
+	@echo "🔧 Initializing Terraform with GCS backend..."
+	@echo "Backend bucket: $(BACKEND_BUCKET)"
+	@echo "Backend prefix: $(BACKEND_PREFIX)"
+	terraform init \
+		-backend-config="bucket=$(BACKEND_BUCKET)" \
+		-backend-config="prefix=$(BACKEND_PREFIX)"
+	@echo "✅ Terraform initialized with GCS backend"
 
 plan: check-project ## 実行計画を表示
 	terraform plan
@@ -199,9 +209,9 @@ import-cloud-run-iam: check-project ## 既存のCloud Run IAM設定をインポ�
 setup-dev: check-project ## 開発環境用の設定ファイルを作成
 	@if [ ! -f terraform.tfvars ]; then \
 		cp terraform.tfvars.example terraform.tfvars; \
-		sed -i '' 's/project_id = "your-gcp-project-id"/project_id = "$(PROJECT_ID)"/' terraform.tfvars; \
+		sed -i '' 's/your-gcp-project-id/$(PROJECT_ID)/g' terraform.tfvars; \
+		sed -i '' 's/your-project/$(PROJECT_ID)/g' terraform.tfvars; \
 		sed -i '' 's/environment = "production"/environment = "development"/' terraform.tfvars; \
-		sed -i '' 's/db_tier = "db-f1-micro"/db_tier = "db-f1-micro"/' terraform.tfvars; \
 		echo "開発環境用のterraform.tfvarsを作成しました (プロジェクト: $(PROJECT_ID))"; \
 	else \
 		echo "terraform.tfvarsは既に存在します"; \
@@ -210,7 +220,8 @@ setup-dev: check-project ## 開発環境用の設定ファイルを作成
 setup-prod: check-project ## 本番環境用の設定ファイルを作成
 	@if [ ! -f terraform.tfvars ]; then \
 		cp terraform.tfvars.example terraform.tfvars; \
-		sed -i '' 's/project_id = "your-gcp-project-id"/project_id = "$(PROJECT_ID)"/' terraform.tfvars; \
+		sed -i '' 's/your-gcp-project-id/$(PROJECT_ID)/g' terraform.tfvars; \
+		sed -i '' 's/your-project/$(PROJECT_ID)/g' terraform.tfvars; \
 		echo "本番環境用のterraform.tfvarsを作成しました (プロジェクト: $(PROJECT_ID))"; \
 	else \
 		echo "terraform.tfvarsは既に存在します"; \
@@ -274,3 +285,36 @@ setup: init setup-prod validate ## 初期セットアップを実行
 
 # 全体インポート
 import-all: import-apis import-service-accounts import-cloud-sql import-cloud-sql-database import-cloud-run import-cloud-run-job import-secret import-artifact-registry ## 全てのリソースをインポート
+
+# 状態管理
+init-local: check-project ## ローカル状態でTerraformを初期化
+	terraform init
+
+init-gcs: check-project ## GCS状態でTerraformを初期化
+	@echo "🔧 Initializing Terraform with GCS backend..."
+	@echo "Backend bucket: $(BACKEND_BUCKET)"
+	@echo "Backend prefix: $(BACKEND_PREFIX)"
+	terraform init \
+		-backend-config="bucket=$(BACKEND_BUCKET)" \
+		-backend-config="prefix=$(BACKEND_PREFIX)"
+	@echo "✅ Terraform initialized with GCS backend"
+
+migrate-to-gcs: check-project ## ローカル状態をGCSに移行
+	@echo "🔄 Migrating local state to GCS backend..."
+	@echo "Backend bucket: $(BACKEND_BUCKET)"
+	@echo "Backend prefix: $(BACKEND_PREFIX)"
+	@echo ""
+	@echo "⚠️  注意: この操作により、ローカルの terraform.tfstate がGCSに移行されます"
+	@read -p "続行しますか？ (yes/no): " confirm && [ "$$confirm" = "yes" ]
+	terraform init -migrate-state \
+		-backend-config="bucket=$(BACKEND_BUCKET)" \
+		-backend-config="prefix=$(BACKEND_PREFIX)"
+	@echo "✅ State migration completed"
+
+backup-local-state: ## ローカル状態ファイルをバックアップ
+	@if [ -f terraform.tfstate ]; then \
+		cp terraform.tfstate terraform.tfstate.backup-$(shell date +%Y%m%d-%H%M%S); \
+		echo "✅ Local state backed up"; \
+	else \
+		echo "❌ No local state file found"; \
+	fi

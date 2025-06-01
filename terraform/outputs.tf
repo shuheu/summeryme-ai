@@ -244,6 +244,19 @@ output "artifact_registry_repository_url" {
 }
 
 output "container_image_url" {
-  description = "Full container image URL used by Cloud Run"
+  description = "Full URL of the container image used for deployment"
   value       = var.container_image
+}
+
+# =============================================================================
+# Backend Configuration
+# =============================================================================
+
+output "backend_configuration" {
+  description = "GCS backend configuration for Terraform state management"
+  value = {
+    bucket = "${var.project_id}-terraform-state"
+    prefix = "summeryme-ai/backend"
+    init_command = "terraform init -backend-config=\"bucket=${var.project_id}-terraform-state\" -backend-config=\"prefix=summeryme-ai/backend\""
+  }
 }

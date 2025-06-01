@@ -25,6 +25,7 @@ env:
   PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   REGION: ${{ vars.GCP_REGION || 'asia-northeast1' }}
   SERVICE_NAME: ${{ vars.GCP_SERVICE_NAME || 'backend-api' }}
+  BACKEND_PREFIX: summeryme-ai/backend
 
 jobs:
   deploy:
@@ -140,6 +141,15 @@ jobs:
           environment     = "${{ github.event.inputs.environment || 'production' }}"
           container_image = "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/backend/backend-api:${{ github.sha }}"
           EOF
+
+          # GCSバックエンドでTerraformを初期化
+          echo "🔧 Initializing Terraform with GCS backend..."
+          echo "Backend bucket: ${{ env.PROJECT_ID }}-terraform-state"
+          echo "Backend prefix: ${{ env.BACKEND_PREFIX }}"
+
+          terraform init \
+            -backend-config="bucket=${{ env.PROJECT_ID }}-terraform-state" \
+            -backend-config="prefix=${{ env.BACKEND_PREFIX }}"
 
           # Makeコマンドを使用してCloud RunサービスとJobを更新
           make init

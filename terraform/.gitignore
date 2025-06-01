@@ -7,6 +7,8 @@
 *.tfstate
 *.tfstate.*
 terraform.tfstate*
+# 状態ファイルのバックアップ（タイムスタンプ付き）
+terraform.tfstate.backup-*
 
 # Crash log files
 crash.log
