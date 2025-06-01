@@ -167,7 +167,7 @@ resource "google_cloud_run_v2_job" "migrate" {
         image = var.container_image
 
         command = ["bash"]
-        args    = ["migrate.sh"]
+        args    = ["app/migrate.sh"]
 
         resources {
           limits = {
