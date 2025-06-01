@@ -122,7 +122,7 @@ variable "min_instances" {
 variable "max_instances" {
   description = "Maximum number of Cloud Run instances"
   type        = number
-  default     = 10
+  default     = 2  # ハッカソン用：コスト最適化
 
   validation {
     condition     = var.max_instances >= 1 && var.max_instances <= 1000
