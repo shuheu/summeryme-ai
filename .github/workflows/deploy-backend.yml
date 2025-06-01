@@ -103,7 +103,7 @@ jobs:
           container_image = "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/backend/backend-api:${{ github.sha }}"
           EOF
 
-          # 既存のMakeコマンドを使用してCloud RunサービスとJobを更新
+          # Makeコマンドを使用してCloud RunサービスとJobを更新
           make init
 
           # Terraform初期化の確認
