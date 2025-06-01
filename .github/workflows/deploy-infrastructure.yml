@@ -1,10 +1,19 @@
 name: 🚀 [Deploy] Infrastructure with Terraform
 
 on:
-  # TODO: test用
   push:
     branches:
-      - 'feat/**'
+      - main
+      - 'feat/**' # TODO: test用
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/deploy-infrastructure.yml'
+  pull_request:
+    branches:
+      - main
+    paths:
+      - 'terraform/**'
+      - '.github/workflows/deploy-infrastructure.yml'
   workflow_dispatch:
     inputs:
       action:
@@ -29,7 +38,7 @@ env:
 
 jobs:
   terraform:
-    name: Terraform ${{ github.event.inputs.action }}
+    name: Terraform ${{ github.event.inputs.action || 'plan' }}
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -76,34 +85,51 @@ jobs:
 
           echo "✅ Terraform initialized with GCS backend"
 
-      - name: �� Run Terraform Lint Checks
+      - name: 🔍 Setup and Run TFLint
         run: |
-          echo "🔍 Running comprehensive Terraform lint checks..."
-
-          # TFLintのセットアップと実行
+          echo "🔧 Setting up TFLint..."
           curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+
+          echo "🔍 Running TFLint..."
           tflint --init
           tflint --recursive
 
-          # tfsecのセットアップと実行
+          echo "✅ TFLint checks passed!"
+
+      - name: 🔒 Setup and Run tfsec
+        run: |
+          echo "🔧 Setting up tfsec..."
           curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
-          tfsec . --format=json --out=tfsec-results.json
 
-          # Checkovのセットアップと実行
+          echo "🔒 Running security scan..."
+          tfsec . --tfvars-file terraform.tfvars --format lovely
+
+          echo "✅ Security scan completed!"
+
+      - name: 📋 Setup and Run Checkov
+        run: |
+          echo "🔧 Setting up Checkov..."
           pip install checkov
-          checkov -d . --framework terraform --output json --output-file checkov-results.json
 
-          echo "✅ All lint checks passed!"
+          echo "📋 Running Checkov compliance checks..."
+          checkov -d . --framework terraform --quiet
+
+          echo "✅ Compliance checks completed!"
 
       - name: Terraform Validate
-        run: terraform validate
+        run: |
+          echo "✅ Validating Terraform configuration..."
+          terraform validate
 
       - name: Terraform Format Check
-        run: terraform fmt -check
+        run: |
+          echo "📝 Checking Terraform formatting..."
+          terraform fmt -check
 
       - name: Terraform Plan
-        if: ${{ github.event.inputs.action == 'plan' }}
+        if: ${{ github.event.inputs.action == 'plan' || github.event.inputs.action == '' }}
         run: |
+          echo "📋 Running Terraform plan..."
           if [ -n "${{ github.event.inputs.target }}" ]; then
             terraform plan -target="${{ github.event.inputs.target }}"
           else
@@ -113,6 +139,7 @@ jobs:
       - name: Terraform Apply
         if: ${{ github.event.inputs.action == 'apply' }}
         run: |
+          echo "🚀 Applying Terraform changes..."
           if [ -n "${{ github.event.inputs.target }}" ]; then
             terraform apply -auto-approve -target="${{ github.event.inputs.target }}"
           else
@@ -122,6 +149,8 @@ jobs:
       - name: Terraform Destroy
         if: ${{ github.event.inputs.action == 'destroy' }}
         run: |
+          echo "🗑️ Destroying Terraform resources..."
+          echo "⚠️ WARNING: This will destroy infrastructure!"
           if [ -n "${{ github.event.inputs.target }}" ]; then
             terraform destroy -auto-approve -target="${{ github.event.inputs.target }}"
           else
@@ -130,4 +159,16 @@ jobs:
 
       - name: Terraform Output
         if: ${{ github.event.inputs.action == 'apply' }}
-        run: terraform output
+        run: |
+          echo "📊 Terraform outputs:"
+          terraform output
+
+      - name: 📊 Upload Security Scan Results
+        if: false # always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-scan-results
+          path: |
+            terraform/tfsec-results.json
+            terraform/checkov-results.json
+          retention-days: 30

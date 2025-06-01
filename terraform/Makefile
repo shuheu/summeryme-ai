@@ -1,7 +1,7 @@
 # Makefile for Terraform Operations
 # Summeryme AI Backend Infrastructure
 
-.PHONY: help init plan apply destroy validate format check clean import output state lint lint-fix
+.PHONY: help init plan apply destroy validate format check check-all clean import output state lint lint-fix checkov checkov-json checkov-quiet security-all
 
 # 動的にGCPプロジェクトIDを取得
 PROJECT_ID := $(shell gcloud config get-value project 2>/dev/null)
@@ -90,6 +90,8 @@ lint-fix: ## TerraformコードのLint実行（自動修正可能な問題を修
 
 
 check: validate format lint ## 検証、フォーマット、Lintを実行
+
+check-all: validate format lint security-all ## 検証、フォーマット、Lint、セキュリティスキャンを実行
 
 # 情報表示
 output: ## 出力値を表示
@@ -272,10 +274,54 @@ backup-state: ## stateファイルのバックアップを作成
 # セキュリティ
 security-scan: ## セキュリティスキャンを実行（tfsecが必要）
 	@if command -v tfsec >/dev/null 2>&1; then \
-		tfsec .; \
+		echo "🔒 セキュリティスキャンを実行中..."; \
+		if [ -f terraform.tfvars ]; then \
+			tfsec . --tfvars-file terraform.tfvars --format lovely; \
+		else \
+			tfsec . --format lovely; \
+		fi; \
+		echo ""; \
+		echo "💡 詳細情報: https://aquasecurity.github.io/tfsec/"; \
 	else \
-		echo "tfsecがインストールされていません。brew install tfsec でインストールしてください"; \
+		echo "❌ tfsecがインストールされていません"; \
+		echo "以下のコマンドでインストールしてください:"; \
+		echo "  brew install tfsec"; \
+		echo "または"; \
+		echo "  curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash"; \
 	fi
+
+checkov: ## Checkovコンプライアンススキャンを実行
+	@if python3 -c "import checkov" 2>/dev/null; then \
+		echo "📋 Checkovコンプライアンススキャンを実行中..."; \
+		python3 -m checkov.main -d . --framework terraform --compact; \
+		echo "✅ Checkovスキャンが完了しました"; \
+	else \
+		echo "❌ checkovがインストールされていません"; \
+		echo "以下のコマンドでインストールしてください:"; \
+		echo "  pip install checkov"; \
+		echo "または"; \
+		echo "  brew install checkov"; \
+	fi
+
+checkov-json: ## Checkovスキャンを実行してJSON形式で出力
+	@if python3 -c "import checkov" 2>/dev/null; then \
+		echo "📋 Checkovスキャンを実行中（JSON出力）..."; \
+		python3 -m checkov.main -d . --framework terraform --output json --output-file checkov-results.json; \
+		echo "✅ 結果をcheckov-results.jsonに保存しました"; \
+	else \
+		echo "❌ checkovがインストールされていません"; \
+	fi
+
+checkov-quiet: ## Checkovスキャンを実行（簡潔出力）
+	@if python3 -c "import checkov" 2>/dev/null; then \
+		echo "📋 Checkovスキャンを実行中（簡潔モード）..."; \
+		python3 -m checkov.main -d . --framework terraform --quiet; \
+		echo "✅ Checkovスキャンが完了しました"; \
+	else \
+		echo "❌ checkovがインストールされていません"; \
+	fi
+
+security-all: security-scan checkov ## 全セキュリティスキャンを実行（tfsec + checkov）
 
 # ドキュメント生成
 docs: ## Terraformドキュメントを生成（terraform-docsが必要）
