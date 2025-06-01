@@ -4,7 +4,6 @@ import { Hono } from 'hono';
 import savedArticleRouter from './apis/savedArticle.js';
 import userDailySummaryRouter from './apis/userDailySummery.js';
 import { globalPrisma } from './lib/dbClient.js';
-import { createWorkerRoutes } from './routes/worker.js';
 
 const app = new Hono();
 
@@ -49,10 +48,6 @@ app.get('/health', async (c) => {
     );
   }
 });
-
-// Worker用ルートを追加
-const workerRoutes = createWorkerRoutes(globalPrisma);
-app.route('/worker', workerRoutes);
 
 app.route('/api/saved-articles', savedArticleRouter);
 app.route('/api/user-daily-summaries', userDailySummaryRouter);
