@@ -108,24 +108,6 @@ jobs:
         uses: actions/github-script@v7
         with:
           script: |
-            const fs = require('fs');
-            const { execSync } = require('child_process');
-
-            // Terraform planの結果を取得
-            let planOutput;
-            try {
-              planOutput = execSync('cd terraform && terraform show -no-color', { encoding: 'utf8' });
-            } catch (error) {
-              planOutput = 'Plan output not available';
-            }
-
-            const comment = `## 🔍 Terraform Plan Results
-
-            ### 📋 Plan Summary
-            \`\`\`
-            ${planOutput.slice(0, 2000)}${planOutput.length > 2000 ? '\n... (truncated)' : ''}
-            \`\`\`
-
             ### ✅ Validation Status
             - 📝 Format Check: Passed
             - ✅ Validation: Passed
