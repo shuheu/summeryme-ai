@@ -11,6 +11,10 @@ export const getPrisma = (): PrismaClient => {
   if (!global.prisma) {
     global.prisma = new PrismaClient();
   }
+  console.log(
+    'DATABASE_URL:',
+    process.env.DATABASE_URL?.replace(/:[^:@]*@/, ':***@'),
+  );
   return global.prisma;
 };
 
