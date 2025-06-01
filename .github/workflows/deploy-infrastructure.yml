@@ -1,4 +1,4 @@
-name: Deploy Infrastructure with Terraform
+name: 🚀 Deploy Infrastructure with Terraform
 
 on:
   # TODO: test用
@@ -56,13 +56,33 @@ jobs:
       - name: Create terraform.tfvars
         run: |
           cat > terraform.tfvars << EOF
-          project_id  = "${{ env.PROJECT_ID }}"
-          region      = "${{ env.REGION }}"
-          environment = "production"
+          project_id      = "${{ env.PROJECT_ID }}"
+          region          = "${{ env.REGION }}"
+          environment     = "production"
+          container_image = "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/backend/backend-api:latest"
           EOF
 
       - name: Terraform Init
         run: terraform init
+
+      - name: 🔍 Run Terraform Lint Checks
+        run: |
+          echo "🔍 Running comprehensive Terraform lint checks..."
+
+          # TFLintのセットアップと実行
+          curl -s https://raw.githubusercontent.com/terraform-linters/tflint/master/install_linux.sh | bash
+          tflint --init
+          tflint --recursive
+
+          # tfsecのセットアップと実行
+          curl -s https://raw.githubusercontent.com/aquasecurity/tfsec/master/scripts/install_linux.sh | bash
+          tfsec . --format=json --out=tfsec-results.json
+
+          # Checkovのセットアップと実行
+          pip install checkov
+          checkov -d . --framework terraform --output json --output-file checkov-results.json
+
+          echo "✅ All lint checks passed!"
 
       - name: Terraform Validate
         run: terraform validate
