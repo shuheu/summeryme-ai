@@ -92,7 +92,7 @@ jobs:
 
       - name: Verify Artifact Registry repository
         run: |
-          if ! gcloud artifacts repositories describe backend --location=${{ env.REGION }} >/dev/null 2>&1; then
+          if ! gcloud artifacts repositories describe backend --location=${{ env.REGION }} --project=${{ env.PROJECT_ID }} >/dev/null 2>&1; then
             echo "❌ エラー: Artifact Registryリポジトリ 'backend' が存在しません"
             echo "以下のコマンドで作成してください:"
             echo "  gcloud artifacts repositories create backend --repository-format=docker --location=${{ env.REGION }}"
