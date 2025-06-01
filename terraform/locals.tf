@@ -21,9 +21,6 @@ locals {
   # データベース接続URL
   database_url = "mysql://${local.db_user}:$${DB_PASSWORD}@localhost:3306/${local.database}?socket=/cloudsql/${local.cloud_sql_connection_name}"
 
-  # コンテナイメージURL（デフォルト値の生成）
-  container_image = var.container_image != "" ? var.container_image : "${var.region}-docker.pkg.dev/${var.project_id}/backend/backend-api:latest"
-
   # 必要なGoogle Cloud APIs
   required_apis = [
     "run.googleapis.com",

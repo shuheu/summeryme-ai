@@ -22,11 +22,9 @@ on:
         type: boolean
 
 env:
-  PROJECT_ID: ${{ vars.GCP_PROJECT_ID || 'numeric-skill-460414-d3' }}
+  PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
   REGION: ${{ vars.GCP_REGION || 'asia-northeast1' }}
   SERVICE_NAME: ${{ vars.GCP_SERVICE_NAME || 'backend-api' }}
-  MIGRATION_JOB_NAME: migrate-job
-  CLOUDSQL_INSTANCE: summeryme-db
 
 jobs:
   deploy:
@@ -40,24 +38,16 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-
-      - name: Set up pnpm
-        uses: pnpm/action-setup@v3
-        with:
-          version: 10.11.0
-
-      - name: Install dependencies
-        run: pnpm install --frozen-lockfile
-
-      - name: Generate Prisma client
-        run: pnpm prisma generate
-
-      - name: Build application
-        run: pnpm build
+      - name: Validate required variables
+        run: |
+          if [ -z "${{ env.PROJECT_ID }}" ]; then
+            echo "❌ エラー: GCP_PROJECT_ID変数が設定されていません"
+            echo "GitHub リポジトリの Variables で GCP_PROJECT_ID を設定してください"
+            exit 1
+          fi
+          echo "✅ PROJECT_ID: ${{ env.PROJECT_ID }}"
+          echo "✅ REGION: ${{ env.REGION }}"
+          echo "✅ SERVICE_NAME: ${{ env.SERVICE_NAME }}"
 
       - name: Authenticate to Google Cloud
         uses: google-github-actions/auth@v2
@@ -69,8 +59,23 @@ jobs:
         with:
           project_id: ${{ env.PROJECT_ID }}
 
+      - name: Configure gcloud project
+        run: |
+          gcloud config set project ${{ env.PROJECT_ID }}
+          echo "✅ gcloud project set to: $(gcloud config get-value project)"
+
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker ${{ env.REGION }}-docker.pkg.dev
+
+      - name: Verify Artifact Registry repository
+        run: |
+          if ! gcloud artifacts repositories describe backend --location=${{ env.REGION }} >/dev/null 2>&1; then
+            echo "❌ エラー: Artifact Registryリポジトリ 'backend' が存在しません"
+            echo "以下のコマンドで作成してください:"
+            echo "  gcloud artifacts repositories create backend --repository-format=docker --location=${{ env.REGION }}"
+            exit 1
+          fi
+          echo "✅ Artifact Registryリポジトリ 'backend' が存在します"
 
       - name: Build Docker image
         run: |
@@ -82,34 +87,66 @@ jobs:
           docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/backend/backend-api:${{ github.sha }}
           docker push ${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/backend/backend-api:latest
 
-      - name: Deploy to Cloud Run
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.6.0
+
+      - name: Deploy with Terraform
+        working-directory: ./terraform
         run: |
-          gcloud run deploy ${{ env.SERVICE_NAME }} \
-            --image=${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/backend/backend-api:${{ github.sha }} \
-            --platform=managed \
-            --region=${{ env.REGION }} \
-            --allow-unauthenticated \
-            --memory=1Gi \
-            --cpu=1 \
-            --concurrency=100 \
-            --min-instances=0 \
-            --max-instances=10 \
-            --timeout=900 \
-            --set-env-vars="NODE_ENV=${{ github.event.inputs.environment }},LOG_LEVEL=info,GOOGLE_CLOUD_PROJECT=${{ env.PROJECT_ID }},GCP_REGION=${{ env.REGION }}" \
-            --set-cloudsql-instances=${{ env.PROJECT_ID }}:${{ env.REGION }}:${{ env.CLOUDSQL_INSTANCE }} \
-            --set-secrets="DB_PASSWORD=db-password:latest" \
-            --set-env-vars="DATABASE_URL=mysql://summeryme_user:\$${DB_PASSWORD}@localhost:3306/summeryme_production?socket=/cloudsql/${{ env.PROJECT_ID }}:${{ env.REGION }}:${{ env.CLOUDSQL_INSTANCE }}"
+          # terraform.tfvarsを動的に作成
+          cat > terraform.tfvars << EOF
+          project_id      = "${{ env.PROJECT_ID }}"
+          region          = "${{ env.REGION }}"
+          environment     = "${{ github.event.inputs.environment || 'production' }}"
+          container_image = "${{ env.REGION }}-docker.pkg.dev/${{ env.PROJECT_ID }}/backend/backend-api:${{ github.sha }}"
+          EOF
+
+          # 既存のMakeコマンドを使用してCloud RunサービスとJobを更新
+          make init
+
+          # Terraform初期化の確認
+          if [ ! -d ".terraform" ]; then
+            echo "❌ エラー: Terraform初期化に失敗しました"
+            exit 1
+          fi
+          echo "✅ Terraform初期化完了"
+
+          # 変更内容の確認
+          echo "🔍 Cloud Runサービスの変更内容を確認中..."
+          make plan-cloud-run
+
+          echo "🔍 Cloud Run Jobの変更内容を確認中..."
+          make plan-cloud-run-job
+
+          # 変更の適用
+          echo "🚀 Cloud Runサービスを更新中..."
+          make apply-cloud-run
+
+          echo "🚀 Cloud Run Jobを更新中..."
+          make apply-cloud-run-job
+
+      - name: Verify deployment
+        working-directory: ./terraform
+        run: |
+          # Cloud Runサービスの状態確認
+          if ! gcloud run services describe ${{ env.SERVICE_NAME }} --region=${{ env.REGION }} >/dev/null 2>&1; then
+            echo "❌ エラー: Cloud Runサービスのデプロイに失敗しました"
+            exit 1
+          fi
+          echo "✅ Cloud Runサービスのデプロイ成功"
 
       - name: Run database migration
         if: ${{ github.event.inputs.run_migration == 'true' }}
+        working-directory: ./terraform
         run: |
-          echo "Running database migration..."
-          gcloud run jobs execute ${{ env.MIGRATION_JOB_NAME }} \
-            --region=${{ env.REGION }} \
-            --wait
+          echo "🔄 データベースマイグレーションを実行中..."
+          make migrate
 
       - name: Get service URL
         id: get-url
+        working-directory: ./
         run: |
           URL=$(gcloud run services describe ${{ env.SERVICE_NAME }} \
             --region=${{ env.REGION }} \
@@ -118,6 +155,7 @@ jobs:
           echo "Service deployed to: $URL"
 
       - name: Health check
+        working-directory: ./
         run: |
           echo "Performing health check..."
           sleep 30  # Wait for service to be ready
@@ -128,6 +166,7 @@ jobs:
           echo "Health check completed!"
 
       - name: Deployment summary
+        working-directory: ./
         run: |
           echo "🚀 Deployment completed successfully!"
           echo "📍 Environment: ${{ github.event.inputs.environment }}"

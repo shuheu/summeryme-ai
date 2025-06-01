@@ -92,7 +92,13 @@ plan-cloud-run: check-project ## Cloud Runサービスのみプラン表示
 	terraform plan -target=google_cloud_run_v2_service.main
 
 apply-cloud-run: check-project ## Cloud Runサービスのみ更新
-	terraform apply -target=google_cloud_run_v2_service.main
+	terraform apply -auto-approve -target=google_cloud_run_v2_service.main
+
+plan-cloud-run-job: check-project ## Cloud Run Jobのみプラン表示
+	terraform plan -target=google_cloud_run_v2_job.migrate
+
+apply-cloud-run-job: check-project ## Cloud Run Jobのみ更新
+	terraform apply -auto-approve -target=google_cloud_run_v2_job.migrate
 
 plan-cloud-sql: check-project ## Cloud SQLのみプラン表示
 	terraform plan -target=google_sql_database_instance.main

@@ -245,5 +245,5 @@ output "artifact_registry_repository_url" {
 
 output "container_image_url" {
   description = "Full container image URL used by Cloud Run"
-  value       = local.container_image
+  value       = var.container_image
 }

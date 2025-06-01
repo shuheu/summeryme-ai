@@ -79,11 +79,10 @@ variable "db_disk_size" {
 variable "container_image" {
   description = "Container image URL to deploy to Cloud Run"
   type        = string
-  default     = ""
 
   validation {
-    condition     = var.container_image == "" || can(regex("^(gcr\\.io|.*\\.pkg\\.dev)/.*", var.container_image))
-    error_message = "Container image must be from Google Container Registry or Artifact Registry, or empty for auto-generation."
+    condition     = can(regex("^(gcr\\.io|.*\\.pkg\\.dev)/.*", var.container_image))
+    error_message = "Container image must be from Google Container Registry or Artifact Registry."
   }
 }
 

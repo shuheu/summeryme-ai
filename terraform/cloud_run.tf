@@ -41,7 +41,7 @@ resource "google_cloud_run_v2_service" "main" {
     }
 
     containers {
-      image = local.container_image
+      image = var.container_image
 
       ports {
         container_port = 8080
@@ -164,7 +164,7 @@ resource "google_cloud_run_v2_job" "migrate" {
       }
 
       containers {
-        image = local.container_image
+        image = var.container_image
 
         command = ["npx"]
         args    = ["prisma", "migrate", "deploy"]
