@@ -63,7 +63,7 @@ No modules.
 | <a name="input_db_tier"></a> [db\_tier](#input\_db\_tier) | Cloud SQL instance machine type (affects performance and cost) | `string` | `"db-f1-micro"` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment name (affects resource naming and configuration) | `string` | `"production"` | no |
 | <a name="input_log_level"></a> [log\_level](#input\_log\_level) | Application log level (affects verbosity of logs) | `string` | `"info"` | no |
-| <a name="input_max_instances"></a> [max\_instances](#input\_max\_instances) | Maximum number of Cloud Run instances | `number` | `10` | no |
+| <a name="input_max_instances"></a> [max\_instances](#input\_max\_instances) | Maximum number of Cloud Run instances | `number` | `2` | no |
 | <a name="input_memory_limit"></a> [memory\_limit](#input\_memory\_limit) | Memory limit for Cloud Run service (e.g., '1Gi', '512Mi') | `string` | `"1Gi"` | no |
 | <a name="input_min_instances"></a> [min\_instances](#input\_min\_instances) | Minimum number of Cloud Run instances (0 = scale to zero) | `number` | `0` | no |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | Google Cloud Project ID where resources will be created | `string` | n/a | yes |
