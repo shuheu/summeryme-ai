@@ -4,7 +4,7 @@
 # データベースパスワード生成
 resource "random_password" "db_password" {
   length  = 32
-  special = true
+  special = false
   upper   = true
   lower   = true
   numeric = true
@@ -17,7 +17,7 @@ resource "random_password" "db_password" {
 
   # パスワードの再生成を防ぐ
   keepers = {
-    version = "1"
+    version = "4"  # バージョンを変更してパスワード再生成
   }
 
   lifecycle {
