@@ -19,6 +19,7 @@ app.get('/health/basic', (c) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
+    database_url: process.env.DATABASE_URL,
     service: 'backend-api',
   });
 });
