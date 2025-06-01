@@ -1,4 +1,4 @@
-name: Lint and Format Check (backend_ts)
+name: '🔍 [BACKEND] Lint'
 
 on:
   push:

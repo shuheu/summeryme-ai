@@ -1,4 +1,4 @@
-name: PR Check
+name: '🔍 [FRONTEND] Lint'
 
 on:
   push:

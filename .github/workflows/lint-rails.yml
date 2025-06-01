@@ -1,4 +1,4 @@
-name: RuboCop Lint
+name: '🔍 [RAILS] Lint'
 
 on:
   push:
