@@ -14,7 +14,7 @@
 
 ```bash
 docker compose build
-docker compose run bin/api rails db:drop db:create db:migrate db:seed
+docker compose run --rm api rails db:drop db:create db:migrate db:seed
 docker compose up
 ```
 
