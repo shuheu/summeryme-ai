@@ -61,6 +61,7 @@ pnpm dev
 
 - `GET /` - Hello Hono! メッセージ
 - `GET /health` - サーバーヘルスチェック
+- `POST /api/auth/login` - Firebase ID トークンでログイン/登録
 
 ### Worker エンドポイント（GCP認証必要）
 
