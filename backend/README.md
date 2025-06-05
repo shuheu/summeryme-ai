@@ -1,6 +1,6 @@
 # README
 
-## getting start
+## Getting Started
 
 ### 必要なもの
 
