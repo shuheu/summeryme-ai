@@ -7,6 +7,13 @@ import 'themes/app_theme.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  const channel = MethodChannel('com.summeryme.share_extension');
+  channel.setMethodCallHandler((call) async {
+    if (call.method == 'openURL') {
+      final url = call.arguments as String?;
+      debugPrint('Received shared URL: $url');
+    }
+  });
 
   // テキストレンダリングの品質を向上
   if (!kIsWeb) {
