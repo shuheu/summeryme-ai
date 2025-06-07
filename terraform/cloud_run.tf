@@ -66,9 +66,30 @@ resource "google_cloud_run_v2_service" "main" {
         value = var.log_level
       }
 
+      # データベース接続情報を個別の環境変数として設定
       env {
-        name  = "DATABASE_URL"
-        value = local.database_url
+        name  = "DB_HOST"
+        value = "localhost" # Cloud SQL Proxyを使用するためlocalhost
+      }
+
+      env {
+        name  = "DB_PORT"
+        value = "3306"
+      }
+
+      env {
+        name  = "DB_USER"
+        value = local.db_user
+      }
+
+      env {
+        name  = "DB_NAME"
+        value = local.database
+      }
+
+      env {
+        name  = "DB_SOCKET_PATH"
+        value = "/cloudsql/${local.cloud_sql_connection_name}"
       }
 
       # Secret Manager からの環境変数
@@ -182,9 +203,30 @@ resource "google_cloud_run_v2_job" "migrate" {
           value = var.environment
         }
 
+        # データベース接続情報を個別の環境変数として設定
         env {
-          name  = "DATABASE_URL"
-          value = local.database_url
+          name  = "DB_HOST"
+          value = "localhost"
+        }
+
+        env {
+          name  = "DB_PORT"
+          value = "3306"
+        }
+
+        env {
+          name  = "DB_USER"
+          value = local.db_user
+        }
+
+        env {
+          name  = "DB_NAME"
+          value = local.database
+        }
+
+        env {
+          name  = "DB_SOCKET_PATH"
+          value = "/cloudsql/${local.cloud_sql_connection_name}"
         }
 
         # Secret Manager からの環境変数
