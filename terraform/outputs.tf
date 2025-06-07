@@ -90,12 +90,6 @@ output "database_user" {
   value       = google_sql_user.main.name
 }
 
-output "database_url_template" {
-  description = "Database URL template (replace DB_PASSWORD with actual password)"
-  value       = local.database_url
-  sensitive   = true
-}
-
 # =============================================================================
 # Secret Manager
 # =============================================================================

@@ -63,7 +63,7 @@ No modules.
 | <a name="input_db_tier"></a> [db\_tier](#input\_db\_tier) | Cloud SQL instance machine type (affects performance and cost) | `string` | `"db-f1-micro"` | no |
 | <a name="input_environment"></a> [environment](#input\_environment) | Environment name (affects resource naming and configuration) | `string` | `"production"` | no |
 | <a name="input_log_level"></a> [log\_level](#input\_log\_level) | Application log level (affects verbosity of logs) | `string` | `"info"` | no |
-| <a name="input_max_instances"></a> [max\_instances](#input\_max\_instances) | Maximum number of Cloud Run instances | `number` | `10` | no |
+| <a name="input_max_instances"></a> [max\_instances](#input\_max\_instances) | Maximum number of Cloud Run instances | `number` | `2` | no |
 | <a name="input_memory_limit"></a> [memory\_limit](#input\_memory\_limit) | Memory limit for Cloud Run service (e.g., '1Gi', '512Mi') | `string` | `"1Gi"` | no |
 | <a name="input_min_instances"></a> [min\_instances](#input\_min\_instances) | Minimum number of Cloud Run instances (0 = scale to zero) | `number` | `0` | no |
 | <a name="input_project_id"></a> [project\_id](#input\_project\_id) | Google Cloud Project ID where resources will be created | `string` | n/a | yes |
@@ -88,7 +88,6 @@ No modules.
 | <a name="output_cloud_sql_instance_public_ip_address"></a> [cloud\_sql\_instance\_public\_ip\_address](#output\_cloud\_sql\_instance\_public\_ip\_address) | Public IP address of the Cloud SQL instance (if enabled) |
 | <a name="output_container_image_url"></a> [container\_image\_url](#output\_container\_image\_url) | Full URL of the container image used for deployment |
 | <a name="output_database_name"></a> [database\_name](#output\_database\_name) | Name of the application database |
-| <a name="output_database_url_template"></a> [database\_url\_template](#output\_database\_url\_template) | Database URL template (replace DB\_PASSWORD with actual password) |
 | <a name="output_database_user"></a> [database\_user](#output\_database\_user) | Database user name for application connections |
 | <a name="output_db_password_secret_id"></a> [db\_password\_secret\_id](#output\_db\_password\_secret\_id) | Secret Manager secret ID for database password |
 | <a name="output_db_password_secret_name"></a> [db\_password\_secret\_name](#output\_db\_password\_secret\_name) | Full resource name of the database password secret |
