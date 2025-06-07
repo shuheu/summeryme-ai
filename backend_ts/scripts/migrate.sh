@@ -1,5 +1,8 @@
 #!/bin/bash
 set -e
+# 説明
+# このスクリプトは、データベースのマイグレーションを実行するためのものです。
+# DATABASE_URLを動的に構築してprisma migrate deployを実行します。
 
 echo "=== Starting Prisma Migration ==="
 
