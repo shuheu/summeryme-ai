@@ -187,7 +187,7 @@ resource "google_cloud_run_v2_job" "migrate" {
       containers {
         image = var.container_image
 
-        # TypeScriptマイグレーションスクリプトを実行
+        # bashスクリプトでマイグレーションを実行
         command = ["pnpm"]
         args    = ["run", "migrate"]
 
