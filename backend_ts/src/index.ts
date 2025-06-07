@@ -4,8 +4,10 @@ import { Hono } from 'hono';
 import savedArticleRouter from './apis/savedArticle.js';
 import userDailySummaryRouter from './apis/userDailySummery.js';
 
+import type { PrismaClient } from '@prisma/client/extension';
+
 // Prismaクライアントのインポートを遅延させる
-let globalPrisma: any;
+let globalPrisma: PrismaClient;
 
 const app = new Hono();
 
