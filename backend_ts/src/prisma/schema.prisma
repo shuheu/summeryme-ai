@@ -12,8 +12,8 @@ generator client {
 
 datasource db {
   provider = "mysql"
-  // URLはアプリケーション側で動的に構築するため、ここではプレースホルダーを使用
-  url      = "mysql://placeholder:placeholder@localhost:3306/placeholder"
+  // URLは環境変数から取得
+  url      = env("DATABASE_URL")
 }
 
 model User {

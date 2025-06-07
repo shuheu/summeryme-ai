@@ -28,7 +28,7 @@ else
   echo "✅ Using TCP connection"
 fi
 
-echo "DATABASE_URL configured (password hidden)"
+echo "DATABASE_URL configured: ${DATABASE_URL//$DB_PASSWORD/***}"
 
 # Prismaクライアントの確認（既に生成済みのはず）
 echo "Checking Prisma Client..."
@@ -37,6 +37,12 @@ if [ ! -d "src/prisma/generated/prisma" ]; then
   npx prisma generate
 else
   echo "✅ Prisma Client already exists"
+fi
+
+# データベース接続テスト
+echo "Testing database connection..."
+if ! npx prisma db execute --stdin <<<"SELECT 1;" >/dev/null 2>&1; then
+  echo "⚠️ Database connection test failed, but proceeding with migration..."
 fi
 
 # マイグレーションの実行
