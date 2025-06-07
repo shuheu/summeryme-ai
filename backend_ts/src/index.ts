@@ -8,21 +8,15 @@ import userDailySummaryRouter from './apis/userDailySummery.js';
 console.log('=== Environment Variables Debug ===');
 console.log('NODE_ENV:', process.env.NODE_ENV);
 console.log('PORT:', process.env.PORT);
-console.log('DATABASE_URL exists:', !!process.env.DATABASE_URL);
-console.log('DATABASE_URL length:', process.env.DATABASE_URL?.length || 0);
+console.log('DB_HOST:', process.env.DB_HOST);
+console.log('DB_PORT:', process.env.DB_PORT);
+console.log('DB_USER:', process.env.DB_USER);
+console.log('DB_NAME:', process.env.DB_NAME);
 console.log('DB_PASSWORD exists:', !!process.env.DB_PASSWORD);
-console.log('DB_PASSWORD length:', process.env.DB_PASSWORD?.length || 0);
-console.log(
-  'DATABASE_URL contains placeholder:',
-  process.env.DATABASE_URL?.includes('${DB_PASSWORD}') || false,
-);
+console.log('DB_SOCKET_PATH:', process.env.DB_SOCKET_PATH);
 console.log(
   'All env vars starting with DB:',
   Object.keys(process.env).filter((key) => key.startsWith('DB')),
-);
-console.log(
-  'All env vars starting with DATABASE:',
-  Object.keys(process.env).filter((key) => key.startsWith('DATABASE')),
 );
 console.log('===================================');
 
@@ -41,12 +35,12 @@ app.get('/health/basic', (c) => {
     status: 'healthy',
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || 'development',
-    database_url_exists: !!process.env.DATABASE_URL,
-    database_url_length: process.env.DATABASE_URL?.length || 0,
+    db_host_exists: !!process.env.DB_HOST,
+    db_port_exists: !!process.env.DB_PORT,
+    db_user_exists: !!process.env.DB_USER,
+    db_name_exists: !!process.env.DB_NAME,
     db_password_exists: !!process.env.DB_PASSWORD,
-    db_password_length: process.env.DB_PASSWORD?.length || 0,
-    database_url_has_placeholder:
-      process.env.DATABASE_URL?.includes('${DB_PASSWORD}') || false,
+    db_socket_path_exists: !!process.env.DB_SOCKET_PATH,
     service: 'backend-api',
   });
 });
@@ -69,14 +63,17 @@ app.get('/health', async (c) => {
       timestamp: new Date().toISOString(),
       environment: process.env.NODE_ENV || 'development',
       database: 'connected',
-      database_url_exists: !!process.env.DATABASE_URL,
+      db_host_exists: !!process.env.DB_HOST,
+      db_port_exists: !!process.env.DB_PORT,
+      db_user_exists: !!process.env.DB_USER,
+      db_name_exists: !!process.env.DB_NAME,
       db_password_exists: !!process.env.DB_PASSWORD,
-      database_url_has_placeholder:
-        process.env.DATABASE_URL?.includes('${DB_PASSWORD}') || false,
+      db_socket_path_exists: !!process.env.DB_SOCKET_PATH,
     });
   } catch (error) {
     console.error('Health check failed:', error);
-    console.error('DATABASE_URL at error time:', !!process.env.DATABASE_URL);
+    console.error('DB_HOST at error time:', !!process.env.DB_HOST);
+    console.error('DB_PASSWORD at error time:', !!process.env.DB_PASSWORD);
 
     return c.json(
       {
@@ -84,10 +81,12 @@ app.get('/health', async (c) => {
         timestamp: new Date().toISOString(),
         environment: process.env.NODE_ENV || 'development',
         database: 'disconnected',
-        database_url_exists: !!process.env.DATABASE_URL,
+        db_host_exists: !!process.env.DB_HOST,
+        db_port_exists: !!process.env.DB_PORT,
+        db_user_exists: !!process.env.DB_USER,
+        db_name_exists: !!process.env.DB_NAME,
         db_password_exists: !!process.env.DB_PASSWORD,
-        database_url_has_placeholder:
-          process.env.DATABASE_URL?.includes('${DB_PASSWORD}') || false,
+        db_socket_path_exists: !!process.env.DB_SOCKET_PATH,
         error: error instanceof Error ? error.message : 'Unknown error',
       },
       503,
@@ -121,7 +120,11 @@ serve(
   },
   (info) => {
     console.log(`Server is running on http://localhost:${info.port}`);
-    console.log('DATABASE_URL at server start:', !!process.env.DATABASE_URL);
+    console.log('DB_HOST at server start:', !!process.env.DB_HOST);
     console.log('DB_PASSWORD at server start:', !!process.env.DB_PASSWORD);
+    console.log(
+      'DB_SOCKET_PATH at server start:',
+      !!process.env.DB_SOCKET_PATH,
+    );
   },
 );

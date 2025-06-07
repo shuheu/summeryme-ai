@@ -112,7 +112,7 @@ resource "google_cloud_run_v2_service" "main" {
       # ヘルスチェック設定
       startup_probe {
         http_get {
-          path = "/health"
+          path = "/health/basic"
           port = 8080
         }
         initial_delay_seconds = 10
@@ -123,7 +123,7 @@ resource "google_cloud_run_v2_service" "main" {
 
       liveness_probe {
         http_get {
-          path = "/health"
+          path = "/health/basic"
           port = 8080
         }
         initial_delay_seconds = 30
