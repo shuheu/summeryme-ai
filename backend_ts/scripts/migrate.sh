@@ -30,9 +30,14 @@ fi
 
 echo "DATABASE_URL configured (password hidden)"
 
-# Prismaクライアントの生成
-echo "Generating Prisma Client..."
-npx prisma generate
+# Prismaクライアントの確認（既に生成済みのはず）
+echo "Checking Prisma Client..."
+if [ ! -d "src/prisma/generated/prisma" ]; then
+  echo "⚠️ Prisma Client not found, generating..."
+  npx prisma generate
+else
+  echo "✅ Prisma Client already exists"
+fi
 
 # マイグレーションの実行
 echo "Running Prisma migrations..."
