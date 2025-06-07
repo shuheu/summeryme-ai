@@ -203,7 +203,7 @@ jobs:
         run: |
           echo "Performing health check..."
           sleep 30  # Wait for service to be ready
-          curl -f ${{ steps.get-url.outputs.SERVICE_URL }}/health/basic || exit 1
+          curl -f ${{ steps.get-url.outputs.SERVICE_URL }}/health || exit 1
           echo "Basic health check passed!"
           echo "Testing database health check..."
           curl -f ${{ steps.get-url.outputs.SERVICE_URL }}/health || echo "Database health check failed (this is expected if DB connection issues exist)"

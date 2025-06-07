@@ -123,9 +123,5 @@ serve(
     console.log(`Server is running on http://localhost:${info.port}`);
     console.log('DATABASE_URL at server start:', !!process.env.DATABASE_URL);
     console.log('DB_PASSWORD at server start:', !!process.env.DB_PASSWORD);
-    console.log(
-      'DATABASE_URL has placeholder:',
-      process.env.DATABASE_URL?.includes('${DB_PASSWORD}') || false,
-    );
   },
 );
