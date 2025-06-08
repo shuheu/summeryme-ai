@@ -23,7 +23,7 @@ echo "DB_SOCKET_PATH: $DB_SOCKET_PATH"
 # DATABASE_URLの動的構築
 if [ -n "$DB_SOCKET_PATH" ]; then
   # Cloud SQL Proxy（Unix Socket）接続
-  export DATABASE_URL="mysql://$DB_USER:$DB_PASSWORD@localhost/$DB_NAME?socket=$DB_SOCKET_PATH"
+  export DATABASE_URL="mysql://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME?socket=$DB_SOCKET_PATH"
   echo "✅ Using Cloud SQL Proxy connection"
 else
   # TCP接続
