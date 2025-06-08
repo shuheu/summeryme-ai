@@ -14,6 +14,7 @@ resource "random_password" "db_password" {
 
   # シングルクォート、ダブルクォート、バックスラッシュを除外
   # MySQLで問題を起こす可能性のある文字を避ける
+  override_special = "!@#$%^&*()-_=+[]{}|;:,.<>?"
 
   # パスワードの再生成を防ぐ
   keepers = {
