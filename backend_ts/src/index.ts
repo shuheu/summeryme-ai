@@ -3,7 +3,11 @@ import { Hono } from 'hono';
 
 import savedArticleRouter from './apis/savedArticle.js';
 import userDailySummaryRouter from './apis/userDailySummery.js';
-import { globalPrisma } from './lib/dbClient.js';
+
+import type { PrismaClient } from '@prisma/client/extension';
+
+// Prismaクライアントのインポートを遅延させる
+let globalPrisma: PrismaClient;
 
 const app = new Hono();
 
@@ -24,6 +28,13 @@ app.get('/health/basic', (c) => {
 // 完全なヘルスチェック（データベース接続含む）
 app.get('/health', async (c) => {
   try {
+    // Prismaクライアントを動的にインポート
+    if (!globalPrisma) {
+      console.log('Dynamically importing Prisma client...');
+      const { globalPrisma: prisma } = await import('./lib/dbClient.js');
+      globalPrisma = prisma;
+    }
+
     // データベース接続をテスト
     await globalPrisma.$queryRaw`SELECT 1`;
 
@@ -35,6 +46,8 @@ app.get('/health', async (c) => {
     });
   } catch (error) {
     console.error('Health check failed:', error);
+    console.error('DB_HOST at error time:', !!process.env.DB_HOST);
+    console.error('DB_PASSWORD at error time:', !!process.env.DB_PASSWORD);
 
     return c.json(
       {
@@ -49,17 +62,22 @@ app.get('/health', async (c) => {
   }
 });
 
+// 動的にルーターをインポート
 app.route('/api/saved-articles', savedArticleRouter);
 app.route('/api/user-daily-summaries', userDailySummaryRouter);
 
 // Prismaクライアントの接続を適切に終了
 process.on('SIGINT', async () => {
-  await globalPrisma.$disconnect();
+  if (globalPrisma) {
+    await globalPrisma.$disconnect();
+  }
   process.exit(0);
 });
 
 process.on('SIGTERM', async () => {
-  await globalPrisma.$disconnect();
+  if (globalPrisma) {
+    await globalPrisma.$disconnect();
+  }
   process.exit(0);
 });
 
@@ -69,6 +87,6 @@ serve(
     port: Number(process.env.PORT) || 8080,
   },
   (info) => {
-    console.log(`Server is running on http://localhost:${info.port}`);
+    console.log(`🚀 Server is running on http://localhost:${info.port}`);
   },
 );
