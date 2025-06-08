@@ -17,7 +17,7 @@ resource "random_password" "db_password" {
 
   # パスワードの再生成を防ぐ
   keepers = {
-    version = "4" # バージョンを変更してパスワード再生成
+    version = "1" # バージョンを変更してパスワード再生成
   }
 
   lifecycle {
