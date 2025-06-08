@@ -1,5 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:http/http.dart' as http;
 import 'login_screen.dart';
 import '../main_tab_screen.dart';
 
@@ -20,6 +23,7 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
   bool _agreeToTerms = false;
+  static const String _backendBaseUrl = 'http://localhost:8080';
 
   @override
   void dispose() {
@@ -35,19 +39,36 @@ class _SignupScreenState extends State<SignupScreen> {
       setState(() {
         _isLoading = true;
       });
-
-      // シミュレートされた登録処理
-      await Future<void>.delayed(const Duration(seconds: 2));
-
-      setState(() {
-        _isLoading = false;
-      });
-
-      if (mounted) {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute<void>(builder: (context) => const MainTabScreen()),
+      try {
+        final credential =
+            await FirebaseAuth.instance.createUserWithEmailAndPassword(
+          email: _emailController.text.trim(),
+          password: _passwordController.text,
         );
+        final idToken = await credential.user?.getIdToken();
+        if (idToken != null) {
+          await http.post(
+            Uri.parse('$_backendBaseUrl/api/auth/login'),
+            headers: {'Content-Type': 'application/json'},
+            body: jsonEncode({'idToken': idToken}),
+          );
+        }
+        if (mounted) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute<void>(builder: (context) => const MainTabScreen()),
+          );
+        }
+      } on FirebaseAuthException catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(e.message ?? 'Signup failed')),
+        );
+      } finally {
+        if (mounted) {
+          setState(() {
+            _isLoading = false;
+          });
+        }
       }
     } else if (!_agreeToTerms) {
       ScaffoldMessenger.of(context).showSnackBar(

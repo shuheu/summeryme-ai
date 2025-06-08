@@ -1,6 +1,7 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
 
+import authRouter from './apis/auth.js';
 import savedArticleRouter from './apis/savedArticle.js';
 import userDailySummaryRouter from './apis/userDailySummery.js';
 import { globalPrisma } from './lib/dbClient.js';
@@ -51,6 +52,7 @@ app.get('/health', async (c) => {
 
 app.route('/api/saved-articles', savedArticleRouter);
 app.route('/api/user-daily-summaries', userDailySummaryRouter);
+app.route('/api/auth', authRouter);
 
 // Prismaクライアントの接続を適切に終了
 process.on('SIGINT', async () => {
