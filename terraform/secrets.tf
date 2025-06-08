@@ -9,9 +9,6 @@ resource "random_password" "db_password" {
   lower   = true
   numeric = true
 
-  # MySQL互換性のため問題のある特殊文字を除外
-  # override_special = "!@#$%^&*()-_=+[]{}|;:,.<>?"
-
   # シングルクォート、ダブルクォート、バックスラッシュを除外
   # MySQLで問題を起こす可能性のある文字を避ける
   override_special = "!@#$%^&*()-_=+[]{}|;:,.<>?"
