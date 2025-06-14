@@ -8,4 +8,4 @@ backend_ts/cloud-sql-proxy
 dist
 
 # Frontend environment variables
-frontend/.env
+frontend/.env.development
