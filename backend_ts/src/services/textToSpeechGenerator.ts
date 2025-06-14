@@ -227,23 +227,6 @@ export class TextToSpeechGenerator {
   }
 
   /**
-   * 出力ディレクトリが存在することを確認し、存在しない場合は作成する
-   * 注意：GCS使用時はローカルディレクトリは一時的な目的でのみ使用
-   * @private
-   */
-  private async ensureOutputDirectory(): Promise<void> {
-    try {
-      await mkdir(this.localOutputDir, { recursive: true });
-    } catch (error) {
-      console.error(
-        `出力ディレクトリの作成に失敗しました: ${this.localOutputDir}`,
-        error,
-      );
-      throw error;
-    }
-  }
-
-  /**
    * バイナリファイルをローカルファイルシステムに保存する
    * 注意：この関数は後方互換性のため保持していますが、GCS使用時は使用されません
    * @param {string} fileName - 保存するファイル名
