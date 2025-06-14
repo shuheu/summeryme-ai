@@ -3,17 +3,34 @@ import { writeFile } from 'fs';
 import { GoogleGenAI } from '@google/genai';
 import mime from 'mime';
 
+/**
+ * WAV 形式への変換オプション
+ */
 interface WavConversionOptions {
+  /** チャンネル数 */
   numChannels: number;
+  /** サンプリングレート (Hz) */
   sampleRate: number;
+  /** ビット深度 */
   bitsPerSample: number;
 }
 
+/**
+ * テキスト読み上げ音声生成サービス
+ * Google Gemini AI を使用してテキストを音声に変換する
+ */
 export class TextToSpeechGenerator {
+  /**
+   * TextToSpeechGenerator のコンストラクタ
+   */
   constructor() {}
 
-  // テキスト読み上げを生成する
-  // 現状のファイルの保存先はローカルに保存される
+  /**
+   * テキスト読み上げ音声を生成する
+   * 現在の実装では音声ファイルはローカルファイルシステムに保存される
+   * @param {string} talkScript - 読み上げるテキストスクリプト
+   * @throws {Error} API キーが設定されていない場合や API 呼び出しが失敗した場合
+   */
   async generate(talkScript: string) {
     const ai = new GoogleGenAI({
       apiKey: process.env.GEMINI_API_KEY,
@@ -92,6 +109,12 @@ export class TextToSpeechGenerator {
     }
   }
 
+  /**
+   * バイナリファイルをローカルファイルシステムに保存する
+   * @param {string} fileName - 保存するファイル名
+   * @param {Buffer} content - 保存するバイナリデータ
+   * @private
+   */
   private saveBinaryFile(fileName: string, content: Buffer) {
     writeFile(fileName, content, 'utf8', (err) => {
       if (err) {
@@ -102,6 +125,13 @@ export class TextToSpeechGenerator {
     });
   }
 
+  /**
+   * 生の音声データを WAV 形式に変換する
+   * @param {string} rawData - Base64 エンコードされた生の音声データ
+   * @param {string} mimeType - 元の音声データの MIME タイプ
+   * @returns {Buffer} WAV 形式に変換されたバイナリデータ
+   * @private
+   */
   private convertToWav(rawData: string, mimeType: string) {
     const options = this.parseMimeType(mimeType);
     const wavHeader = this.createWavHeader(rawData.length, options);
@@ -110,6 +140,12 @@ export class TextToSpeechGenerator {
     return Buffer.concat([wavHeader, buffer]);
   }
 
+  /**
+   * MIME タイプから WAV 変換オプションを解析する
+   * @param {string} mimeType - 解析する MIME タイプ
+   * @returns {WavConversionOptions} WAV 変換オプション
+   * @private
+   */
   private parseMimeType(mimeType: string) {
     const [fileType, ...params] = mimeType.split(';').map((s) => s.trim());
     const [_, format] = fileType.split('/');
@@ -135,6 +171,13 @@ export class TextToSpeechGenerator {
     return options as WavConversionOptions;
   }
 
+  /**
+   * WAV ファイルのヘッダーを作成する
+   * @param {number} dataLength - 音声データの長さ（バイト）
+   * @param {WavConversionOptions} options - WAV 変換オプション
+   * @returns {Buffer} WAV ヘッダーのバイナリデータ
+   * @private
+   */
   private createWavHeader(dataLength: number, options: WavConversionOptions) {
     const { numChannels, sampleRate, bitsPerSample } = options;
 
