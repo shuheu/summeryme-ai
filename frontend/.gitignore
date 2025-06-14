@@ -48,3 +48,5 @@ app.*.map.json
 
 # specstory cursor拡張機能
 .specstory
+
+.env

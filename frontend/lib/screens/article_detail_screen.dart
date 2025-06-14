@@ -38,13 +38,6 @@ class ArticleDetailScreen extends StatelessWidget {
                   color: Colors.black.withValues(alpha: 0.3),
                   shape: BoxShape.circle,
                 ),
-                child: IconButton(
-                  icon: Icon(
-                    article.isSaved ? Icons.bookmark : Icons.bookmark_border,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {},
-                ),
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
@@ -97,17 +90,6 @@ class ArticleDetailScreen extends StatelessWidget {
                         const SizedBox(width: 12),
                         Text(
                           article.timeAgo,
-                          style: AppTextStyles.bodySmall(isTablet),
-                        ),
-                        const Spacer(),
-                        const Icon(
-                          Icons.access_time,
-                          size: 16,
-                          color: AppColors.textSecondary,
-                        ),
-                        const SizedBox(width: 4),
-                        Text(
-                          article.readTime,
                           style: AppTextStyles.bodySmall(isTablet),
                         ),
                       ],

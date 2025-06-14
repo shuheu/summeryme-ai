@@ -8,8 +8,13 @@
     "migrate": "bash scripts/migrate.sh",
     "migrate:deploy": "npx prisma migrate deploy",
     "lint": "eslint . --ext .ts --report-unused-disable-directives --max-warnings 0",
+    "lint-fix": "eslint . --ext .ts --report-unused-disable-directives --max-warnings 0 --fix",
     "format": "prettier --write .",
-    "format-check": "prettier --check ."
+    "format-check": "prettier --check .",
+    "typespec": "tsp compile src/typespec/main.tsp",
+    "typespec:watch": "tsp compile src/typespec/main.tsp --watch",
+    "generate:types": "pnpm typespec && npx openapi-typescript ./tsp-output/@typespec/openapi3/openapi.yaml -o ./src/types/api.generated.ts",
+    "generate-api-client": "openapi-generator-cli generate -g dart -i ./tsp-output/@typespec/openapi3/openapi.yaml -o ./tsp-output/dart"
   },
   "prisma": {
     "schema": "src/prisma/schema.prisma"
@@ -26,14 +31,21 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.28.0",
+    "@openapitools/openapi-generator-cli": "^2.20.2",
     "@types/node": "^20.11.17",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
+    "@typespec/compiler": "^1.1.0",
+    "@typespec/http": "^1.1.0",
+    "@typespec/openapi3": "^1.1.0",
+    "@typespec/rest": "^0.71.0",
+    "@typespec/versioning": "^0.71.0",
     "eslint": "^9.27.0",
     "eslint-config-prettier": "^10.1.5",
     "eslint-import-resolver-typescript": "^4.3.5",
     "eslint-plugin-import": "^2.31.0",
     "eslint-plugin-prettier": "^5.4.0",
+    "openapi-typescript": "^7.8.0",
     "prettier": "^3.5.3",
     "tsx": "^4.7.1",
     "typescript": "^5.8.3"
