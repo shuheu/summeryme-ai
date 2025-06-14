@@ -85,23 +85,6 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
     }
   }
 
-  String _getRelativeTime(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
-    if (difference.inMinutes < 60) {
-      return '${difference.inMinutes}分前';
-    } else if (difference.inHours < 24) {
-      return '${difference.inHours}時間前';
-    } else if (difference.inDays < 7) {
-      return '${difference.inDays}日前';
-    } else if (difference.inDays < 30) {
-      return '${(difference.inDays / 7).floor()}週間前';
-    } else {
-      return '${(difference.inDays / 30).floor()}ヶ月前';
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
