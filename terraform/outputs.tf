@@ -212,7 +212,7 @@ output "useful_commands" {
     logs_command   = "gcloud logging read \"resource.type=cloud_run_revision AND resource.labels.service_name=${google_cloud_run_v2_service.main.name}\" --limit=50"
 
     # Job commands
-    migrate_command        = "gcloud run jobs execute ${google_cloud_run_v2_job.migrate.name} --region=${var.region}"
+    migrate_command         = "gcloud run jobs execute ${google_cloud_run_v2_job.migrate.name} --region=${var.region}"
     article_summary_command = "gcloud run jobs execute ${google_cloud_run_v2_job.article_summary.name} --region=${var.region}"
     daily_summary_command   = "gcloud run jobs execute ${google_cloud_run_v2_job.daily_summary.name} --region=${var.region}"
 
@@ -226,7 +226,7 @@ output "useful_commands" {
     get_password_command = "gcloud secrets versions access latest --secret=\"${google_secret_manager_secret.db_password.secret_id}\""
 
     # GCS commands
-    list_audio_files_command = "gsutil ls gs://${google_storage_bucket.audio_files.name}/"
+    list_audio_files_command  = "gsutil ls gs://${google_storage_bucket.audio_files.name}/"
     audio_bucket_info_command = "gsutil du -s gs://${google_storage_bucket.audio_files.name}/"
   }
 }
