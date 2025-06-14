@@ -54,6 +54,11 @@ export class BatchProcessService {
     this.aiTextGenerator = new AiTextContentGenerator();
     this.textToSpeechGenerator = new TextToSpeechGenerator();
     this.concurrencyLimit = concurrencyLimit;
+
+    // モックモードの場合はログ出力
+    if (process.env.USE_MOCK_TTS === 'true') {
+      console.log('🎭 音声生成モックモードで実行します');
+    }
   }
 
   /**

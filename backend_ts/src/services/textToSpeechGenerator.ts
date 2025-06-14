@@ -1,6 +1,7 @@
 import { writeFile } from 'fs';
 import { mkdir } from 'fs/promises';
 import { join } from 'path';
+import { setTimeout } from 'timers';
 
 import { GoogleGenAI } from '@google/genai';
 import mime from 'mime';
@@ -24,6 +25,8 @@ interface WavConversionOptions {
 export class TextToSpeechGenerator {
   /** 音声ファイルの保存先ディレクトリ */
   private readonly outputDir: string;
+  /** モックモードかどうか */
+  private readonly isMockMode: boolean;
 
   /**
    * TextToSpeechGenerator のコンストラクタ
@@ -31,6 +34,7 @@ export class TextToSpeechGenerator {
    */
   constructor(outputDir: string = 'output/audio') {
     this.outputDir = outputDir;
+    this.isMockMode = process.env.USE_MOCK_TTS === 'true';
   }
 
   /**
@@ -42,6 +46,11 @@ export class TextToSpeechGenerator {
    * @throws {Error} API キーが設定されていない場合や API 呼び出しが失敗した場合
    */
   async generate(talkScript: string, id: string | number): Promise<string[]> {
+    // モックモードの場合はダミーファイルを返す
+    if (this.isMockMode) {
+      return this.generateMockAudioFiles(talkScript, id);
+    }
+
     // 出力ディレクトリを事前に作成
     await this.ensureOutputDirectory();
 
@@ -127,6 +136,76 @@ export class TextToSpeechGenerator {
     }
 
     return generatedFiles;
+  }
+
+  /**
+   * 開発用のモック音声ファイルを生成する
+   * 実際のファイルは作成せず、ダミーのパスを返す
+   * @param {string} talkScript - 読み上げるテキストスクリプト
+   * @param {string | number} id - ファイル名に含めるID
+   * @returns {Promise<string[]>} モック音声ファイルのパス一覧
+   * @private
+   */
+  private async generateMockAudioFiles(
+    talkScript: string,
+    id: string | number,
+  ): Promise<string[]> {
+    console.log('🎭 モックモード: ダミー音声ファイルを生成します');
+    console.log(`テキスト長: ${talkScript.length}文字`);
+
+    // 出力ディレクトリを作成
+    await this.ensureOutputDirectory();
+
+    // テキストの長さに基づいてダミーファイル数を決定（1000文字ごとに1ファイル）
+    const estimatedFileCount = Math.max(1, Math.ceil(talkScript.length / 1000));
+    const mockFiles: string[] = [];
+
+    for (let i = 0; i < estimatedFileCount; i++) {
+      const fileName = `tts-${id}_${i}.wav`;
+      const filePath = join(this.outputDir, fileName);
+
+      // ダミーのWAVファイルを作成（1秒間の無音）
+      await this.createMockWavFile(filePath);
+      mockFiles.push(filePath);
+
+      console.log(`🎭 モック音声ファイル作成: ${filePath}`);
+    }
+
+    // 少し遅延を追加して実際の処理時間をシミュレート
+    await new Promise((resolve) => setTimeout(resolve, 500));
+
+    console.log(`🎭 モック音声生成完了: ${mockFiles.length}ファイル作成`);
+    return mockFiles;
+  }
+
+  /**
+   * ダミーのWAVファイルを作成する（1秒間の無音）
+   * @param {string} filePath - 作成するファイルのパス
+   * @private
+   */
+  private async createMockWavFile(filePath: string): Promise<void> {
+    const sampleRate = 22050; // 22.05kHz
+    const duration = 1; // 1秒
+    const numChannels = 1;
+    const bitsPerSample = 16;
+    const numSamples = sampleRate * duration;
+    const dataSize = numSamples * numChannels * (bitsPerSample / 8);
+
+    // WAVヘッダーを作成
+    const wavHeader = this.createWavHeader(dataSize, {
+      numChannels,
+      sampleRate,
+      bitsPerSample,
+    });
+
+    // 無音データ（すべて0）
+    const silenceData = Buffer.alloc(dataSize, 0);
+
+    // ヘッダーとデータを結合
+    const wavFile = Buffer.concat([wavHeader, silenceData]);
+
+    // ファイルに保存
+    await this.saveBinaryFile(filePath.split('/').pop() || 'mock.wav', wavFile);
   }
 
   /**
