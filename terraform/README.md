@@ -160,6 +160,11 @@ make migrate
 - **シークレット**: `db-password`
 - **内容**: データベースパスワード（自動生成）
 
+### Google Cloud Storage
+- **バケット**: `{PROJECT_ID}-summeryme-audio`
+- **用途**: 音声ファイルの保存
+- **アクセス**: プライベート（認証が必要）
+
 ### Cloud Run
 - **サービス**: `backend-api`
 - **設定**: 1 vCPU, 1GB RAM, 0-10インスタンス

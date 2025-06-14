@@ -153,6 +153,12 @@ plan-vpc: check-project ## VPCネットワークのみプラン表示
 apply-vpc: check-project ## VPCネットワークのみ更新
 	terraform apply -target=google_compute_network.main -target=google_compute_subnetwork.main
 
+plan-storage: check-project ## GCSストレージのみプラン表示
+	terraform plan -target=google_storage_bucket.audio_files
+
+apply-storage: check-project ## GCSストレージのみ更新
+	terraform apply -target=google_storage_bucket.audio_files
+
 # マイグレーション
 migrate: check-project ## データベースマイグレーションジョブを実行
 	@echo "マイグレーションジョブを実行中..."
@@ -213,7 +219,7 @@ import-service-accounts: check-project ## 既存のサービスアカウント�
 import-apis: check-project ## 既存のAPIサービスをインポート
 	@echo "APIサービスをインポート中..."
 	@echo "プロジェクト: $(PROJECT_ID)"
-	@for api in run.googleapis.com sqladmin.googleapis.com secretmanager.googleapis.com cloudbuild.googleapis.com containerregistry.googleapis.com artifactregistry.googleapis.com logging.googleapis.com monitoring.googleapis.com compute.googleapis.com servicenetworking.googleapis.com vpcaccess.googleapis.com; do \
+	@for api in run.googleapis.com sqladmin.googleapis.com secretmanager.googleapis.com cloudbuild.googleapis.com containerregistry.googleapis.com artifactregistry.googleapis.com logging.googleapis.com monitoring.googleapis.com compute.googleapis.com servicenetworking.googleapis.com vpcaccess.googleapis.com storage.googleapis.com; do \
 		echo "インポート中: $$api"; \
 		terraform import "google_project_service.required_apis[\"$$api\"]" $(PROJECT_ID)/$$api || echo "$$api のインポートに失敗（既に有効化済みの可能性）"; \
 	done
@@ -234,6 +240,36 @@ import-cloud-run-iam: check-project ## 既存のCloud Run IAM設定をインポ�
 		terraform import "google_cloud_run_service_iam_member.public_access[0]" "projects/$(PROJECT_ID)/locations/$(REGION)/services/backend-api roles/run.invoker allUsers"; \
 	else \
 		echo "パブリックアクセス設定が見つかりません（新規作成されます）"; \
+	fi
+
+import-storage: check-project ## 既存のGCSバケットをインポート
+	@echo "GCSバケットをインポート中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
+	@BUCKET_NAME="$(PROJECT_ID)-summeryme-audio"; \
+	if gsutil ls -b gs://$$BUCKET_NAME >/dev/null 2>&1; then \
+		terraform import google_storage_bucket.audio_files $$BUCKET_NAME; \
+		echo "✅ バケット $$BUCKET_NAME をインポートしました"; \
+	else \
+		echo "❌ バケット $$BUCKET_NAME が見つかりません（新規作成されます）"; \
+	fi
+
+import-storage-iam: check-project ## 既存のGCSバケットIAM設定をインポート
+	@echo "GCSバケットIAM設定をインポート中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
+	@BUCKET_NAME="$(PROJECT_ID)-summeryme-audio"; \
+	SERVICE_ACCOUNT="backend-api-sa@$(PROJECT_ID).iam.gserviceaccount.com"; \
+	if gsutil iam get gs://$$BUCKET_NAME | grep -q "$$SERVICE_ACCOUNT"; then \
+		terraform import google_storage_bucket_iam_member.audio_bucket_admin "b/$$BUCKET_NAME roles/storage.objectAdmin serviceAccount:$$SERVICE_ACCOUNT"; \
+		echo "✅ Cloud RunサービスアカウントのIAM設定をインポートしました"; \
+	else \
+		echo "❌ Cloud RunサービスアカウントのIAM設定が見つかりません（新規作成されます）"; \
+	fi
+	@GITHUB_SA="github-actions@$(PROJECT_ID).iam.gserviceaccount.com"; \
+	if gsutil iam get gs://$$BUCKET_NAME | grep -q "$$GITHUB_SA"; then \
+		terraform import google_storage_bucket_iam_member.audio_bucket_github_admin "b/$$BUCKET_NAME roles/storage.objectAdmin serviceAccount:$$GITHUB_SA"; \
+		echo "✅ GitHub ActionsサービスアカウントのIAM設定をインポートしました"; \
+	else \
+		echo "❌ GitHub ActionsサービスアカウントのIAM設定が見つかりません（新規作成されます）"; \
 	fi
 
 # 環境別操作
@@ -359,7 +395,7 @@ setup: init setup-prod validate ## 初期セットアップを実行
 	@echo "3. make apply でリソースを作成"
 
 # 全体インポート
-import-all: import-apis import-service-accounts import-cloud-sql import-cloud-sql-database import-cloud-run import-cloud-run-job import-secret import-artifact-registry ## 全てのリソースをインポート
+import-all: import-apis import-service-accounts import-cloud-sql import-cloud-sql-database import-cloud-run import-cloud-run-job import-secret import-artifact-registry import-storage import-storage-iam ## 全てのリソースをインポート
 
 # 状態管理
 init-local: check-project ## ローカル状態でTerraformを初期化

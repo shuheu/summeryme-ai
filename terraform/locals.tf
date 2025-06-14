@@ -31,7 +31,8 @@ locals {
     "monitoring.googleapis.com",
     "compute.googleapis.com",
     "servicenetworking.googleapis.com",
-    "vpcaccess.googleapis.com"
+    "vpcaccess.googleapis.com",
+    "storage.googleapis.com"
   ]
 
   # 環境別設定

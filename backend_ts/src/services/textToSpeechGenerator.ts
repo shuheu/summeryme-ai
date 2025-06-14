@@ -4,6 +4,7 @@ import { join } from 'path';
 import { setTimeout } from 'timers';
 
 import { GoogleGenAI } from '@google/genai';
+import { Storage } from '@google-cloud/storage';
 import mime from 'mime';
 
 /**
@@ -20,29 +21,40 @@ interface WavConversionOptions {
 
 /**
  * テキスト読み上げ音声生成サービス
- * Google Gemini AI を使用してテキストを音声に変換する
+ * Google Gemini AI を使用してテキストを音声に変換し、Google Cloud Storage にアップロードする
  */
 export class TextToSpeechGenerator {
-  /** 音声ファイルの保存先ディレクトリ */
-  private readonly outputDir: string;
+  /** GCS クライアント */
+  private readonly gcsClient: Storage;
+  /** 音声ファイルアップロード先のバケット名 */
+  private readonly bucketName: string;
+  /** ローカルディレクトリ（一時保存用） */
+  private readonly localOutputDir: string;
   /** モックモードかどうか */
   private readonly isMockMode: boolean;
 
   /**
    * TextToSpeechGenerator のコンストラクタ
-   * @param {string} outputDir - 音声ファイルの保存先ディレクトリ（デフォルト: 'output/audio'）
+   * @param {string} localOutputDir - 一時保存用ローカルディレクトリ（デフォルト: 'output/audio'）
    */
-  constructor(outputDir: string = 'output/audio') {
-    this.outputDir = outputDir;
+  constructor(localOutputDir: string = 'output/audio') {
+    this.gcsClient = new Storage();
+    this.bucketName = process.env.GCS_AUDIO_BUCKET || '';
+    this.localOutputDir = localOutputDir;
     this.isMockMode = process.env.USE_MOCK_TTS === 'true';
+
+    if (!this.bucketName && !this.isMockMode) {
+      throw new Error('GCS_AUDIO_BUCKET環境変数が設定されていません');
+    }
+
+    console.log(`音声ファイル保存先: GCS Bucket ${this.bucketName}`);
   }
 
   /**
-   * テキスト読み上げ音声を生成する
-   * 現在の実装では音声ファイルはローカルファイルシステムに保存される
+   * テキスト読み上げ音声を生成し、GCSにアップロードする
    * @param {string} talkScript - 読み上げるテキストスクリプト
    * @param {string | number} id - ファイル名に含めるID
-   * @returns {Promise<string[]>} 生成された音声ファイルのパス一覧
+   * @returns {Promise<string[]>} 生成された音声ファイルのGCS URI一覧
    * @throws {Error} API キーが設定されていない場合や API 呼び出しが失敗した場合
    */
   async generate(talkScript: string, id: string | number): Promise<string[]> {
@@ -50,9 +62,6 @@ export class TextToSpeechGenerator {
     if (this.isMockMode) {
       return this.generateMockAudioFiles(talkScript, id);
     }
-
-    // 出力ディレクトリを事前に作成
-    await this.ensureOutputDirectory();
 
     const ai = new GoogleGenAI({
       apiKey: process.env.GEMINI_API_KEY,
@@ -115,11 +124,13 @@ export class TextToSpeechGenerator {
       ) {
         continue;
       }
+
       if (chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
         const fileName = `tts-${id}_${fileIndex++}`;
         const inlineData = chunk.candidates[0].content.parts[0].inlineData;
         let fileExtension = mime.getExtension(inlineData.mimeType || '');
         let buffer = Buffer.from(inlineData.data || '', 'base64');
+
         if (!fileExtension) {
           fileExtension = 'wav';
           buffer = this.convertToWav(
@@ -127,9 +138,10 @@ export class TextToSpeechGenerator {
             inlineData.mimeType || '',
           );
         }
+
         const fullFileName = `${fileName}.${fileExtension}`;
-        await this.saveBinaryFile(fullFileName, buffer);
-        generatedFiles.push(join(this.outputDir, fullFileName));
+        const gcsPath = await this.uploadToGCS(fullFileName, buffer);
+        generatedFiles.push(gcsPath);
       } else {
         console.log(chunk.text);
       }
@@ -139,11 +151,46 @@ export class TextToSpeechGenerator {
   }
 
   /**
+   * バイナリデータをGCSにアップロードする
+   * @param {string} fileName - アップロードするファイル名
+   * @param {Buffer} content - アップロードするバイナリデータ
+   * @returns {Promise<string>} アップロードされたファイルのGCS URI
+   * @private
+   */
+  private async uploadToGCS(
+    fileName: string,
+    content: Buffer,
+  ): Promise<string> {
+    try {
+      const bucket = this.gcsClient.bucket(this.bucketName);
+      const gcsFileName = `audio/${new Date().toISOString().slice(0, 10)}/${fileName}`;
+      const file = bucket.file(gcsFileName);
+
+      // ファイルをGCSにアップロード
+      await file.save(content, {
+        metadata: {
+          contentType: 'audio/wav',
+          cacheControl: 'public, max-age=86400', // 1日キャッシュ
+        },
+        resumable: false, // 小さなファイルの場合は直接アップロード
+      });
+
+      const gcsUri = `gs://${this.bucketName}/${gcsFileName}`;
+      console.log(`音声ファイルがGCSにアップロードされました: ${gcsUri}`);
+
+      return gcsUri;
+    } catch (error) {
+      console.error(`GCSアップロードエラー ${fileName}:`, error);
+      throw new Error(`GCSへのアップロードに失敗しました: ${fileName}`);
+    }
+  }
+
+  /**
    * 開発用のモック音声ファイルを生成する
-   * 実際のファイルは作成せず、ダミーのパスを返す
+   * 実際のファイルは作成せず、ダミーのGCS URIを返す
    * @param {string} talkScript - 読み上げるテキストスクリプト
    * @param {string | number} id - ファイル名に含めるID
-   * @returns {Promise<string[]>} モック音声ファイルのパス一覧
+   * @returns {Promise<string[]>} モック音声ファイルのGCS URI一覧
    * @private
    */
   private async generateMockAudioFiles(
@@ -153,22 +200,16 @@ export class TextToSpeechGenerator {
     console.log('🎭 モックモード: ダミー音声ファイルを生成します');
     console.log(`テキスト長: ${talkScript.length}文字`);
 
-    // 出力ディレクトリを作成
-    await this.ensureOutputDirectory();
-
     // テキストの長さに基づいてダミーファイル数を決定（1000文字ごとに1ファイル）
     const estimatedFileCount = Math.max(1, Math.ceil(talkScript.length / 1000));
     const mockFiles: string[] = [];
 
     for (let i = 0; i < estimatedFileCount; i++) {
       const fileName = `tts-${id}_${i}.wav`;
-      const filePath = join(this.outputDir, fileName);
+      const mockGcsUri = `gs://mock-bucket/audio/${new Date().toISOString().slice(0, 10)}/${fileName}`;
+      mockFiles.push(mockGcsUri);
 
-      // ダミーのWAVファイルを作成（1秒間の無音）
-      await this.createMockWavFile(filePath);
-      mockFiles.push(filePath);
-
-      console.log(`🎭 モック音声ファイル作成: ${filePath}`);
+      console.log(`🎭 モック音声ファイル: ${mockGcsUri}`);
     }
 
     // 少し遅延を追加して実際の処理時間をシミュレート
@@ -179,45 +220,16 @@ export class TextToSpeechGenerator {
   }
 
   /**
-   * ダミーのWAVファイルを作成する（1秒間の無音）
-   * @param {string} filePath - 作成するファイルのパス
-   * @private
-   */
-  private async createMockWavFile(filePath: string): Promise<void> {
-    const sampleRate = 22050; // 22.05kHz
-    const duration = 1; // 1秒
-    const numChannels = 1;
-    const bitsPerSample = 16;
-    const numSamples = sampleRate * duration;
-    const dataSize = numSamples * numChannels * (bitsPerSample / 8);
-
-    // WAVヘッダーを作成
-    const wavHeader = this.createWavHeader(dataSize, {
-      numChannels,
-      sampleRate,
-      bitsPerSample,
-    });
-
-    // 無音データ（すべて0）
-    const silenceData = Buffer.alloc(dataSize, 0);
-
-    // ヘッダーとデータを結合
-    const wavFile = Buffer.concat([wavHeader, silenceData]);
-
-    // ファイルに保存
-    await this.saveBinaryFile(filePath.split('/').pop() || 'mock.wav', wavFile);
-  }
-
-  /**
    * 出力ディレクトリが存在することを確認し、存在しない場合は作成する
+   * 注意：GCS使用時はローカルディレクトリは一時的な目的でのみ使用
    * @private
    */
   private async ensureOutputDirectory(): Promise<void> {
     try {
-      await mkdir(this.outputDir, { recursive: true });
+      await mkdir(this.localOutputDir, { recursive: true });
     } catch (error) {
       console.error(
-        `出力ディレクトリの作成に失敗しました: ${this.outputDir}`,
+        `出力ディレクトリの作成に失敗しました: ${this.localOutputDir}`,
         error,
       );
       throw error;
@@ -226,6 +238,7 @@ export class TextToSpeechGenerator {
 
   /**
    * バイナリファイルをローカルファイルシステムに保存する
+   * 注意：この関数は後方互換性のため保持していますが、GCS使用時は使用されません
    * @param {string} fileName - 保存するファイル名
    * @param {Buffer} content - 保存するバイナリデータ
    * @private
@@ -234,7 +247,7 @@ export class TextToSpeechGenerator {
     fileName: string,
     content: Buffer,
   ): Promise<void> {
-    const filePath = join(this.outputDir, fileName);
+    const filePath = join(this.localOutputDir, fileName);
 
     return new Promise((resolve, reject) => {
       writeFile(filePath, content, (err) => {
@@ -329,5 +342,15 @@ export class TextToSpeechGenerator {
     buffer.writeUInt32LE(dataLength, 40); // Subchunk2Size
 
     return buffer;
+  }
+
+  /**
+   * ダミーのWAVファイルを作成してGCSにアップロードする（モック用）
+   * @param {string} gcsUri - アップロード先のGCS URI
+   * @private
+   */
+  private async createMockWavFile(gcsUri: string): Promise<void> {
+    // モックモードでは実際のファイル作成は行わない
+    console.log(`🎭 モックファイル作成: ${gcsUri}`);
   }
 }

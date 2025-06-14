@@ -234,9 +234,13 @@ export class BatchProcessService {
       `音声ファイル作成完了 - ${generatedAudioFiles.length}件のファイルが生成されました`,
     );
 
-    // 最初の音声ファイルのパスをaudioUrlとして使用
+    // 最初の音声ファイルのGCS URIをaudioUrlとして使用
     const audioUrl =
-      generatedAudioFiles.length > 0 ? generatedAudioFiles[0] : audioFileName;
+      generatedAudioFiles.length > 0 ? generatedAudioFiles[0] : '';
+
+    if (!audioUrl) {
+      console.warn('音声ファイルが生成されませんでした');
+    }
 
     // 日次要約を生成
     console.log('日次要約生成を開始します');

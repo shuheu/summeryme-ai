@@ -91,6 +91,25 @@ output "database_user" {
 }
 
 # =============================================================================
+# Google Cloud Storage
+# =============================================================================
+
+output "audio_storage_bucket_name" {
+  description = "Name of the GCS bucket for audio files"
+  value       = google_storage_bucket.audio_files.name
+}
+
+output "audio_storage_bucket_url" {
+  description = "URL of the GCS bucket for audio files"
+  value       = google_storage_bucket.audio_files.url
+}
+
+output "audio_storage_bucket_location" {
+  description = "Location of the GCS bucket for audio files"
+  value       = google_storage_bucket.audio_files.location
+}
+
+# =============================================================================
 # Secret Manager
 # =============================================================================
 
@@ -183,6 +202,10 @@ output "useful_commands" {
 
     # Secret commands
     get_password_command = "gcloud secrets versions access latest --secret=\"${google_secret_manager_secret.db_password.secret_id}\""
+
+    # GCS commands
+    list_audio_files_command = "gsutil ls gs://${google_storage_bucket.audio_files.name}/"
+    audio_bucket_info_command = "gsutil du -s gs://${google_storage_bucket.audio_files.name}/"
   }
 }
 
@@ -210,6 +233,10 @@ output "resource_summary" {
       connection_name = google_sql_database_instance.main.connection_name
       database        = google_sql_database.main.name
       user            = google_sql_user.main.name
+    }
+
+    storage = {
+      audio_bucket = google_storage_bucket.audio_files.name
     }
 
     service_accounts = {

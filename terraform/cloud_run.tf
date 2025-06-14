@@ -103,6 +103,12 @@ resource "google_cloud_run_v2_service" "main" {
         }
       }
 
+      # GCS設定
+      env {
+        name  = "GCS_AUDIO_BUCKET"
+        value = google_storage_bucket.audio_files.name
+      }
+
       # Cloud SQL ボリュームマウント
       volume_mounts {
         name       = "cloudsql"
@@ -149,7 +155,8 @@ resource "google_cloud_run_v2_service" "main" {
     google_project_service.required_apis,
     google_sql_database_instance.main,
     google_secret_manager_secret_version.db_password,
-    google_vpc_access_connector.main
+    google_vpc_access_connector.main,
+    google_storage_bucket.audio_files
   ]
 
   lifecycle {
@@ -241,6 +248,12 @@ resource "google_cloud_run_v2_job" "migrate" {
           }
         }
 
+        # GCS設定
+        env {
+          name  = "GCS_AUDIO_BUCKET"
+          value = google_storage_bucket.audio_files.name
+        }
+
         # Cloud SQL ボリュームマウント
         volume_mounts {
           name       = "cloudsql"
@@ -254,7 +267,8 @@ resource "google_cloud_run_v2_job" "migrate" {
     google_project_service.required_apis,
     google_sql_database_instance.main,
     google_secret_manager_secret_version.db_password,
-    google_vpc_access_connector.main
+    google_vpc_access_connector.main,
+    google_storage_bucket.audio_files
   ]
 
   lifecycle {
