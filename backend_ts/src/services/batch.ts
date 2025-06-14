@@ -59,6 +59,9 @@ export class BatchProcessService {
     if (process.env.USE_MOCK_TTS === 'true') {
       console.log('🎭 音声生成モックモードで実行します');
     }
+    if (process.env.USE_MOCK_SUMMERY_AI === 'true') {
+      console.log('🤖 AI生成モックモードで実行します');
+    }
   }
 
   /**
@@ -171,9 +174,8 @@ export class BatchProcessService {
       const prompt = buildArticleSummaryPrompt(article.url);
       console.log(`記事要約生成開始 - ID: ${article.id}, URL: ${article.url}`);
 
-      // TODO: AI生成を有効化する場合はコメントアウトを外す
-      // const aiGeneratedSummaryText = await this.aiTextGenerator.generate(prompt);
-      const aiGeneratedSummaryText = `テスト要約 - ${article.title || article.url}`;
+      const aiGeneratedSummaryText =
+        await this.aiTextGenerator.generate(prompt);
 
       if (!aiGeneratedSummaryText) {
         console.warn(`記事要約生成失敗 - ID: ${article.id}`);
