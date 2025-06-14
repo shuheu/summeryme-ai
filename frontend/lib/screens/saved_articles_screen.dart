@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/article.dart';
 import '../screens/article_detail_screen.dart';
+import '../services/api_service.dart';
 import '../themes/app_theme.dart';
 
 class SavedArticlesScreen extends StatefulWidget {
@@ -11,81 +12,88 @@ class SavedArticlesScreen extends StatefulWidget {
 }
 
 class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
-  // 日付ごとにグルーピングされた記事データ
-  final Map<String, List<Article>> groupedArticles = {
-    '今日': [
-      Article(
-        id: '1',
-        title: '2024年最新ガジェット：注目の新製品レビュー',
-        source: 'Engadget日本版',
-        timeAgo: '2時間前',
-        summary: '今年発表された革新的なガジェットと最新テクノロジーを詳しく紹介...',
-        imageUrl: '',
-        readTime: '5分で読める',
-        isSaved: true,
-        isRead: false,
-      ),
-      Article(
-        id: '2',
-        title: '医療AI革命：患者ケアの未来を変える技術',
-        source: 'ITmedia',
-        timeAgo: '4時間前',
-        summary: '人工知能が医療現場にもたらす変革と今後の展望について...',
-        imageUrl: '',
-        readTime: '7分で読める',
-        isSaved: true,
-        isRead: true,
-      ),
-    ],
-    '昨日': [
-      Article(
-        id: '3',
-        title: '持続可能エネルギーの未来：再生可能エネルギー最前線',
-        source: 'CNET Japan',
-        timeAgo: '1日前',
-        summary: '環境に優しい次世代エネルギー技術の最新動向を探る...',
-        imageUrl: '',
-        readTime: '6分で読める',
-        isSaved: true,
-        isRead: false,
-      ),
-      Article(
-        id: '4',
-        title: 'リモートワーク文化の台頭：働き方改革の現在',
-        source: '日経新聞',
-        timeAgo: '1日前',
-        summary: 'テレワークが職場環境に与える影響と企業の対応策...',
-        imageUrl: '',
-        readTime: '8分で読める',
-        isSaved: true,
-        isRead: true,
-      ),
-    ],
-    '今週': [
-      Article(
-        id: '5',
-        title: '世界経済動向分析：2024年の市場予測',
-        source: '東洋経済オンライン',
-        timeAgo: '3日前',
-        summary: '現在の世界経済パターンと今後の見通しについての詳細分析...',
-        imageUrl: '',
-        readTime: '10分で読める',
-        isSaved: true,
-        isRead: true,
-      ),
-      Article(
-        id: '6',
-        title: '気候変動対策2024：最新研究と解決策',
-        source: 'ナショナルジオグラフィック',
-        timeAgo: '5日前',
-        summary: '地球温暖化対策の最新研究成果と効果的な緩和戦略...',
-        imageUrl: '',
-        readTime: '12分で読める',
-        isSaved: true,
-        isRead: false,
-      ),
-    ],
-  };
+  final ApiService _apiService = ApiService();
+  final _urlController = TextEditingController();
+  final _titleController = TextEditingController();
+  Map<String, List<Article>> groupedArticles = {};
+  bool isLoading = true;
+  String? errorMessage;
+  int currentPage = 1;
+  int totalPages = 1;
+  bool hasMorePages = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSavedArticles();
+  }
+
+  @override
+  void dispose() {
+    _urlController.dispose();
+    _titleController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadSavedArticles() async {
+    setState(() {
+      isLoading = true;
+      errorMessage = null;
+    });
+
+    try {
+      final response = await _apiService.fetchSavedArticles(page: currentPage);
+      final savedArticlesList = response['savedArticles'] as List<dynamic>;
+      final pagination = response['pagination'] as Map<String, dynamic>;
+
+      final articles = savedArticlesList
+          .map((json) => Article.fromJson(json as Map<String, dynamic>))
+          .toList();
+
+      // Group articles by date
+      final grouped = <String, List<Article>>{};
+      final now = DateTime.now();
+      final today = DateTime(now.year, now.month, now.day);
+      final yesterday = today.subtract(const Duration(days: 1));
+      final weekStart = today.subtract(Duration(days: today.weekday - 1));
+
+      for (final article in articles) {
+        if (article.createdAt != null) {
+          final articleDate = DateTime(
+            article.createdAt!.year,
+            article.createdAt!.month,
+            article.createdAt!.day,
+          );
+
+          String dateGroup;
+          if (articleDate == today) {
+            dateGroup = '今日';
+          } else if (articleDate == yesterday) {
+            dateGroup = '昨日';
+          } else if (articleDate.isAfter(weekStart)) {
+            dateGroup = '今週';
+          } else {
+            dateGroup = '以前';
+          }
+
+          grouped[dateGroup] ??= [];
+          grouped[dateGroup]!.add(article);
+        }
+      }
+
+      setState(() {
+        groupedArticles = grouped;
+        totalPages = pagination['totalPages'] as int;
+        hasMorePages = pagination['hasNextPage'] as bool;
+        isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        errorMessage = 'Failed to load articles: $e';
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,43 +145,82 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
               ),
 
               Expanded(
-                child: ListView.builder(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: isTablet ? 24.0 : 16.0,
-                  ),
-                  itemCount: groupedArticles.keys.length,
-                  itemBuilder: (context, index) {
-                    final dateGroup = groupedArticles.keys.elementAt(index);
-                    final articles = groupedArticles[dateGroup]!;
+                child: isLoading
+                    ? const Center(child: CircularProgressIndicator())
+                    : errorMessage != null
+                        ? Center(
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(errorMessage!),
+                                const SizedBox(height: 16),
+                                ElevatedButton(
+                                  onPressed: _loadSavedArticles,
+                                  child: const Text('Retry'),
+                                ),
+                              ],
+                            ),
+                          )
+                        : groupedArticles.isEmpty
+                            ? const Center(
+                                child: Text(
+                                  '保存された記事がありません',
+                                  style:
+                                      TextStyle(color: AppColors.textSecondary),
+                                ),
+                              )
+                            : RefreshIndicator(
+                                onRefresh: _loadSavedArticles,
+                                child: ListView.builder(
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: isTablet ? 24.0 : 16.0,
+                                  ),
+                                  itemCount: groupedArticles.keys.length,
+                                  itemBuilder: (context, index) {
+                                    final dateGroup =
+                                        groupedArticles.keys.elementAt(index);
+                                    final articles =
+                                        groupedArticles[dateGroup]!;
 
-                    return Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        // Date header
-                        Padding(
-                          padding: const EdgeInsets.only(top: 16, bottom: 12),
-                          child: Text(
-                            dateGroup,
-                            style: AppTextStyles.headline3(
-                              isTablet,
-                            ).copyWith(color: AppColors.textPrimary),
-                          ),
-                        ),
+                                    return Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        // Date header
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                              top: 16, bottom: 12),
+                                          child: Text(
+                                            dateGroup,
+                                            style: AppTextStyles.headline3(
+                                              isTablet,
+                                            ).copyWith(
+                                                color: AppColors.textPrimary),
+                                          ),
+                                        ),
 
-                        // Articles for this date
-                        ...articles.map(
-                          (article) => _buildArticleCard(article),
-                        ),
+                                        // Articles for this date
+                                        ...articles.map(
+                                          (article) =>
+                                              _buildArticleCard(article),
+                                        ),
 
-                        const SizedBox(height: 8),
-                      ],
-                    );
-                  },
-                ),
+                                        const SizedBox(height: 8),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
               ),
             ],
           ),
         ),
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: () => _showAddArticleModal(context),
+        backgroundColor: AppColors.primary,
+        shape: const CircleBorder(),
+        child: const Icon(Icons.add, color: Colors.white),
       ),
     );
   }
@@ -228,27 +275,14 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                         child: Text(
                           article.title,
                           style: AppTextStyles.labelMedium(isTablet).copyWith(
-                            color: article.isRead
-                                ? AppColors.textSecondary
-                                : AppColors.textPrimary,
-                            fontWeight: article.isRead
-                                ? FontWeight.normal
-                                : FontWeight.w600,
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w600,
                           ),
                           maxLines: 2,
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
                       // Read status indicator
-                      if (!article.isRead)
-                        Container(
-                          width: 8,
-                          height: 8,
-                          decoration: const BoxDecoration(
-                            color: AppColors.primary,
-                            shape: BoxShape.circle,
-                          ),
-                        ),
                     ],
                   ),
                   const SizedBox(height: 6),
@@ -259,12 +293,6 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                         style: AppTextStyles.bodySmall(isTablet),
                       ),
                       const Spacer(),
-                      if (article.isRead)
-                        const Icon(
-                          Icons.check_circle_outline,
-                          size: 16,
-                          color: AppColors.success,
-                        ),
                     ],
                   ),
                 ],
@@ -300,6 +328,232 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
         );
       default:
         return AppGradients.primary;
+    }
+  }
+
+  void _showAddArticleModal(BuildContext context) {
+    final isTablet = AppResponsive.isTablet(context);
+
+    showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (context) => Container(
+        height: MediaQuery.of(context).size.height * 0.75,
+        decoration: const BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.only(
+            topLeft: Radius.circular(20),
+            topRight: Radius.circular(20),
+          ),
+        ),
+        child: Padding(
+          padding: EdgeInsets.all(isTablet ? 32.0 : 24.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Handle bar
+              Center(
+                child: Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.textTertiary,
+                    borderRadius: BorderRadius.circular(2),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Title
+              Text('新しい記事を追加', style: AppTextStyles.headline3(isTablet)),
+              const SizedBox(height: 8),
+              Text(
+                '後で読みたい記事のURLを追加してください',
+                style: AppTextStyles.bodyMedium(
+                  isTablet,
+                ).copyWith(color: AppColors.textSecondary),
+              ),
+              const SizedBox(height: 32),
+
+              // URL input
+              Text('記事URL', style: AppTextStyles.labelMedium(isTablet)),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _urlController,
+                decoration: InputDecoration(
+                  hintText: 'https://example.com/article',
+                  hintStyle: const TextStyle(color: AppColors.textSecondary),
+                  prefixIcon:
+                      const Icon(Icons.link, color: AppColors.textSecondary),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.primary),
+                  ),
+                  filled: true,
+                  fillColor: AppColors.surfaceVariant,
+                ),
+                keyboardType: TextInputType.url,
+              ),
+              const SizedBox(height: 24),
+
+              // Title input (optional)
+              Text(
+                'タイトル（オプション）',
+                style: AppTextStyles.labelMedium(isTablet),
+              ),
+              const SizedBox(height: 8),
+              TextField(
+                controller: _titleController,
+                decoration: InputDecoration(
+                  hintText: '記事のタイトルを入力',
+                  hintStyle: const TextStyle(color: AppColors.textSecondary),
+                  prefixIcon:
+                      const Icon(Icons.title, color: AppColors.textSecondary),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.border),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: AppColors.primary),
+                  ),
+                  filled: true,
+                  fillColor: AppColors.surfaceVariant,
+                ),
+              ),
+              const Spacer(),
+
+              // Buttons
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton(
+                      onPressed: () {
+                        _urlController.clear();
+                        _titleController.clear();
+                        Navigator.pop(context);
+                      },
+                      style: OutlinedButton.styleFrom(
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        side: const BorderSide(color: AppColors.border),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: Text(
+                        'キャンセル',
+                        style: AppTextStyles.labelMedium(
+                          isTablet,
+                        ).copyWith(color: AppColors.textSecondary),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ElevatedButton(
+                      onPressed: () => _addArticle(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.primary,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 0,
+                      ),
+                      child: Text(
+                        '追加',
+                        style: AppTextStyles.labelMedium(
+                          isTablet,
+                        ).copyWith(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              SizedBox(height: MediaQuery.of(context).viewInsets.bottom),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Future<void> _addArticle(BuildContext context) async {
+    if (_urlController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('URLを入力してください'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+      return;
+    }
+
+    // Show loading indicator
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      final title = _titleController.text.trim().isNotEmpty
+          ? _titleController.text.trim()
+          : 'Untitled Article';
+
+      await _apiService.createSavedArticle(
+        title: title,
+        url: _urlController.text.trim(),
+      );
+
+      // Check if widget is still mounted before using context
+      if (!context.mounted) return;
+
+      // Close loading dialog
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('記事を追加しました'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+
+      _urlController.clear();
+      _titleController.clear();
+      Navigator.pop(context);
+
+      // 記事リストを再読み込み
+      _loadSavedArticles();
+    } catch (e) {
+      // Check if widget is still mounted before using context
+      if (!context.mounted) return;
+
+      // Close loading dialog
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('記事の追加に失敗しました: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 }

@@ -37,3 +37,7 @@ cloud-sql-proxy.*
 # ローカル開発環境用設定ファイル
 .env.local
 .env.development
+
+# TypeSpec generated files
+tsp-output/
+src/types/api.generated.ts

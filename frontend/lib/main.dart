@@ -2,11 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'dart:io';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'screens/auth/login_screen.dart';
 import 'themes/app_theme.dart';
 
-void main() {
+void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+
+  // Load environment variables
+  await dotenv.load(fileName: '.env');
 
   // テキストレンダリングの品質を向上
   if (!kIsWeb) {

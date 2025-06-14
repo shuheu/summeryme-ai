@@ -6,3 +6,6 @@ master.key
 github-actions-key.json
 backend_ts/cloud-sql-proxy
 dist
+
+# Frontend environment variables
+frontend/.env
