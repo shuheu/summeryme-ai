@@ -123,6 +123,16 @@ output "db_password_secret_name" {
   value       = google_secret_manager_secret.db_password.name
 }
 
+output "gemini_api_key_secret_id" {
+  description = "Secret Manager secret ID for GEMINI API key"
+  value       = google_secret_manager_secret.gemini_api_key.secret_id
+}
+
+output "gemini_api_key_secret_name" {
+  description = "Full resource name of the GEMINI API key secret"
+  value       = google_secret_manager_secret.gemini_api_key.name
+}
+
 # =============================================================================
 # Service Accounts
 # =============================================================================
@@ -223,7 +233,9 @@ output "useful_commands" {
     sql_status_command = "make sql-status"
 
     # Secret commands
-    get_password_command = "gcloud secrets versions access latest --secret=\"${google_secret_manager_secret.db_password.secret_id}\""
+    get_password_command       = "gcloud secrets versions access latest --secret=\"${google_secret_manager_secret.db_password.secret_id}\""
+    get_gemini_api_key_command = "gcloud secrets versions access latest --secret=\"${google_secret_manager_secret.gemini_api_key.secret_id}\""
+    set_gemini_api_key_command = "echo 'YOUR_GEMINI_API_KEY' | gcloud secrets versions add ${google_secret_manager_secret.gemini_api_key.secret_id} --data-file=-"
 
     # GCS commands
     list_audio_files_command  = "gsutil ls gs://${google_storage_bucket.audio_files.name}/"
@@ -282,7 +294,8 @@ output "resource_summary" {
     }
 
     secrets = {
-      db_password = google_secret_manager_secret.db_password.secret_id
+      db_password    = google_secret_manager_secret.db_password.secret_id
+      gemini_api_key = google_secret_manager_secret.gemini_api_key.secret_id
     }
   }
 }

@@ -103,6 +103,16 @@ resource "google_cloud_run_v2_service" "main" {
         }
       }
 
+      env {
+        name = "GEMINI_API_KEY"
+        value_source {
+          secret_key_ref {
+            secret  = google_secret_manager_secret.gemini_api_key.secret_id
+            version = "latest"
+          }
+        }
+      }
+
       # GCS設定
       env {
         name  = "GCS_AUDIO_BUCKET"
@@ -155,6 +165,7 @@ resource "google_cloud_run_v2_service" "main" {
     google_project_service.required_apis,
     google_sql_database_instance.main,
     google_secret_manager_secret_version.db_password,
+    google_secret_manager_secret.gemini_api_key,
     google_vpc_access_connector.main,
     google_storage_bucket.audio_files
   ]
@@ -248,6 +259,16 @@ resource "google_cloud_run_v2_job" "migrate" {
           }
         }
 
+        env {
+          name = "GEMINI_API_KEY"
+          value_source {
+            secret_key_ref {
+              secret  = google_secret_manager_secret.gemini_api_key.secret_id
+              version = "latest"
+            }
+          }
+        }
+
         # GCS設定
         env {
           name  = "GCS_AUDIO_BUCKET"
@@ -267,6 +288,7 @@ resource "google_cloud_run_v2_job" "migrate" {
     google_project_service.required_apis,
     google_sql_database_instance.main,
     google_secret_manager_secret_version.db_password,
+    google_secret_manager_secret.gemini_api_key,
     google_vpc_access_connector.main,
     google_storage_bucket.audio_files
   ]
@@ -369,6 +391,16 @@ resource "google_cloud_run_v2_job" "article_summary" {
           }
         }
 
+        env {
+          name = "GEMINI_API_KEY"
+          value_source {
+            secret_key_ref {
+              secret  = google_secret_manager_secret.gemini_api_key.secret_id
+              version = "latest"
+            }
+          }
+        }
+
         # GCS設定
         env {
           name  = "GCS_AUDIO_BUCKET"
@@ -388,6 +420,7 @@ resource "google_cloud_run_v2_job" "article_summary" {
     google_project_service.required_apis,
     google_sql_database_instance.main,
     google_secret_manager_secret_version.db_password,
+    google_secret_manager_secret.gemini_api_key,
     google_vpc_access_connector.main,
     google_storage_bucket.audio_files
   ]
@@ -490,6 +523,16 @@ resource "google_cloud_run_v2_job" "daily_summary" {
           }
         }
 
+        env {
+          name = "GEMINI_API_KEY"
+          value_source {
+            secret_key_ref {
+              secret  = google_secret_manager_secret.gemini_api_key.secret_id
+              version = "latest"
+            }
+          }
+        }
+
         # GCS設定
         env {
           name  = "GCS_AUDIO_BUCKET"
@@ -509,6 +552,7 @@ resource "google_cloud_run_v2_job" "daily_summary" {
     google_project_service.required_apis,
     google_sql_database_instance.main,
     google_secret_manager_secret_version.db_password,
+    google_secret_manager_secret.gemini_api_key,
     google_vpc_access_connector.main,
     google_storage_bucket.audio_files
   ]

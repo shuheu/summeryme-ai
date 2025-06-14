@@ -53,9 +53,35 @@ resource "google_secret_manager_secret_version" "db_password" {
   }
 }
 
-# Secret Managerへのアクセス権限
+# Secret Manager - GEMINI API KEY
+resource "google_secret_manager_secret" "gemini_api_key" {
+  secret_id = "gemini-api-key"
+
+  labels = local.labels
+
+  replication {
+    auto {}
+  }
+
+  lifecycle {
+    prevent_destroy = true
+  }
+
+  depends_on = [google_project_service.required_apis]
+}
+
+# Secret Managerへのアクセス権限（データベースパスワード）
 resource "google_secret_manager_secret_iam_member" "db_password_access" {
   secret_id = google_secret_manager_secret.db_password.secret_id
+  role      = "roles/secretmanager.secretAccessor"
+  member    = "serviceAccount:${google_service_account.cloud_run.email}"
+
+  depends_on = [google_service_account.cloud_run]
+}
+
+# Secret Managerへのアクセス権限（GEMINI API KEY）
+resource "google_secret_manager_secret_iam_member" "gemini_api_key_access" {
+  secret_id = google_secret_manager_secret.gemini_api_key.secret_id
   role      = "roles/secretmanager.secretAccessor"
   member    = "serviceAccount:${google_service_account.cloud_run.email}"
 
