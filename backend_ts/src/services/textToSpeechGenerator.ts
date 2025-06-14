@@ -146,7 +146,7 @@ export class TextToSpeechGenerator {
    * @returns {WavConversionOptions} WAV 変換オプション
    * @private
    */
-  private parseMimeType(mimeType: string) {
+  private parseMimeType(mimeType: string): WavConversionOptions {
     const [fileType, ...params] = mimeType.split(';').map((s) => s.trim());
     const [_, format] = fileType.split('/');
 
@@ -178,7 +178,10 @@ export class TextToSpeechGenerator {
    * @returns {Buffer} WAV ヘッダーのバイナリデータ
    * @private
    */
-  private createWavHeader(dataLength: number, options: WavConversionOptions) {
+  private createWavHeader(
+    dataLength: number,
+    options: WavConversionOptions,
+  ): Buffer {
     const { numChannels, sampleRate, bitsPerSample } = options;
 
     // http://soundfile.sapp.org/doc/WaveFormat

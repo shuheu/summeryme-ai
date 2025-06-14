@@ -16,7 +16,7 @@ export class AiTextContentGenerator {
    * @returns {Promise<string>} 生成されたテキストコンテンツ
    * @throws {Error} API キーが設定されていない場合や API 呼び出しが失敗した場合
    */
-  async generate(prompt: string) {
+  async generate(prompt: string): Promise<string | undefined> {
     const ai = new GoogleGenAI({
       apiKey: process.env.GEMINI_API_KEY,
     });
