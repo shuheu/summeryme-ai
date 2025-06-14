@@ -46,21 +46,24 @@ export class TextToSpeechGenerator {
     if (!this.bucketName && !this.isMockMode) {
       throw new Error('GCS_AUDIO_BUCKET環境変数が設定されていません');
     }
-
-    console.log(`音声ファイル保存先: GCS Bucket ${this.bucketName}`);
   }
 
   /**
    * テキスト読み上げ音声を生成し、GCSにアップロードする
    * @param {string} talkScript - 読み上げるテキストスクリプト
    * @param {string | number} id - ファイル名に含めるID
+   * @param {string | number} userId - ユーザーID（フォルダ構成用）
    * @returns {Promise<string[]>} 生成された音声ファイルのGCS URI一覧
    * @throws {Error} API キーが設定されていない場合や API 呼び出しが失敗した場合
    */
-  async generate(talkScript: string, id: string | number): Promise<string[]> {
+  async generate(
+    talkScript: string,
+    id: string | number,
+    userId: string | number,
+  ): Promise<string[]> {
     // モックモードの場合はダミーファイルを返す
     if (this.isMockMode) {
-      return this.generateMockAudioFiles(talkScript, id);
+      return this.generateMockAudioFiles(talkScript, id, userId);
     }
 
     const ai = new GoogleGenAI({
@@ -140,7 +143,7 @@ export class TextToSpeechGenerator {
         }
 
         const fullFileName = `${fileName}.${fileExtension}`;
-        const gcsPath = await this.uploadToGCS(fullFileName, buffer);
+        const gcsPath = await this.uploadToGCS(fullFileName, buffer, userId);
         generatedFiles.push(gcsPath);
       } else {
         console.log(chunk.text);
@@ -154,16 +157,18 @@ export class TextToSpeechGenerator {
    * バイナリデータをGCSにアップロードする
    * @param {string} fileName - アップロードするファイル名
    * @param {Buffer} content - アップロードするバイナリデータ
+   * @param {string | number} userId - ユーザーID（フォルダ構成用）
    * @returns {Promise<string>} アップロードされたファイルのGCS URI
    * @private
    */
   private async uploadToGCS(
     fileName: string,
     content: Buffer,
+    userId: string | number,
   ): Promise<string> {
     try {
       const bucket = this.gcsClient.bucket(this.bucketName);
-      const gcsFileName = `audio/${new Date().toISOString().slice(0, 10)}/${fileName}`;
+      const gcsFileName = `audio/${userId}/${fileName}`;
       const file = bucket.file(gcsFileName);
 
       // ファイルをGCSにアップロード
@@ -190,12 +195,14 @@ export class TextToSpeechGenerator {
    * 実際のファイルは作成せず、ダミーのGCS URIを返す
    * @param {string} talkScript - 読み上げるテキストスクリプト
    * @param {string | number} id - ファイル名に含めるID
+   * @param {string | number} userId - ユーザーID（フォルダ構成用）
    * @returns {Promise<string[]>} モック音声ファイルのGCS URI一覧
    * @private
    */
   private async generateMockAudioFiles(
     talkScript: string,
     id: string | number,
+    userId: string | number,
   ): Promise<string[]> {
     console.log('🎭 モックモード: ダミー音声ファイルを生成します');
     console.log(`テキスト長: ${talkScript.length}文字`);
@@ -206,7 +213,7 @@ export class TextToSpeechGenerator {
 
     for (let i = 0; i < estimatedFileCount; i++) {
       const fileName = `tts-${id}_${i}.wav`;
-      const mockGcsUri = `gs://mock-bucket/audio/${new Date().toISOString().slice(0, 10)}/${fileName}`;
+      const mockGcsUri = `gs://mock-bucket/audio/${userId}/${fileName}`;
       mockFiles.push(mockGcsUri);
 
       console.log(`🎭 モック音声ファイル: ${mockGcsUri}`);
