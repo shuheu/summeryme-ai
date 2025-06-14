@@ -106,7 +106,7 @@ export class TextToSpeechGenerator {
         continue;
       }
       if (chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
-        const fileName = `tts-${id}-${timestamp}-${fileIndex++}`;
+        const fileName = `tts-${id}_${fileIndex++}`;
         const inlineData = chunk.candidates[0].content.parts[0].inlineData;
         let fileExtension = mime.getExtension(inlineData.mimeType || '');
         let buffer = Buffer.from(inlineData.data || '', 'base64');
