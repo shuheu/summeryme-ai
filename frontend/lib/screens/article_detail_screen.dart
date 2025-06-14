@@ -31,8 +31,9 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
         _errorMessage = null;
       });
 
-      final savedArticle = await _apiService.fetchSavedArticleById(int.parse(widget.article.id));
-      
+      final savedArticle =
+          await _apiService.fetchSavedArticleById(int.parse(widget.article.id));
+
       setState(() {
         _savedArticle = savedArticle;
         _isLoading = false;
@@ -225,7 +226,8 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            _savedArticle?.savedArticleSummary?.summary ?? widget.article.summary,
+                            _savedArticle?.savedArticleSummary?.summary ??
+                                widget.article.summary,
                             style: AppTextStyles.bodyMedium(isTablet).copyWith(
                               height: 1.6,
                               fontStyle: FontStyle.normal,
@@ -281,7 +283,8 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                             child: InkWell(
                               onTap: () {
                                 // TODO: 元記事のURLを開く
-                                final url = _savedArticle?.url ?? widget.article.url;
+                                final url =
+                                    _savedArticle?.url ?? widget.article.url;
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(content: Text('元記事を開きます: $url')),
                                 );
@@ -320,7 +323,8 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            _savedArticle?.title ?? widget.article.title,
+                                            _savedArticle?.title ??
+                                                widget.article.title,
                                             style: AppTextStyles.bodyMedium(
                                               isTablet,
                                             ).copyWith(

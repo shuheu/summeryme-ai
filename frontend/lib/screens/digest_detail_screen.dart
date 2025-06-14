@@ -32,8 +32,9 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
         _errorMessage = null;
       });
 
-      final userDailySummary = await _apiService.fetchUserDailySummaryById(widget.digestId);
-      
+      final userDailySummary =
+          await _apiService.fetchUserDailySummaryById(widget.digestId);
+
       setState(() {
         _userDailySummary = userDailySummary;
         _isLoading = false;
@@ -45,7 +46,6 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
       });
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -102,7 +102,8 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
     }
 
     final userDailySummary = _userDailySummary!;
-    final dateFormat = '${userDailySummary.generatedDate.year}年${userDailySummary.generatedDate.month}月${userDailySummary.generatedDate.day}日';
+    final dateFormat =
+        '${userDailySummary.generatedDate.year}年${userDailySummary.generatedDate.month}月${userDailySummary.generatedDate.day}日';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -199,7 +200,10 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                               ),
                               decoration: BoxDecoration(
                                 gradient: const LinearGradient(
-                                  colors: [Color(0xFF4A90E2), Color(0xFF357ABD)],
+                                  colors: [
+                                    Color(0xFF4A90E2),
+                                    Color(0xFF357ABD)
+                                  ],
                                 ),
                                 borderRadius: BorderRadius.circular(20),
                               ),
@@ -375,7 +379,8 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                                 // TODO: 実際の音声再生機能を実装
                                 ScaffoldMessenger.of(context).showSnackBar(
                                   SnackBar(
-                                    content: Text('音声サマリーを再生します: ${userDailySummary.audioUrl}'),
+                                    content: Text(
+                                        '音声サマリーを再生します: ${userDailySummary.audioUrl}'),
                                     backgroundColor: AppColors.primary,
                                   ),
                                 );
@@ -414,17 +419,18 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
 
                   // Related Articles section
                   if (userDailySummary.userDailySummarySavedArticles != null &&
-                      userDailySummary.userDailySummarySavedArticles!.isNotEmpty) ...[
+                      userDailySummary
+                          .userDailySummarySavedArticles!.isNotEmpty) ...[
                     Text(
                       '要約元の記事',
                       style: AppTextStyles.headline3(isTablet),
                     ),
                     const SizedBox(height: 16),
-
-                    ...userDailySummary.userDailySummarySavedArticles!.map((article) {
+                    ...userDailySummary.userDailySummarySavedArticles!
+                        .map((article) {
                       final savedArticle = article.savedArticle;
                       if (savedArticle == null) return const SizedBox.shrink();
-                      
+
                       return Container(
                         margin: const EdgeInsets.only(bottom: 16),
                         decoration: BoxDecoration(
@@ -443,15 +449,18 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                                 title: savedArticle.title,
                                 source: _getSourceFromUrl(savedArticle.url),
                                 timeAgo: _getTimeAgo(savedArticle.createdAt),
-                                summary: savedArticle.savedArticleSummary?.summary ?? '',
+                                summary:
+                                    savedArticle.savedArticleSummary?.summary ??
+                                        '',
                                 url: savedArticle.url,
                                 createdAt: savedArticle.createdAt,
                               );
-                              
+
                               Navigator.push(
                                 context,
                                 MaterialPageRoute<void>(
-                                  builder: (context) => ArticleDetailScreen(article: article),
+                                  builder: (context) =>
+                                      ArticleDetailScreen(article: article),
                                 ),
                               );
                             },
@@ -465,8 +474,10 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                                       Container(
                                         padding: const EdgeInsets.all(8),
                                         decoration: BoxDecoration(
-                                          color: AppColors.primary.withValues(alpha: 0.1),
-                                          borderRadius: BorderRadius.circular(8),
+                                          color: AppColors.primary
+                                              .withValues(alpha: 0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
                                         ),
                                         child: Icon(
                                           Icons.article_outlined,
@@ -478,7 +489,9 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                                       Expanded(
                                         child: Text(
                                           savedArticle.title,
-                                          style: AppTextStyles.bodyLarge(isTablet).copyWith(
+                                          style:
+                                              AppTextStyles.bodyLarge(isTablet)
+                                                  .copyWith(
                                             fontWeight: FontWeight.w600,
                                           ),
                                           maxLines: 2,
@@ -499,7 +512,9 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                                       Expanded(
                                         child: Text(
                                           savedArticle.url,
-                                          style: AppTextStyles.bodySmall(isTablet).copyWith(
+                                          style:
+                                              AppTextStyles.bodySmall(isTablet)
+                                                  .copyWith(
                                             color: AppColors.textSecondary,
                                           ),
                                           maxLines: 1,

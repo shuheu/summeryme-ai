@@ -28,7 +28,8 @@ class SavedArticle {
       createdAt: DateTime.parse(json['createdAt'] as String),
       updatedAt: DateTime.parse(json['updatedAt'] as String),
       savedArticleSummary: json['savedArticleSummary'] != null
-          ? SavedArticleSummary.fromJson(json['savedArticleSummary'] as Map<String, dynamic>)
+          ? SavedArticleSummary.fromJson(
+              json['savedArticleSummary'] as Map<String, dynamic>)
           : null,
     );
   }

@@ -114,7 +114,8 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: Text('Daily Summary', style: AppTextStyles.headline2(isTablet)),
+          title:
+              Text('Daily Summary', style: AppTextStyles.headline2(isTablet)),
         ),
         body: const Center(
           child: CircularProgressIndicator(),
@@ -128,7 +129,8 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title: Text('Daily Summary', style: AppTextStyles.headline2(isTablet)),
+          title:
+              Text('Daily Summary', style: AppTextStyles.headline2(isTablet)),
         ),
         body: Center(
           child: Column(
