@@ -13,6 +13,8 @@ services:
     volumes:
       - .:/app
       - node_modules:/app/node_modules
+      # Google Cloud認証情報をマウント（開発環境用）
+      - ~/.config/gcloud:/root/.config/gcloud:ro
   db:
     image: mysql:8.3
     environment:
