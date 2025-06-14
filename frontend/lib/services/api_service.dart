@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/user_daily_summary.dart';
+import '../models/saved_article.dart';
 
 class ApiService {
   static String get baseUrl =>
@@ -114,6 +115,26 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Error fetching daily summary: $e');
+    }
+  }
+
+  Future<SavedArticle> fetchSavedArticleById(int id) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/saved-articles/$id'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return SavedArticle.fromJson(data['data'] as Map<String, dynamic>);
+      } else {
+        throw Exception('Failed to load saved article: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching saved article: $e');
     }
   }
 }

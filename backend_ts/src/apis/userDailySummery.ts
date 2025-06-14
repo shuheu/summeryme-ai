@@ -127,7 +127,11 @@ userDailySummaryRouter.get('/:id', async (c) => {
       include: {
         userDailySummarySavedArticles: {
           include: {
-            savedArticle: true,
+            savedArticle: {
+              include: {
+                savedArticleSummary: true,
+              },
+            },
           },
         },
       },
