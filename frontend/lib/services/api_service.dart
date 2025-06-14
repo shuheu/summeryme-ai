@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import '../models/user_daily_summary.dart';
 
 class ApiService {
   static String get baseUrl =>
@@ -69,6 +70,50 @@ class ApiService {
       }
     } catch (e) {
       throw Exception('Error saving article: $e');
+    }
+  }
+
+  Future<Map<String, dynamic>> fetchUserDailySummaries({
+    int page = 1,
+    int limit = 10,
+  }) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/user-daily-summaries?page=$page&limit=$limit'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return data as Map<String, dynamic>;
+      } else {
+        throw Exception(
+            'Failed to load daily summaries: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching daily summaries: $e');
+    }
+  }
+
+  Future<UserDailySummary> fetchUserDailySummaryById(int id) async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl/api/user-daily-summaries/$id'),
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      );
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        return UserDailySummary.fromJson(data['data'] as Map<String, dynamic>);
+      } else {
+        throw Exception('Failed to load daily summary: ${response.statusCode}');
+      }
+    } catch (e) {
+      throw Exception('Error fetching daily summary: $e');
     }
   }
 }

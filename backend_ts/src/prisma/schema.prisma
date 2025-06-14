@@ -39,6 +39,7 @@ model SavedArticle {
   savedArticleSummary SavedArticleSummary?
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userDailySummarySavedArticles UserDailySummarySavedArticle[]
 
   @@index([userId])
   @@index([createdAt])
@@ -67,9 +68,26 @@ model UserDailySummary {
   updatedAt DateTime @updatedAt
 
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userDailySummarySavedArticles UserDailySummarySavedArticle[]
 
   @@index([userId])
   @@index([createdAt])
   @@unique([userId, generatedDate])
   @@map("user_daily_summaries")
+}
+
+model UserDailySummarySavedArticle {
+  id        Int      @id @default(autoincrement())
+  userDailySummaryId Int
+  savedArticleId Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userDailySummary UserDailySummary @relation(fields: [userDailySummaryId], references: [id], onDelete: Cascade)
+  savedArticle SavedArticle @relation(fields: [savedArticleId], references: [id], onDelete: Cascade)
+
+  @@index([userDailySummaryId])
+  @@index([savedArticleId])
+  @@unique([userDailySummaryId, savedArticleId])
+  @@map("user_daily_summary_saved_articles")
 }

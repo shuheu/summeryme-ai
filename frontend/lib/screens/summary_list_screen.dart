@@ -1,20 +1,32 @@
 import 'package:flutter/material.dart';
-import '../models/article.dart';
+import '../models/user_daily_summary.dart';
 import '../screens/digest_detail_screen.dart';
 import '../services/api_service.dart';
 import '../themes/app_theme.dart';
 
-class TodayDigestScreen extends StatefulWidget {
-  const TodayDigestScreen({super.key});
+class SummaryListScreen extends StatefulWidget {
+  const SummaryListScreen({super.key});
 
   @override
-  State<TodayDigestScreen> createState() => _TodayDigestScreenState();
+  State<SummaryListScreen> createState() => _SummaryListScreenState();
 }
 
-class _TodayDigestScreenState extends State<TodayDigestScreen> {
+class _SummaryListScreenState extends State<SummaryListScreen> {
   final ApiService _apiService = ApiService();
   final _urlController = TextEditingController();
   final _titleController = TextEditingController();
+
+  List<UserDailySummary> _userDailySummaryList = [];
+  bool _isLoading = true;
+  String? _errorMessage;
+  int _currentPage = 1;
+  bool _hasMoreData = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDigests();
+  }
 
   @override
   void dispose() {
@@ -23,56 +35,164 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
     super.dispose();
   }
 
+  Future<void> _loadDigests() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      final response = await _apiService.fetchUserDailySummaries(
+        page: _currentPage,
+        limit: 10,
+      );
+
+      final List<dynamic> digestData = response['data'] as List<dynamic>;
+      final List<UserDailySummary> newDigests = digestData
+          .map(
+              (json) => UserDailySummary.fromJson(json as Map<String, dynamic>))
+          .toList();
+
+      final pagination = response['pagination'] as Map<String, dynamic>;
+      final hasNextPage = pagination['hasNextPage'] as bool;
+
+      setState(() {
+        if (_currentPage == 1) {
+          _userDailySummaryList = newDigests;
+        } else {
+          _userDailySummaryList.addAll(newDigests);
+        }
+        _hasMoreData = hasNextPage;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'ダイジェストの読み込みに失敗しました: $e';
+        _isLoading = false;
+      });
+    }
+  }
+
+  Future<void> _refreshDigests() async {
+    _currentPage = 1;
+    await _loadDigests();
+  }
+
+  Future<void> _loadMoreDigests() async {
+    if (_hasMoreData && !_isLoading) {
+      _currentPage++;
+      await _loadDigests();
+    }
+  }
+
+  String _getRelativeTime(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inMinutes < 60) {
+      return '${difference.inMinutes}分前';
+    } else if (difference.inHours < 24) {
+      return '${difference.inHours}時間前';
+    } else if (difference.inDays < 7) {
+      return '${difference.inDays}日前';
+    } else if (difference.inDays < 30) {
+      return '${(difference.inDays / 7).floor()}週間前';
+    } else {
+      return '${(difference.inDays / 30).floor()}ヶ月前';
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     final isTablet = screenWidth > 600;
     final maxWidth = isTablet ? 800.0 : double.infinity;
 
-    final List<Article> digestArticles = [
-      Article(
-        id: '1',
-        title: '2024年のテクノロジートレンド：AIと働き方の変化',
-        source: '日経新聞',
-        timeAgo: '5分で読める',
-        summary:
-            '人工知能技術の急速な発展により、リモートワークやデジタル変革が加速しています。企業の働き方改革と生産性向上に向けた最新の取り組みを詳しく解説します。',
-      ),
-      Article(
-        id: '2',
-        title: '医療分野におけるAI活用：診断から治療まで',
-        source: 'ITmedia',
-        timeAgo: '7分で読める',
-        summary:
-            '医療現場でのAI導入が進む中、画像診断の精度向上や個別化医療の実現が期待されています。最新の研究成果と実用化に向けた課題について詳しく紹介します。',
-      ),
-      Article(
-        id: '3',
-        title: 'サイバーセキュリティの最新動向と対策',
-        source: 'CNET Japan',
-        timeAgo: '6分で読める',
-        summary:
-            'ランサムウェアやフィッシング攻撃が巧妙化する中、企業や個人が取るべきセキュリティ対策について専門家が解説。最新の脅威情報と効果的な防御策を紹介します。',
-      ),
-    ];
+    if (_isLoading && _userDailySummaryList.isEmpty) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text('Daily Summary', style: AppTextStyles.headline2(isTablet)),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_errorMessage != null && _userDailySummaryList.isEmpty) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text('Daily Summary', style: AppTextStyles.headline2(isTablet)),
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 64,
+                color: AppColors.textSecondary,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                _errorMessage!,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _refreshDigests,
+                child: const Text('再試行'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text('For You', style: AppTextStyles.headline2(isTablet)),
+        title: Text('Daily Summary', style: AppTextStyles.headline2(isTablet)),
       ),
       body: Center(
         child: Container(
           constraints: BoxConstraints(maxWidth: maxWidth),
-          child: ListView.builder(
-            padding: EdgeInsets.all(isTablet ? 24.0 : 16.0),
-            itemCount: digestArticles.length,
-            itemBuilder: (context, index) {
-              final article = digestArticles[index];
-              return _buildDigestCard(context, article, index == 0);
-            },
+          child: RefreshIndicator(
+            onRefresh: _refreshDigests,
+            child: ListView.builder(
+              padding: EdgeInsets.all(isTablet ? 24.0 : 16.0),
+              itemCount: _userDailySummaryList.length + (_hasMoreData ? 1 : 0),
+              itemBuilder: (context, index) {
+                if (index == _userDailySummaryList.length) {
+                  // Load more button/indicator
+                  return Padding(
+                    padding: const EdgeInsets.all(16.0),
+                    child: Center(
+                      child: _isLoading
+                          ? const CircularProgressIndicator()
+                          : ElevatedButton(
+                              onPressed: _loadMoreDigests,
+                              child: const Text('さらに読み込む'),
+                            ),
+                    ),
+                  );
+                }
+                final userDailySummary = _userDailySummaryList[index];
+                return _buildDigestCard(context, userDailySummary, index == 0);
+              },
+            ),
           ),
         ),
       ),
@@ -85,7 +205,11 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
     );
   }
 
-  Widget _buildDigestCard(BuildContext context, Article article, bool isFirst) {
+  Widget _buildDigestCard(
+      BuildContext context, UserDailySummary userDailySummary, bool isFirst) {
+    // Format date for display
+    final dateFormat =
+        '${userDailySummary.generatedDate.year}年${userDailySummary.generatedDate.month}月${userDailySummary.generatedDate.day}日';
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       decoration: BoxDecoration(
@@ -95,10 +219,13 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
       ),
       child: InkWell(
         onTap: () {
+          // Navigate to digest detail with digest ID
           Navigator.push(
             context,
             MaterialPageRoute<void>(
-              builder: (context) => DigestDetailScreen(article: article),
+              builder: (context) => DigestDetailScreen(
+                digestId: userDailySummary.id,
+              ),
             ),
           );
         },
@@ -119,12 +246,10 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
                     end: Alignment.bottomRight,
                     colors: isFirst
                         ? [const Color(0xFF4A90E2), const Color(0xFF357ABD)]
-                        : article.source == 'TechCrunch'
-                            ? [const Color(0xFF4A90A4), const Color(0xFF357A8A)]
-                            : [
-                                const Color(0xFF6B8E23),
-                                const Color(0xFF556B2F),
-                              ],
+                        : [
+                            const Color(0xFF6B8E23),
+                            const Color(0xFF556B2F),
+                          ],
                   ),
                 ),
                 child: const Center(
@@ -133,10 +258,10 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
               ),
               const SizedBox(height: 16),
 
-              // Article title
-              Text(
-                article.title,
-                style: const TextStyle(
+              // Digest title
+              const Text(
+                'デイリーダイジェスト',
+                style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: AppColors.textPrimary,
@@ -144,54 +269,18 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-
               // Article date and metadata
               Row(
                 children: [
+                  const Spacer(),
                   const Icon(
                     Icons.calendar_today,
                     size: 14,
                     color: AppColors.textSecondary,
                   ),
                   const SizedBox(width: 4),
-                  const Text(
-                    '2024年12月20日',
-                    style: TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 4,
-                    height: 4,
-                    decoration: const BoxDecoration(
-                      color: AppColors.textSecondary,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
                   Text(
-                    article.source,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      color: AppColors.textSecondary,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Container(
-                    width: 4,
-                    height: 4,
-                    decoration: const BoxDecoration(
-                      color: AppColors.textSecondary,
-                      shape: BoxShape.circle,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
-                  Text(
-                    article.timeAgo,
+                    dateFormat,
                     style: const TextStyle(
                       fontSize: 13,
                       color: AppColors.textSecondary,
@@ -202,9 +291,9 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
               ),
               const SizedBox(height: 12),
 
-              // Article summary
+              // Digest summary
               Text(
-                article.summary,
+                userDailySummary.summary,
                 style: const TextStyle(
                   fontSize: 14,
                   color: AppColors.textPrimary,
@@ -231,13 +320,23 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
                 ),
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    // TODO: 音声サマリー再生機能を実装
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('🎧 音声サマリーを再生します'),
-                        backgroundColor: AppColors.primary,
-                      ),
-                    );
+                    if (userDailySummary.audioUrl != null) {
+                      // TODO: 実際の音声再生機能を実装
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text(
+                              '🎧 音声サマリーを再生します: ${userDailySummary.audioUrl}'),
+                          backgroundColor: AppColors.primary,
+                        ),
+                      );
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('この記事には音声サマリーがありません'),
+                          backgroundColor: AppColors.textSecondary,
+                        ),
+                      );
+                    }
                   },
                   icon: Container(
                     padding: const EdgeInsets.all(4),

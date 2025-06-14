@@ -1,15 +1,109 @@
 import 'package:flutter/material.dart';
+import '../models/user_daily_summary.dart';
 import '../models/article.dart';
+import '../services/api_service.dart';
 import '../themes/app_theme.dart';
+import 'article_detail_screen.dart';
 
-class DigestDetailScreen extends StatelessWidget {
-  const DigestDetailScreen({super.key, required this.article});
-  final Article article;
+class DigestDetailScreen extends StatefulWidget {
+  const DigestDetailScreen({super.key, required this.digestId});
+  final int digestId;
+
+  @override
+  State<DigestDetailScreen> createState() => _DigestDetailScreenState();
+}
+
+class _DigestDetailScreenState extends State<DigestDetailScreen> {
+  final ApiService _apiService = ApiService();
+  UserDailySummary? _userDailySummary;
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadDigestDetail();
+  }
+
+  Future<void> _loadDigestDetail() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      final userDailySummary =
+          await _apiService.fetchUserDailySummaryById(widget.digestId);
+
+      setState(() {
+        _userDailySummary = userDailySummary;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = 'ダイジェストの読み込みに失敗しました: $e';
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isTablet = AppResponsive.isTablet(context);
     final maxWidth = AppResponsive.getMaxWidth(context);
+
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 64,
+                color: AppColors.textSecondary,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                _errorMessage!,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadDigestDetail,
+                child: const Text('再試行'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    final userDailySummary = _userDailySummary!;
+    final dateFormat =
+        '${userDailySummary.generatedDate.year}年${userDailySummary.generatedDate.month}月${userDailySummary.generatedDate.day}日';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -31,40 +125,17 @@ class DigestDetailScreen extends StatelessWidget {
                 onPressed: () => Navigator.pop(context),
               ),
             ),
-            actions: [
-              Container(
-                margin: const EdgeInsets.all(8),
-                decoration: BoxDecoration(
-                  color: Colors.black.withValues(alpha: 0.3),
-                  shape: BoxShape.circle,
-                ),
-                child: IconButton(
-                  icon: const Icon(Icons.more_vert, color: Colors.white),
-                  onPressed: () {},
-                ),
-              ),
-            ],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
-                decoration: BoxDecoration(
-                  gradient: _getSourceGradient(article.source),
+                decoration: const BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [Color(0xFF4A90E2), Color(0xFF357ABD)],
+                  ),
                 ),
                 child: Stack(
                   children: [
-                    // Background pattern
-                    Positioned.fill(
-                      child: Opacity(
-                        opacity: 0.1,
-                        child: Container(
-                          decoration: const BoxDecoration(
-                            image: DecorationImage(
-                              image: AssetImage('assets/pattern.png'),
-                              repeat: ImageRepeat.repeat,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
                     // Main content
                     Center(
                       child: Column(
@@ -128,11 +199,16 @@ class DigestDetailScreen extends StatelessWidget {
                                 vertical: 6,
                               ),
                               decoration: BoxDecoration(
-                                gradient: _getSourceGradient(article.source),
+                                gradient: const LinearGradient(
+                                  colors: [
+                                    Color(0xFF4A90E2),
+                                    Color(0xFF357ABD)
+                                  ],
+                                ),
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: Text(
-                                article.source,
+                                'AI要約',
                                 style: AppTextStyles.bodySmall(
                                   isTablet,
                                 ).copyWith(
@@ -142,22 +218,22 @@ class DigestDetailScreen extends StatelessWidget {
                               ),
                             ),
                             const Spacer(),
-                            const Icon(
-                              Icons.schedule,
-                              size: 16,
-                              color: AppColors.textSecondary,
-                            ),
                             const SizedBox(width: 4),
                           ],
                         ),
                         const SizedBox(height: 16),
-                        Text(
-                          article.title,
-                          style: AppTextStyles.headline2(isTablet),
+                        const Text(
+                          'デイリーダイジェスト',
+                          style: TextStyle(
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Row(
                           children: [
+                            const Spacer(),
                             const Icon(
                               Icons.calendar_today,
                               size: 16,
@@ -165,20 +241,7 @@ class DigestDetailScreen extends StatelessWidget {
                             ),
                             const SizedBox(width: 4),
                             Text(
-                              '2024年12月20日',
-                              style: AppTextStyles.bodySmall(
-                                isTablet,
-                              ).copyWith(color: AppColors.textSecondary),
-                            ),
-                            const SizedBox(width: 16),
-                            const Icon(
-                              Icons.access_time,
-                              size: 16,
-                              color: AppColors.textSecondary,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              'Published ${article.timeAgo}',
+                              dateFormat,
                               style: AppTextStyles.bodySmall(
                                 isTablet,
                               ).copyWith(color: AppColors.textSecondary),
@@ -237,70 +300,14 @@ class DigestDetailScreen extends StatelessWidget {
                         ),
                         const SizedBox(height: 20),
                         Text(
-                          article.summary,
+                          userDailySummary.summary,
                           style: AppTextStyles.bodyLarge(
                             isTablet,
-                          ).copyWith(height: 1.7, fontStyle: FontStyle.italic),
+                          ).copyWith(height: 1.7),
                         ),
                       ],
                     ),
                   ),
-
-                  const SizedBox(height: 32),
-
-                  // Key insights
-                  Text(
-                    'Key Insights',
-                    style: AppTextStyles.headline3(isTablet),
-                  ),
-                  const SizedBox(height: 16),
-
-                  ..._getKeyInsights().asMap().entries.map((entry) {
-                    final index = entry.key;
-                    final insight = entry.value;
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 16),
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: AppShadows.light,
-                      ),
-                      child: Row(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                            width: 32,
-                            height: 32,
-                            decoration: BoxDecoration(
-                              gradient: _getSourceGradient(article.source),
-                              borderRadius: BorderRadius.circular(8),
-                            ),
-                            child: Center(
-                              child: Text(
-                                '${index + 1}',
-                                style: AppTextStyles.labelMedium(
-                                  isTablet,
-                                ).copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Text(
-                              insight,
-                              style: AppTextStyles.bodyMedium(
-                                isTablet,
-                              ).copyWith(height: 1.6),
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  }),
 
                   const SizedBox(height: 32),
 
@@ -368,10 +375,23 @@ class DigestDetailScreen extends StatelessWidget {
                           width: double.infinity,
                           child: ElevatedButton.icon(
                             onPressed: () {
-                              // TODO: 音声再生機能を実装
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('音声サマリーを再生します')),
-                              );
+                              if (userDailySummary.audioUrl != null) {
+                                // TODO: 実際の音声再生機能を実装
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                        '音声サマリーを再生します: ${userDailySummary.audioUrl}'),
+                                    backgroundColor: AppColors.primary,
+                                  ),
+                                );
+                              } else {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('この記事には音声サマリーがありません'),
+                                    backgroundColor: AppColors.textSecondary,
+                                  ),
+                                );
+                              }
                             },
                             icon: const Icon(Icons.headphones, size: 24),
                             label: Text(
@@ -391,28 +411,124 @@ class DigestDetailScreen extends StatelessWidget {
                         ),
 
                         const SizedBox(height: 12),
-
-                        // Duration info
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            const Icon(
-                              Icons.access_time,
-                              size: 16,
-                              color: AppColors.textSecondary,
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              '約3分',
-                              style: AppTextStyles.bodySmall(
-                                isTablet,
-                              ).copyWith(color: AppColors.textSecondary),
-                            ),
-                          ],
-                        ),
                       ],
                     ),
                   ),
+
+                  const SizedBox(height: 32),
+
+                  // Related Articles section
+                  if (userDailySummary.userDailySummarySavedArticles != null &&
+                      userDailySummary
+                          .userDailySummarySavedArticles!.isNotEmpty) ...[
+                    Text(
+                      '要約元の記事',
+                      style: AppTextStyles.headline3(isTablet),
+                    ),
+                    const SizedBox(height: 16),
+                    ...userDailySummary.userDailySummarySavedArticles!
+                        .map((article) {
+                      final savedArticle = article.savedArticle;
+                      if (savedArticle == null) return const SizedBox.shrink();
+
+                      return Container(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        decoration: BoxDecoration(
+                          color: AppColors.surface,
+                          borderRadius: BorderRadius.circular(16),
+                          boxShadow: AppShadows.light,
+                        ),
+                        child: Material(
+                          color: Colors.transparent,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(16),
+                            onTap: () {
+                              // SavedArticleからArticleモデルに変換
+                              final article = Article(
+                                id: savedArticle.id.toString(),
+                                title: savedArticle.title,
+                                source: _getSourceFromUrl(savedArticle.url),
+                                timeAgo: _getTimeAgo(savedArticle.createdAt),
+                                summary: '', // サマリーは別途取得が必要な場合は空文字
+                                url: savedArticle.url,
+                                createdAt: savedArticle.createdAt,
+                              );
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (context) =>
+                                      ArticleDetailScreen(article: article),
+                                ),
+                              );
+                            },
+                            child: Padding(
+                              padding: const EdgeInsets.all(20),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(8),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.primary
+                                              .withValues(alpha: 0.1),
+                                          borderRadius:
+                                              BorderRadius.circular(8),
+                                        ),
+                                        child: Icon(
+                                          Icons.article_outlined,
+                                          color: AppColors.primary,
+                                          size: isTablet ? 24 : 20,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 12),
+                                      Expanded(
+                                        child: Text(
+                                          savedArticle.title,
+                                          style:
+                                              AppTextStyles.bodyLarge(isTablet)
+                                                  .copyWith(
+                                            fontWeight: FontWeight.w600,
+                                          ),
+                                          maxLines: 2,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Row(
+                                    children: [
+                                      const Icon(
+                                        Icons.link,
+                                        size: 16,
+                                        color: AppColors.textSecondary,
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Expanded(
+                                        child: Text(
+                                          savedArticle.url,
+                                          style:
+                                              AppTextStyles.bodySmall(isTablet)
+                                                  .copyWith(
+                                            color: AppColors.textSecondary,
+                                          ),
+                                          maxLines: 1,
+                                          overflow: TextOverflow.ellipsis,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    }),
+                  ],
 
                   const SizedBox(height: 48),
                 ],
@@ -424,40 +540,28 @@ class DigestDetailScreen extends StatelessWidget {
     );
   }
 
-  LinearGradient _getSourceGradient(String source) {
-    switch (source) {
-      case 'TechCrunch':
-        return AppGradients.accent;
-      case 'The Verge':
-        return AppGradients.primary;
-      case 'Wired':
-        return AppGradients.success;
-      case 'The New York Times':
-        return AppGradients.secondary;
-      case 'The Economist':
-        return const LinearGradient(
-          colors: [Color(0xFF8B5A3C), Color(0xFF6B4226)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      case 'Nature':
-        return const LinearGradient(
-          colors: [Color(0xFF2E7D32), Color(0xFF1B5E20)],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
-        );
-      default:
-        return AppGradients.primary;
+  String _getSourceFromUrl(String url) {
+    final uri = Uri.tryParse(url);
+    if (uri != null) {
+      return uri.host.replaceAll('www.', '');
     }
+    return 'Web';
   }
 
-  List<String> _getKeyInsights() {
-    return [
-      'Remote work technologies have fundamentally changed how teams collaborate across geographical boundaries',
-      'AI-powered tools are becoming essential for productivity and decision-making in modern workplaces',
-      'Cloud infrastructure enables small companies to access enterprise-level computational resources',
-      'Privacy and security considerations are becoming increasingly important as digital adoption accelerates',
-      'The future workplace will require continuous learning and adaptation to emerging technologies',
-    ];
+  String _getTimeAgo(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays > 7) {
+      return '${(difference.inDays / 7).floor()}週間前';
+    } else if (difference.inDays > 0) {
+      return '${difference.inDays}日前';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}時間前';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}分前';
+    } else {
+      return 'たった今';
+    }
   }
 }
