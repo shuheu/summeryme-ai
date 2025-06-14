@@ -97,6 +97,8 @@ export const getPrisma = (): PrismaClient => {
     } catch (error) {
       console.error('❌ Failed to create PrismaClient:', error);
       throw error;
+    } finally {
+      console.log('=== dbClient.ts initialization end ===\n\n');
     }
   }
   return global.prisma;

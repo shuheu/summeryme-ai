@@ -91,6 +91,25 @@ output "database_user" {
 }
 
 # =============================================================================
+# Google Cloud Storage
+# =============================================================================
+
+output "audio_storage_bucket_name" {
+  description = "Name of the GCS bucket for audio files"
+  value       = google_storage_bucket.audio_files.name
+}
+
+output "audio_storage_bucket_url" {
+  description = "URL of the GCS bucket for audio files"
+  value       = google_storage_bucket.audio_files.url
+}
+
+output "audio_storage_bucket_location" {
+  description = "Location of the GCS bucket for audio files"
+  value       = google_storage_bucket.audio_files.location
+}
+
+# =============================================================================
 # Secret Manager
 # =============================================================================
 
@@ -129,7 +148,7 @@ output "github_actions_service_account_id" {
 }
 
 # =============================================================================
-# Migration Job
+# Cloud Run Jobs
 # =============================================================================
 
 output "migration_job_name" {
@@ -140,6 +159,26 @@ output "migration_job_name" {
 output "migration_job_location" {
   description = "Location of the Cloud Run migration job"
   value       = google_cloud_run_v2_job.migrate.location
+}
+
+output "article_summary_job_name" {
+  description = "Name of the Cloud Run article summary job"
+  value       = google_cloud_run_v2_job.article_summary.name
+}
+
+output "article_summary_job_location" {
+  description = "Location of the Cloud Run article summary job"
+  value       = google_cloud_run_v2_job.article_summary.location
+}
+
+output "daily_summary_job_name" {
+  description = "Name of the Cloud Run daily summary job"
+  value       = google_cloud_run_v2_job.daily_summary.name
+}
+
+output "daily_summary_job_location" {
+  description = "Location of the Cloud Run daily summary job"
+  value       = google_cloud_run_v2_job.daily_summary.location
 }
 
 # =============================================================================
@@ -172,8 +211,10 @@ output "useful_commands" {
     deploy_command = "gcloud run deploy ${google_cloud_run_v2_service.main.name} --source . --region=${var.region}"
     logs_command   = "gcloud logging read \"resource.type=cloud_run_revision AND resource.labels.service_name=${google_cloud_run_v2_service.main.name}\" --limit=50"
 
-    # Migration commands
-    migrate_command = "gcloud run jobs execute ${google_cloud_run_v2_job.migrate.name} --region=${var.region}"
+    # Job commands
+    migrate_command         = "gcloud run jobs execute ${google_cloud_run_v2_job.migrate.name} --region=${var.region}"
+    article_summary_command = "gcloud run jobs execute ${google_cloud_run_v2_job.article_summary.name} --region=${var.region}"
+    daily_summary_command   = "gcloud run jobs execute ${google_cloud_run_v2_job.daily_summary.name} --region=${var.region}"
 
     # Database commands
     sql_proxy_command  = "./cloud-sql-proxy ${google_sql_database_instance.main.connection_name} --port=3306"
@@ -183,6 +224,10 @@ output "useful_commands" {
 
     # Secret commands
     get_password_command = "gcloud secrets versions access latest --secret=\"${google_secret_manager_secret.db_password.secret_id}\""
+
+    # GCS commands
+    list_audio_files_command  = "gsutil ls gs://${google_storage_bucket.audio_files.name}/"
+    audio_bucket_info_command = "gsutil du -s gs://${google_storage_bucket.audio_files.name}/"
   }
 }
 
@@ -199,6 +244,21 @@ output "resource_summary" {
       location = google_cloud_run_v2_service.main.location
     }
 
+    cloud_run_jobs = {
+      migration = {
+        name     = google_cloud_run_v2_job.migrate.name
+        location = google_cloud_run_v2_job.migrate.location
+      }
+      article_summary = {
+        name     = google_cloud_run_v2_job.article_summary.name
+        location = google_cloud_run_v2_job.article_summary.location
+      }
+      daily_summary = {
+        name     = google_cloud_run_v2_job.daily_summary.name
+        location = google_cloud_run_v2_job.daily_summary.location
+      }
+    }
+
     vpc_network = {
       name      = google_compute_network.main.name
       subnet    = google_compute_subnetwork.main.name
@@ -210,6 +270,10 @@ output "resource_summary" {
       connection_name = google_sql_database_instance.main.connection_name
       database        = google_sql_database.main.name
       user            = google_sql_user.main.name
+    }
+
+    storage = {
+      audio_bucket = google_storage_bucket.audio_files.name
     }
 
     service_accounts = {
