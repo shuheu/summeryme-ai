@@ -1,4 +1,12 @@
+import {
+  buildArticleSummaryPrompt,
+  buildSummarizedTalkScriptPrompt,
+} from '@/utils/promptBuilder.js';
+
 import { globalPrisma } from '../lib/dbClient.js';
+
+import { AiTextContentGenerator } from './aiTextContentGenerator.js';
+import { TextToSpeechGenerator } from './textToSpeechGenerator.js';
 
 /**
  * バッチ処理メイン関数
@@ -9,6 +17,8 @@ export async function batchProcess() {
   try {
     // 特定のユーザーID（実際の実装では引数で受け取るか、環境変数から取得）
     const userId = 1;
+    // TODO: 条件絞る。
+    // TODO: リアルユーザー取得
 
     try {
       const articles = await globalPrisma.savedArticle.findMany({
@@ -31,7 +41,56 @@ export async function batchProcess() {
 
       console.log(articles);
 
-      return articles;
+      const aiTextContentGenerator = new AiTextContentGenerator();
+
+      articles.forEach(async (article) => {
+        // FIXME: N+1 api, db
+        const prompt = buildArticleSummaryPrompt(article.url);
+        console.log('🚀 ~ batchProcess ~ prompt:', prompt);
+        const aiGeneratedSummaryText =
+          await aiTextContentGenerator.generate(prompt);
+
+        // const aiGeneratedSummaryText = 'test';
+        console.log(
+          '🚀 ~ batchProcess ~ aiGeneratedText:',
+          aiGeneratedSummaryText,
+        );
+
+        if (!aiGeneratedSummaryText) {
+          return;
+        }
+
+        await globalPrisma.savedArticleSummary.upsert({
+          where: {
+            savedArticleId: article.id,
+          },
+          update: {
+            summary: aiGeneratedSummaryText,
+          },
+          create: {
+            savedArticleId: article.id,
+            summary: aiGeneratedSummaryText,
+          },
+        });
+      });
+
+      const prompt = buildSummarizedTalkScriptPrompt(
+        articles.map((article) => article.url),
+      );
+      console.log('🚀 ~ batchProcess ~ prompt:', prompt);
+
+      const aiGeneratedTalkScript =
+        await aiTextContentGenerator.generate(prompt);
+      console.log(
+        '🚀 ~ batchProcess ~ aiGeneratedText:',
+        aiGeneratedTalkScript,
+      );
+      if (!aiGeneratedTalkScript) {
+        return;
+      }
+
+      const textToSpeechGenerator = new TextToSpeechGenerator();
+      await textToSpeechGenerator.generate(aiGeneratedTalkScript);
     } catch (error) {
       console.error('記事取得エラー:', error);
       throw error;
