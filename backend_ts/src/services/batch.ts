@@ -1,6 +1,7 @@
 import {
   buildArticleSummaryPrompt,
   buildSummarizedTalkScriptPrompt,
+  buildUserDailySummaryPrompt,
 } from '@/utils/promptBuilder.js';
 
 import { globalPrisma } from '../lib/dbClient.js';
@@ -217,12 +218,30 @@ export class BatchProcessService {
     console.log('トークスクリプト生成完了、音声ファイル作成を開始します');
 
     const audioFileName = this.generateAudioFileName(userId, articles);
-    await this.textToSpeechGenerator.generate(
+    const generatedAudioFiles = await this.textToSpeechGenerator.generate(
       aiGeneratedTalkScript,
       audioFileName,
     );
 
-    console.log(`音声ファイル作成完了 - ${audioFileName}`);
+    console.log(
+      `音声ファイル作成完了 - ${generatedAudioFiles.length}件のファイルが生成されました`,
+    );
+
+    // 最初の音声ファイルのパスをaudioUrlとして使用
+    const audioUrl =
+      generatedAudioFiles.length > 0 ? generatedAudioFiles[0] : audioFileName;
+
+    // 日次要約を生成
+    console.log('日次要約生成を開始します');
+    const userDailySummary = await this.generateUserDailySummary(articles);
+
+    // UserDailySummaryレコードを作成または更新
+    await this.createOrUpdateUserDailySummary(
+      userId,
+      userDailySummary,
+      audioUrl,
+    );
+
     return audioFileName;
   }
 
@@ -239,6 +258,77 @@ export class BatchProcessService {
       .map((article) => article.id)
       .join('-'); // 最初の5つのIDのみ使用
     return `user-${userId}_${timestamp}_${articleIds}`;
+  }
+
+  /**
+   * ユーザー向け日次要約を生成
+   */
+  private async generateUserDailySummary(
+    articles: SavedArticleWithUser[],
+  ): Promise<string> {
+    try {
+      const urls = articles.map((article) => article.url);
+      const prompt = buildUserDailySummaryPrompt(urls);
+
+      console.log(`日次要約生成 - ${urls.length}件の記事を処理`);
+
+      const aiGeneratedSummary = await this.aiTextGenerator.generate(prompt);
+
+      if (!aiGeneratedSummary) {
+        throw new Error('日次要約の生成に失敗しました');
+      }
+
+      console.log('日次要約生成完了');
+      return aiGeneratedSummary;
+    } catch (error) {
+      console.error('日次要約生成エラー:', error);
+      throw new Error('日次要約の生成に失敗しました');
+    }
+  }
+
+  /**
+   * UserDailySummaryレコードを作成または更新
+   */
+  private async createOrUpdateUserDailySummary(
+    userId: number,
+    summary: string,
+    audioFileName: string,
+  ): Promise<void> {
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0); // 時刻を00:00:00に設定
+
+      console.log(
+        `UserDailySummary作成開始 - ユーザーID: ${userId}, 日付: ${today.toISOString().slice(0, 10)}`,
+      );
+
+      await globalPrisma.userDailySummary.upsert({
+        where: {
+          userId_generatedDate: {
+            userId: userId,
+            generatedDate: today,
+          },
+        },
+        update: {
+          summary: summary,
+          audioUrl: audioFileName,
+        },
+        create: {
+          userId: userId,
+          summary: summary,
+          audioUrl: audioFileName,
+          generatedDate: today,
+        },
+      });
+
+      console.log(`UserDailySummary保存完了 - ユーザーID: ${userId}`);
+    } catch (error) {
+      console.error(
+        `UserDailySummary保存エラー - ユーザーID: ${userId}:`,
+        error,
+      );
+      throw new Error('UserDailySummaryの保存に失敗しました');
+    }
   }
 
   /**

@@ -38,9 +38,10 @@ export class TextToSpeechGenerator {
    * 現在の実装では音声ファイルはローカルファイルシステムに保存される
    * @param {string} talkScript - 読み上げるテキストスクリプト
    * @param {string | number} id - ファイル名に含めるID
+   * @returns {Promise<string[]>} 生成された音声ファイルのパス一覧
    * @throws {Error} API キーが設定されていない場合や API 呼び出しが失敗した場合
    */
-  async generate(talkScript: string, id: string | number) {
+  async generate(talkScript: string, id: string | number): Promise<string[]> {
     // 出力ディレクトリを事前に作成
     await this.ensureOutputDirectory();
 
@@ -94,8 +95,8 @@ export class TextToSpeechGenerator {
       contents,
     });
 
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     let fileIndex = 0;
+    const generatedFiles: string[] = [];
 
     for await (const chunk of response) {
       if (
@@ -117,11 +118,15 @@ export class TextToSpeechGenerator {
             inlineData.mimeType || '',
           );
         }
-        await this.saveBinaryFile(`${fileName}.${fileExtension}`, buffer);
+        const fullFileName = `${fileName}.${fileExtension}`;
+        await this.saveBinaryFile(fullFileName, buffer);
+        generatedFiles.push(join(this.outputDir, fullFileName));
       } else {
         console.log(chunk.text);
       }
     }
+
+    return generatedFiles;
   }
 
   /**
