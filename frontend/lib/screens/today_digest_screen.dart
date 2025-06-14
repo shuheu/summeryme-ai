@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/article.dart';
 import '../screens/digest_detail_screen.dart';
+import '../services/api_service.dart';
 import '../themes/app_theme.dart';
 
 class TodayDigestScreen extends StatefulWidget {
@@ -11,6 +12,7 @@ class TodayDigestScreen extends StatefulWidget {
 }
 
 class _TodayDigestScreenState extends State<TodayDigestScreen> {
+  final ApiService _apiService = ApiService();
   final _urlController = TextEditingController();
   final _titleController = TextEditingController();
 
@@ -35,8 +37,6 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
         timeAgo: '5分で読める',
         summary:
             '人工知能技術の急速な発展により、リモートワークやデジタル変革が加速しています。企業の働き方改革と生産性向上に向けた最新の取り組みを詳しく解説します。',
-        imageUrl: '',
-        readTime: '5分で読める',
       ),
       Article(
         id: '2',
@@ -45,8 +45,6 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
         timeAgo: '7分で読める',
         summary:
             '医療現場でのAI導入が進む中、画像診断の精度向上や個別化医療の実現が期待されています。最新の研究成果と実用化に向けた課題について詳しく紹介します。',
-        imageUrl: '',
-        readTime: '7分で読める',
       ),
       Article(
         id: '3',
@@ -55,8 +53,6 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
         timeAgo: '6分で読める',
         summary:
             'ランサムウェアやフィッシング攻撃が巧妙化する中、企業や個人が取るべきセキュリティ対策について専門家が解説。最新の脅威情報と効果的な防御策を紹介します。',
-        imageUrl: '',
-        readTime: '6分で読める',
       ),
     ];
 
@@ -459,7 +455,7 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
     );
   }
 
-  void _addArticle(BuildContext context) {
+  Future<void> _addArticle(BuildContext context) async {
     if (_urlController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -470,18 +466,54 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
       return;
     }
 
-    // TODO: 実際の記事追加処理をここに実装
-    // 例: API呼び出し、ローカルストレージへの保存など
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('記事を追加しました'),
-        backgroundColor: AppColors.success,
+    // Show loading indicator
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
       ),
     );
 
-    _urlController.clear();
-    _titleController.clear();
-    Navigator.pop(context);
+    try {
+      final title = _titleController.text.trim().isNotEmpty 
+          ? _titleController.text.trim() 
+          : 'Untitled Article';
+      
+      await _apiService.createSavedArticle(
+        title: title,
+        url: _urlController.text.trim(),
+      );
+
+      // Check if widget is still mounted before using context
+      if (!context.mounted) return;
+
+      // Close loading dialog
+      Navigator.pop(context);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('記事を追加しました'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+
+      _urlController.clear();
+      _titleController.clear();
+      Navigator.pop(context);
+    } catch (e) {
+      // Check if widget is still mounted before using context
+      if (!context.mounted) return;
+
+      // Close loading dialog
+      Navigator.pop(context);
+      
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('記事の追加に失敗しました: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
+    }
   }
 }

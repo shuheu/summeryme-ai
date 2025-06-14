@@ -148,10 +148,6 @@ class DigestDetailScreen extends StatelessWidget {
                               color: AppColors.textSecondary,
                             ),
                             const SizedBox(width: 4),
-                            Text(
-                              article.readTime,
-                              style: AppTextStyles.bodySmall(isTablet),
-                            ),
                           ],
                         ),
                         const SizedBox(height: 16),
