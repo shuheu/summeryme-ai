@@ -1,15 +1,104 @@
 import 'package:flutter/material.dart';
 import '../models/article.dart';
+import '../models/saved_article.dart';
+import '../services/api_service.dart';
 import '../themes/app_theme.dart';
 
-class ArticleDetailScreen extends StatelessWidget {
+class ArticleDetailScreen extends StatefulWidget {
   const ArticleDetailScreen({super.key, required this.article});
   final Article article;
+
+  @override
+  State<ArticleDetailScreen> createState() => _ArticleDetailScreenState();
+}
+
+class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
+  final ApiService _apiService = ApiService();
+  SavedArticle? _savedArticle;
+  bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadArticleDetail();
+  }
+
+  Future<void> _loadArticleDetail() async {
+    try {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+
+      final savedArticle =
+          await _apiService.fetchSavedArticleById(int.parse(widget.article.id));
+
+      setState(() {
+        _savedArticle = savedArticle;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _errorMessage = '記事の読み込みに失敗しました: $e';
+        _isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     final isTablet = AppResponsive.isTablet(context);
     final maxWidth = AppResponsive.getMaxWidth(context);
+
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+    }
+
+    if (_errorMessage != null) {
+      return Scaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(
+                Icons.error_outline,
+                size: 64,
+                color: AppColors.textSecondary,
+              ),
+              const SizedBox(height: 16),
+              Text(
+                _errorMessage!,
+                style: const TextStyle(
+                  color: AppColors.textSecondary,
+                  fontSize: 16,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              const SizedBox(height: 16),
+              ElevatedButton(
+                onPressed: _loadArticleDetail,
+                child: const Text('再試行'),
+              ),
+            ],
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -43,7 +132,7 @@ class ArticleDetailScreen extends StatelessWidget {
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: BoxDecoration(
-                  gradient: _getSourceGradient(article.source),
+                  gradient: _getSourceGradient(widget.article.source),
                 ),
                 child: Center(
                   child: Icon(
@@ -80,7 +169,7 @@ class ArticleDetailScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Text(
-                            article.source,
+                            widget.article.source,
                             style: AppTextStyles.bodySmall(isTablet).copyWith(
                               color: AppColors.primary,
                               fontWeight: FontWeight.w600,
@@ -89,7 +178,7 @@ class ArticleDetailScreen extends StatelessWidget {
                         ),
                         const SizedBox(width: 12),
                         Text(
-                          article.timeAgo,
+                          widget.article.timeAgo,
                           style: AppTextStyles.bodySmall(isTablet),
                         ),
                       ],
@@ -98,7 +187,7 @@ class ArticleDetailScreen extends StatelessWidget {
 
                     // Article title
                     Text(
-                      article.title,
+                      _savedArticle?.title ?? widget.article.title,
                       style: AppTextStyles.headline1(
                         isTablet,
                       ).copyWith(fontSize: isTablet ? 36 : 32),
@@ -137,10 +226,11 @@ class ArticleDetailScreen extends StatelessWidget {
                           ),
                           const SizedBox(height: 12),
                           Text(
-                            article.summary,
+                            _savedArticle?.savedArticleSummary?.summary ??
+                                widget.article.summary,
                             style: AppTextStyles.bodyMedium(isTablet).copyWith(
                               height: 1.6,
-                              fontStyle: FontStyle.italic,
+                              fontStyle: FontStyle.normal,
                             ),
                           ),
                         ],
@@ -193,8 +283,10 @@ class ArticleDetailScreen extends StatelessWidget {
                             child: InkWell(
                               onTap: () {
                                 // TODO: 元記事のURLを開く
+                                final url =
+                                    _savedArticle?.url ?? widget.article.url;
                                 ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(content: Text('元記事を開きます')),
+                                  SnackBar(content: Text('元記事を開きます: $url')),
                                 );
                               },
                               borderRadius: BorderRadius.circular(
@@ -210,7 +302,7 @@ class ArticleDetailScreen extends StatelessWidget {
                                       height: isTablet ? 96 : 80,
                                       decoration: BoxDecoration(
                                         gradient: _getSourceGradient(
-                                          article.source,
+                                          widget.article.source,
                                         ),
                                         borderRadius: BorderRadius.circular(
                                           isTablet ? 12 : 8,
@@ -231,7 +323,8 @@ class ArticleDetailScreen extends StatelessWidget {
                                             CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            article.title,
+                                            _savedArticle?.title ??
+                                                widget.article.title,
                                             style: AppTextStyles.bodyMedium(
                                               isTablet,
                                             ).copyWith(
@@ -242,7 +335,7 @@ class ArticleDetailScreen extends StatelessWidget {
                                           ),
                                           const SizedBox(height: 4),
                                           Text(
-                                            article.source,
+                                            widget.article.source,
                                             style: AppTextStyles.bodySmall(
                                               isTablet,
                                             ).copyWith(

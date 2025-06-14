@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'saved_articles_screen.dart';
-import 'today_digest_screen.dart';
+import 'summary_list_screen.dart';
 import 'settings_screen.dart';
 import '../themes/app_theme.dart';
 
@@ -15,7 +15,7 @@ class _MainTabScreenState extends State<MainTabScreen> {
   int _currentIndex = 0;
 
   final List<Widget> _screens = [
-    const TodayDigestScreen(),
+    const SummaryListScreen(),
     const SavedArticlesScreen(),
     const SettingsScreen(),
   ];
@@ -38,9 +38,9 @@ class _MainTabScreenState extends State<MainTabScreen> {
             ),
             child: Row(
               children: [
-                _buildNavItem(Icons.auto_awesome, 'For You', 0),
+                _buildNavItem(Icons.auto_awesome, 'Daily Summary', 0),
                 _buildNavItem(Icons.bookmark_outline, 'Saved', 1),
-                _buildNavItem(Icons.settings_outlined, '設定', 2),
+                _buildNavItem(Icons.settings_outlined, 'Settings', 2),
               ],
             ),
           ),

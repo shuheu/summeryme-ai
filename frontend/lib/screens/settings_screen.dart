@@ -15,7 +15,7 @@ class SettingsScreen extends StatelessWidget {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text(
-          '設定',
+          'Settings',
           style: TextStyle(
             color: Colors.black,
             fontSize: isTablet ? 28 : 24,

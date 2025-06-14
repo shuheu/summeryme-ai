@@ -106,12 +106,6 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         title: Text('Saved', style: AppTextStyles.headline2(isTablet)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.filter_list, color: AppColors.textPrimary),
-            onPressed: () {},
-          ),
-        ],
       ),
       body: Center(
         child: Container(
