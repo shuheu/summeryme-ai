@@ -1,5 +1,4 @@
 import { writeFile } from 'fs';
-import { mkdir } from 'fs/promises';
 import { join } from 'path';
 import { setTimeout } from 'timers';
 
