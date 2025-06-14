@@ -49,7 +49,7 @@ export class ArticleSummaryService {
     this.concurrencyLimit = concurrencyLimit;
 
     // モックモードの場合はログ出力
-    if (process.env.USE_MOCK_SUMMERY_AI === 'true') {
+    if (process.env.USE_MOCK_SUMMARY_AI === 'true') {
       console.log('🤖 AI生成モックモードで実行します（記事要約）');
     }
   }

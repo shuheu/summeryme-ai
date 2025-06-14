@@ -58,7 +58,7 @@ export class DailySummaryService {
     if (process.env.USE_MOCK_TTS === 'true') {
       console.log('🎭 音声生成モックモードで実行します');
     }
-    if (process.env.USE_MOCK_SUMMERY_AI === 'true') {
+    if (process.env.USE_MOCK_SUMMARY_AI === 'true') {
       console.log('🎭 AI生成モックモードで実行します（日次要約）');
     }
   }

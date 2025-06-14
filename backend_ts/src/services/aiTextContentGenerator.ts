@@ -14,7 +14,7 @@ export class AiTextContentGenerator {
    * AiTextContentGenerator のコンストラクタ
    */
   constructor() {
-    this.isMockMode = process.env.USE_MOCK_SUMMERY_AI === 'true';
+    this.isMockMode = process.env.USE_MOCK_SUMMARY_AI === 'true';
   }
 
   /**
