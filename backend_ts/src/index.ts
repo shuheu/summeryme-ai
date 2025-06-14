@@ -1,5 +1,7 @@
 import { serve } from '@hono/node-server';
 import { Hono } from 'hono';
+import { cors } from 'hono/cors';
+import { logger } from 'hono/logger';
 
 import savedArticleRouter from './apis/savedArticle.js';
 import userDailySummaryRouter from './apis/userDailySummery.js';
@@ -10,6 +12,26 @@ import type { PrismaClient } from '@prisma/client/extension';
 let globalPrisma: PrismaClient;
 
 const app = new Hono();
+
+// ログミドルウェアを追加
+app.use('*', logger());
+
+// CORS設定を追加（Web環境での利用のため）
+const isDevelopment = process.env.NODE_ENV !== 'production';
+
+app.use(
+  '*',
+  cors({
+    origin: isDevelopment
+      ? '*'
+      : [
+          'https://summeryme-ai.web.app', // TODO: 本番環境のドメイン（例）
+        ],
+    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowHeaders: ['Content-Type', 'Authorization'],
+    credentials: false,
+  }),
+);
 
 app.get('/', (c) => {
   return c.text('Hello summeryme.ai!');
