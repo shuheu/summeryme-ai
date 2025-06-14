@@ -249,6 +249,10 @@ flutter drive --target=test_driver/app.dart
   - ⚙️ 設定管理
   - 📱 レスポンシブデザイン
 
+## 📤 iOS Share Extension
+
+SafariなどからURLを共有するときに、直接本アプリの「あとで読む」へ保存できるShare Extensionを追加しました。Xcodeで新規ターゲットとしてShare Extensionを作成し、`ios/ShareExtension`配下の`ShareViewController.swift`と`Info.plist`を組み込みます。ビルド後、共有メニューに本アプリが表示されます。
+
 ## 🔍 開発ガイドライン
 
 ### コードスタイル

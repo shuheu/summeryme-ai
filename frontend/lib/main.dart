@@ -8,6 +8,13 @@ import 'themes/app_theme.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  const channel = MethodChannel('com.summeryme.share_extension');
+  channel.setMethodCallHandler((call) async {
+    if (call.method == 'openURL') {
+      final url = call.arguments as String?;
+      debugPrint('Received shared URL: $url');
+    }
+  });
 
   // Load environment variables
   await dotenv.load(fileName: '.env');
