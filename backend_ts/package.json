@@ -6,6 +6,7 @@
     "build": "tsc",
     "start": "node dist/index.js",
     "lint": "eslint . --ext .ts --report-unused-disable-directives --max-warnings 0",
+    "lint-fix": "eslint . --ext .ts --report-unused-disable-directives --max-warnings 0 --fix",
     "format": "prettier --write .",
     "format-check": "prettier --check .",
     "typespec": "tsp compile src/typespec/main.tsp",

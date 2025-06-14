@@ -5,6 +5,7 @@
 ## セットアップ完了内容
 
 1. **TypeSpec パッケージのインストール**
+
    - `@typespec/compiler`
    - `@typespec/http`
    - `@typespec/rest`

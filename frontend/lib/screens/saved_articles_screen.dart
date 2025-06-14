@@ -45,7 +45,7 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
       final response = await _apiService.fetchSavedArticles(page: currentPage);
       final savedArticlesList = response['savedArticles'] as List<dynamic>;
       final pagination = response['pagination'] as Map<String, dynamic>;
-      
+
       final articles = savedArticlesList
           .map((json) => Article.fromJson(json as Map<String, dynamic>))
           .toList();
@@ -165,7 +165,8 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                             ? const Center(
                                 child: Text(
                                   '保存された記事がありません',
-                                  style: TextStyle(color: AppColors.textSecondary),
+                                  style:
+                                      TextStyle(color: AppColors.textSecondary),
                                 ),
                               )
                             : RefreshIndicator(
@@ -176,26 +177,32 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                                   ),
                                   itemCount: groupedArticles.keys.length,
                                   itemBuilder: (context, index) {
-                                    final dateGroup = groupedArticles.keys.elementAt(index);
-                                    final articles = groupedArticles[dateGroup]!;
+                                    final dateGroup =
+                                        groupedArticles.keys.elementAt(index);
+                                    final articles =
+                                        groupedArticles[dateGroup]!;
 
                                     return Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         // Date header
                                         Padding(
-                                          padding: const EdgeInsets.only(top: 16, bottom: 12),
+                                          padding: const EdgeInsets.only(
+                                              top: 16, bottom: 12),
                                           child: Text(
                                             dateGroup,
                                             style: AppTextStyles.headline3(
                                               isTablet,
-                                            ).copyWith(color: AppColors.textPrimary),
+                                            ).copyWith(
+                                                color: AppColors.textPrimary),
                                           ),
                                         ),
 
                                         // Articles for this date
                                         ...articles.map(
-                                          (article) => _buildArticleCard(article),
+                                          (article) =>
+                                              _buildArticleCard(article),
                                         ),
 
                                         const SizedBox(height: 8),
@@ -377,7 +384,8 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                 decoration: InputDecoration(
                   hintText: 'https://example.com/article',
                   hintStyle: const TextStyle(color: AppColors.textSecondary),
-                  prefixIcon: const Icon(Icons.link, color: AppColors.textSecondary),
+                  prefixIcon:
+                      const Icon(Icons.link, color: AppColors.textSecondary),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: AppColors.border),
@@ -408,7 +416,8 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                 decoration: InputDecoration(
                   hintText: '記事のタイトルを入力',
                   hintStyle: const TextStyle(color: AppColors.textSecondary),
-                  prefixIcon: const Icon(Icons.title, color: AppColors.textSecondary),
+                  prefixIcon:
+                      const Icon(Icons.title, color: AppColors.textSecondary),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
                     borderSide: const BorderSide(color: AppColors.border),
@@ -504,10 +513,10 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
     );
 
     try {
-      final title = _titleController.text.trim().isNotEmpty 
-          ? _titleController.text.trim() 
+      final title = _titleController.text.trim().isNotEmpty
+          ? _titleController.text.trim()
           : 'Untitled Article';
-      
+
       await _apiService.createSavedArticle(
         title: title,
         url: _urlController.text.trim(),
@@ -518,7 +527,7 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
 
       // Close loading dialog
       Navigator.pop(context);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('記事を追加しました'),
@@ -529,7 +538,7 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
       _urlController.clear();
       _titleController.clear();
       Navigator.pop(context);
-      
+
       // 記事リストを再読み込み
       _loadSavedArticles();
     } catch (e) {
@@ -538,7 +547,7 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
 
       // Close loading dialog
       Navigator.pop(context);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('記事の追加に失敗しました: $e'),

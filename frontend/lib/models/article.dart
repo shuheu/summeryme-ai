@@ -13,7 +13,7 @@ class Article {
     final createdAt = DateTime.parse(json['createdAt'] as String);
     final now = DateTime.now();
     final difference = now.difference(createdAt);
-    
+
     String timeAgo;
     if (difference.inDays > 7) {
       timeAgo = '${(difference.inDays / 7).floor()}週間前';
@@ -38,10 +38,11 @@ class Article {
 
     // Get summary from savedArticleSummary if available
     String summary = '';
-    if (json['savedArticleSummary'] != null && 
-        json['savedArticleSummary'] is List && 
+    if (json['savedArticleSummary'] != null &&
+        json['savedArticleSummary'] is List &&
         (json['savedArticleSummary'] as List).isNotEmpty) {
-      summary = (json['savedArticleSummary'] as List)[0]['summary'] as String? ?? '';
+      summary =
+          (json['savedArticleSummary'] as List)[0]['summary'] as String? ?? '';
     }
 
     return Article(

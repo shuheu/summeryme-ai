@@ -3,9 +3,11 @@ import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
-  static String get baseUrl => dotenv.env['API_BASE_URL'] ?? 'http://localhost:8080';
-  
-  Future<Map<String, dynamic>> fetchSavedArticles({int page = 1, int limit = 10}) async {
+  static String get baseUrl =>
+      dotenv.env['API_BASE_URL'] ?? 'http://localhost:8080';
+
+  Future<Map<String, dynamic>> fetchSavedArticles(
+      {int page = 1, int limit = 10}) async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/api/saved-articles?page=$page&limit=$limit'),
@@ -18,7 +20,8 @@ class ApiService {
         final data = json.decode(response.body);
         return data['data'] as Map<String, dynamic>;
       } else {
-        throw Exception('Failed to load saved articles: ${response.statusCode}');
+        throw Exception(
+            'Failed to load saved articles: ${response.statusCode}');
       }
     } catch (e) {
       throw Exception('Error fetching saved articles: $e');

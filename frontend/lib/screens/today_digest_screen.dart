@@ -476,10 +476,10 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
     );
 
     try {
-      final title = _titleController.text.trim().isNotEmpty 
-          ? _titleController.text.trim() 
+      final title = _titleController.text.trim().isNotEmpty
+          ? _titleController.text.trim()
           : 'Untitled Article';
-      
+
       await _apiService.createSavedArticle(
         title: title,
         url: _urlController.text.trim(),
@@ -490,7 +490,7 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
 
       // Close loading dialog
       Navigator.pop(context);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('記事を追加しました'),
@@ -507,7 +507,7 @@ class _TodayDigestScreenState extends State<TodayDigestScreen> {
 
       // Close loading dialog
       Navigator.pop(context);
-      
+
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('記事の追加に失敗しました: $e'),
