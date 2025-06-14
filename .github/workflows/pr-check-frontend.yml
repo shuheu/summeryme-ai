@@ -26,7 +26,7 @@ jobs:
           cache: true
       
       - name: Create .env
-        run: echo "API_BASE_URL=http://localhost:8080" >> .env.development
+        run: echo "API_BASE_URL=http://localhost:8080" >> .env
 
       - name: Get dependencies
         run: flutter pub get
