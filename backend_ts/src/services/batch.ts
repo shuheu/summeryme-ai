@@ -47,10 +47,10 @@ export async function batchProcess() {
         // FIXME: N+1 api, db
         const prompt = buildArticleSummaryPrompt(article.url);
         console.log('🚀 ~ batchProcess ~ prompt:', prompt);
-        const aiGeneratedSummaryText =
-          await aiTextContentGenerator.generate(prompt);
+        // const aiGeneratedSummaryText =
+        //   await aiTextContentGenerator.generate(prompt);
 
-        // const aiGeneratedSummaryText = 'test';
+        const aiGeneratedSummaryText = 'test';
         console.log(
           '🚀 ~ batchProcess ~ aiGeneratedText:',
           aiGeneratedSummaryText,
@@ -90,7 +90,10 @@ export async function batchProcess() {
       }
 
       const textToSpeechGenerator = new TextToSpeechGenerator();
-      await textToSpeechGenerator.generate(aiGeneratedTalkScript);
+      const codeFileName = `user-${userId}_${articles
+        .map((article) => article.id)
+        .join('-')}`;
+      await textToSpeechGenerator.generate(aiGeneratedTalkScript, codeFileName);
     } catch (error) {
       console.error('記事取得エラー:', error);
       throw error;

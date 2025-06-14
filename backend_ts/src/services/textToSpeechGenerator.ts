@@ -1,4 +1,6 @@
 import { writeFile } from 'fs';
+import { mkdir } from 'fs/promises';
+import { join } from 'path';
 
 import { GoogleGenAI } from '@google/genai';
 import mime from 'mime';
@@ -20,18 +22,28 @@ interface WavConversionOptions {
  * Google Gemini AI を使用してテキストを音声に変換する
  */
 export class TextToSpeechGenerator {
+  /** 音声ファイルの保存先ディレクトリ */
+  private readonly outputDir: string;
+
   /**
    * TextToSpeechGenerator のコンストラクタ
+   * @param {string} outputDir - 音声ファイルの保存先ディレクトリ（デフォルト: 'output/audio'）
    */
-  constructor() {}
+  constructor(outputDir: string = 'output/audio') {
+    this.outputDir = outputDir;
+  }
 
   /**
    * テキスト読み上げ音声を生成する
    * 現在の実装では音声ファイルはローカルファイルシステムに保存される
    * @param {string} talkScript - 読み上げるテキストスクリプト
+   * @param {string | number} id - ファイル名に含めるID
    * @throws {Error} API キーが設定されていない場合や API 呼び出しが失敗した場合
    */
-  async generate(talkScript: string) {
+  async generate(talkScript: string, id: string | number) {
+    // 出力ディレクトリを事前に作成
+    await this.ensureOutputDirectory();
+
     const ai = new GoogleGenAI({
       apiKey: process.env.GEMINI_API_KEY,
     });
@@ -81,7 +93,10 @@ export class TextToSpeechGenerator {
       config,
       contents,
     });
+
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
     let fileIndex = 0;
+
     for await (const chunk of response) {
       if (
         !chunk.candidates ||
@@ -91,7 +106,7 @@ export class TextToSpeechGenerator {
         continue;
       }
       if (chunk.candidates?.[0]?.content?.parts?.[0]?.inlineData) {
-        const fileName = `ENTER_FILE_NAME_${fileIndex++}`;
+        const fileName = `tts-${id}-${timestamp}-${fileIndex++}`;
         const inlineData = chunk.candidates[0].content.parts[0].inlineData;
         let fileExtension = mime.getExtension(inlineData.mimeType || '');
         let buffer = Buffer.from(inlineData.data || '', 'base64');
@@ -102,10 +117,26 @@ export class TextToSpeechGenerator {
             inlineData.mimeType || '',
           );
         }
-        this.saveBinaryFile(`${fileName}.${fileExtension}`, buffer);
+        await this.saveBinaryFile(`${fileName}.${fileExtension}`, buffer);
       } else {
         console.log(chunk.text);
       }
+    }
+  }
+
+  /**
+   * 出力ディレクトリが存在することを確認し、存在しない場合は作成する
+   * @private
+   */
+  private async ensureOutputDirectory(): Promise<void> {
+    try {
+      await mkdir(this.outputDir, { recursive: true });
+    } catch (error) {
+      console.error(
+        `出力ディレクトリの作成に失敗しました: ${this.outputDir}`,
+        error,
+      );
+      throw error;
     }
   }
 
@@ -115,13 +146,22 @@ export class TextToSpeechGenerator {
    * @param {Buffer} content - 保存するバイナリデータ
    * @private
    */
-  private saveBinaryFile(fileName: string, content: Buffer) {
-    writeFile(fileName, content, 'utf8', (err) => {
-      if (err) {
-        console.error(`Error writing file ${fileName}:`, err);
-        return;
-      }
-      console.log(`File ${fileName} saved to file system.`);
+  private async saveBinaryFile(
+    fileName: string,
+    content: Buffer,
+  ): Promise<void> {
+    const filePath = join(this.outputDir, fileName);
+
+    return new Promise((resolve, reject) => {
+      writeFile(filePath, content, (err) => {
+        if (err) {
+          console.error(`ファイル保存エラー ${filePath}:`, err);
+          reject(err);
+          return;
+        }
+        console.log(`音声ファイルが保存されました: ${filePath}`);
+        resolve();
+      });
     });
   }
 
