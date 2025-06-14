@@ -148,7 +148,7 @@ output "github_actions_service_account_id" {
 }
 
 # =============================================================================
-# Migration Job
+# Cloud Run Jobs
 # =============================================================================
 
 output "migration_job_name" {
@@ -159,6 +159,26 @@ output "migration_job_name" {
 output "migration_job_location" {
   description = "Location of the Cloud Run migration job"
   value       = google_cloud_run_v2_job.migrate.location
+}
+
+output "article_summary_job_name" {
+  description = "Name of the Cloud Run article summary job"
+  value       = google_cloud_run_v2_job.article_summary.name
+}
+
+output "article_summary_job_location" {
+  description = "Location of the Cloud Run article summary job"
+  value       = google_cloud_run_v2_job.article_summary.location
+}
+
+output "daily_summary_job_name" {
+  description = "Name of the Cloud Run daily summary job"
+  value       = google_cloud_run_v2_job.daily_summary.name
+}
+
+output "daily_summary_job_location" {
+  description = "Location of the Cloud Run daily summary job"
+  value       = google_cloud_run_v2_job.daily_summary.location
 }
 
 # =============================================================================
@@ -191,8 +211,10 @@ output "useful_commands" {
     deploy_command = "gcloud run deploy ${google_cloud_run_v2_service.main.name} --source . --region=${var.region}"
     logs_command   = "gcloud logging read \"resource.type=cloud_run_revision AND resource.labels.service_name=${google_cloud_run_v2_service.main.name}\" --limit=50"
 
-    # Migration commands
-    migrate_command = "gcloud run jobs execute ${google_cloud_run_v2_job.migrate.name} --region=${var.region}"
+    # Job commands
+    migrate_command        = "gcloud run jobs execute ${google_cloud_run_v2_job.migrate.name} --region=${var.region}"
+    article_summary_command = "gcloud run jobs execute ${google_cloud_run_v2_job.article_summary.name} --region=${var.region}"
+    daily_summary_command   = "gcloud run jobs execute ${google_cloud_run_v2_job.daily_summary.name} --region=${var.region}"
 
     # Database commands
     sql_proxy_command  = "./cloud-sql-proxy ${google_sql_database_instance.main.connection_name} --port=3306"
@@ -220,6 +242,21 @@ output "resource_summary" {
       name     = google_cloud_run_v2_service.main.name
       url      = google_cloud_run_v2_service.main.uri
       location = google_cloud_run_v2_service.main.location
+    }
+
+    cloud_run_jobs = {
+      migration = {
+        name     = google_cloud_run_v2_job.migrate.name
+        location = google_cloud_run_v2_job.migrate.location
+      }
+      article_summary = {
+        name     = google_cloud_run_v2_job.article_summary.name
+        location = google_cloud_run_v2_job.article_summary.location
+      }
+      daily_summary = {
+        name     = google_cloud_run_v2_job.daily_summary.name
+        location = google_cloud_run_v2_job.daily_summary.location
+      }
     }
 
     vpc_network = {

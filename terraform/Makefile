@@ -128,6 +128,48 @@ sql-status: check-project ## Cloud SQLインスタンスの状態を確認
 	@echo "プロジェクト: $(PROJECT_ID)"
 	gcloud sql instances describe summeryme-db --format="table(name,state,settings.activationPolicy,settings.tier)" 2>/dev/null || echo "❌ インスタンスが見つかりません"
 
+job-status: check-project ## Cloud Run Jobsの状態を確認
+	@echo "📊 Cloud Run Jobsの状態:"
+	@echo "プロジェクト: $(PROJECT_ID)"
+	@echo ""
+	@echo "=== マイグレーションジョブ ==="
+	@gcloud run jobs describe migrate-job --region=$(REGION) --format="table(metadata.name,spec.template.spec.template.metadata.labels,status.conditions[0].type,status.conditions[0].status)" 2>/dev/null || echo "❌ migrate-job が見つかりません"
+	@echo ""
+	@echo "=== 記事要約ジョブ ==="
+	@gcloud run jobs describe article-summary-job --region=$(REGION) --format="table(metadata.name,spec.template.spec.template.metadata.labels,status.conditions[0].type,status.conditions[0].status)" 2>/dev/null || echo "❌ article-summary-job が見つかりません"
+	@echo ""
+	@echo "=== 日次要約ジョブ ==="
+	@gcloud run jobs describe daily-summary-job --region=$(REGION) --format="table(metadata.name,spec.template.spec.template.metadata.labels,status.conditions[0].type,status.conditions[0].status)" 2>/dev/null || echo "❌ daily-summary-job が見つかりません"
+
+job-executions: check-project ## Cloud Run Jobsの実行履歴を確認
+	@echo "📋 Cloud Run Jobsの実行履歴:"
+	@echo "プロジェクト: $(PROJECT_ID)"
+	@echo ""
+	@echo "=== マイグレーションジョブ実行履歴 ==="
+	@gcloud run jobs executions list --job=migrate-job --region=$(REGION) --limit=5 --format="table(metadata.name,status.completionTime,status.succeededCount,status.failedCount)" 2>/dev/null || echo "❌ migrate-job の実行履歴が見つかりません"
+	@echo ""
+	@echo "=== 記事要約ジョブ実行履歴 ==="
+	@gcloud run jobs executions list --job=article-summary-job --region=$(REGION) --limit=5 --format="table(metadata.name,status.completionTime,status.succeededCount,status.failedCount)" 2>/dev/null || echo "❌ article-summary-job の実行履歴が見つかりません"
+	@echo ""
+	@echo "=== 日次要約ジョブ実行履歴 ==="
+	@gcloud run jobs executions list --job=daily-summary-job --region=$(REGION) --limit=5 --format="table(metadata.name,status.completionTime,status.succeededCount,status.failedCount)" 2>/dev/null || echo "❌ daily-summary-job の実行履歴が見つかりません"
+
+job-logs: check-project ## Cloud Run Jobsのログを表示
+	@echo "📜 Cloud Run Jobsのログ:"
+	@echo "プロジェクト: $(PROJECT_ID)"
+	@echo ""
+	@echo "どのジョブのログを表示しますか？"
+	@echo "1) migrate-job"
+	@echo "2) article-summary-job"
+	@echo "3) daily-summary-job"
+	@read -p "選択してください (1-3): " choice; \
+	case $$choice in \
+		1) gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=migrate-job" --limit=50 --format="table(timestamp,severity,textPayload)" ;; \
+		2) gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=article-summary-job" --limit=50 --format="table(timestamp,severity,textPayload)" ;; \
+		3) gcloud logging read "resource.type=cloud_run_job AND resource.labels.job_name=daily-summary-job" --limit=50 --format="table(timestamp,severity,textPayload)" ;; \
+		*) echo "❌ 無効な選択です" ;; \
+	esac
+
 # 特定リソース操作
 plan-cloud-run: check-project ## Cloud Runサービスのみプラン表示
 	terraform plan -target=google_cloud_run_v2_service.main
@@ -135,11 +177,35 @@ plan-cloud-run: check-project ## Cloud Runサービスのみプラン表示
 apply-cloud-run: check-project ## Cloud Runサービスのみ更新
 	terraform apply -auto-approve -target=google_cloud_run_v2_service.main
 
-plan-cloud-run-job: check-project ## Cloud Run Jobのみプラン表示
+plan-cloud-run-job: check-project ## 全Cloud Run Jobのプラン表示
+	terraform plan \
+		-target=google_cloud_run_v2_job.migrate \
+		-target=google_cloud_run_v2_job.article_summary \
+		-target=google_cloud_run_v2_job.daily_summary
+
+apply-cloud-run-job: check-project ## 全Cloud Run Jobの更新
+	terraform apply -auto-approve \
+		-target=google_cloud_run_v2_job.migrate \
+		-target=google_cloud_run_v2_job.article_summary \
+		-target=google_cloud_run_v2_job.daily_summary
+
+plan-migrate-job: check-project ## マイグレーションジョブのみプラン表示
 	terraform plan -target=google_cloud_run_v2_job.migrate
 
-apply-cloud-run-job: check-project ## Cloud Run Jobのみ更新
+apply-migrate-job: check-project ## マイグレーションジョブのみ更新
 	terraform apply -auto-approve -target=google_cloud_run_v2_job.migrate
+
+plan-article-summary-job: check-project ## 記事要約ジョブのみプラン表示
+	terraform plan -target=google_cloud_run_v2_job.article_summary
+
+apply-article-summary-job: check-project ## 記事要約ジョブのみ更新
+	terraform apply -auto-approve -target=google_cloud_run_v2_job.article_summary
+
+plan-daily-summary-job: check-project ## 日次要約ジョブのみプラン表示
+	terraform plan -target=google_cloud_run_v2_job.daily_summary
+
+apply-daily-summary-job: check-project ## 日次要約ジョブのみ更新
+	terraform apply -auto-approve -target=google_cloud_run_v2_job.daily_summary
 
 plan-cloud-sql: check-project ## Cloud SQLのみプラン表示
 	terraform plan -target=google_sql_database_instance.main
@@ -159,11 +225,32 @@ plan-storage: check-project ## GCSストレージのみプラン表示
 apply-storage: check-project ## GCSストレージのみ更新
 	terraform apply -target=google_storage_bucket.audio_files
 
-# マイグレーション
+# ジョブ実行
 migrate: check-project ## データベースマイグレーションジョブを実行
 	@echo "マイグレーションジョブを実行中..."
 	@echo "プロジェクト: $(PROJECT_ID)"
 	gcloud run jobs execute migrate-job --region=$(REGION) --wait
+
+run-article-summary: check-project ## 記事要約ジョブを実行
+	@echo "記事要約ジョブを実行中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
+	gcloud run jobs execute article-summary-job --region=$(REGION) --wait
+
+run-daily-summary: check-project ## 日次要約ジョブを実行
+	@echo "日次要約ジョブを実行中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
+	gcloud run jobs execute daily-summary-job --region=$(REGION) --wait
+
+run-all-jobs: check-project ## 全ジョブを順次実行
+	@echo "全ジョブを順次実行中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
+	@echo "1. マイグレーション..."
+	gcloud run jobs execute migrate-job --region=$(REGION) --wait
+	@echo "2. 記事要約..."
+	gcloud run jobs execute article-summary-job --region=$(REGION) --wait
+	@echo "3. 日次要約..."
+	gcloud run jobs execute daily-summary-job --region=$(REGION) --wait
+	@echo "✅ 全ジョブの実行が完了しました"
 
 # インポート操作
 import-cloud-run: check-project ## 既存のCloud Runサービスをインポート
@@ -174,7 +261,39 @@ import-cloud-run: check-project ## 既存のCloud Runサービスをインポー
 import-cloud-run-job: check-project ## 既存のCloud Run Jobをインポート
 	@echo "Cloud Run Jobをインポート中..."
 	@echo "プロジェクト: $(PROJECT_ID)"
+	@if gcloud run jobs describe migrate-job --region=$(REGION) >/dev/null 2>&1; then \
+		terraform import google_cloud_run_v2_job.migrate projects/$(PROJECT_ID)/locations/$(REGION)/jobs/migrate-job; \
+		echo "✅ migrate-job をインポートしました"; \
+	else \
+		echo "❌ migrate-job が見つかりません"; \
+	fi
+	@if gcloud run jobs describe article-summary-job --region=$(REGION) >/dev/null 2>&1; then \
+		terraform import google_cloud_run_v2_job.article_summary projects/$(PROJECT_ID)/locations/$(REGION)/jobs/article-summary-job; \
+		echo "✅ article-summary-job をインポートしました"; \
+	else \
+		echo "❌ article-summary-job が見つかりません"; \
+	fi
+	@if gcloud run jobs describe daily-summary-job --region=$(REGION) >/dev/null 2>&1; then \
+		terraform import google_cloud_run_v2_job.daily_summary projects/$(PROJECT_ID)/locations/$(REGION)/jobs/daily-summary-job; \
+		echo "✅ daily-summary-job をインポートしました"; \
+	else \
+		echo "❌ daily-summary-job が見つかりません"; \
+	fi
+
+import-migrate-job: check-project ## マイグレーションジョブのみインポート
+	@echo "マイグレーションジョブをインポート中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
 	terraform import google_cloud_run_v2_job.migrate projects/$(PROJECT_ID)/locations/$(REGION)/jobs/migrate-job
+
+import-article-summary-job: check-project ## 記事要約ジョブのみインポート
+	@echo "記事要約ジョブをインポート中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
+	terraform import google_cloud_run_v2_job.article_summary projects/$(PROJECT_ID)/locations/$(REGION)/jobs/article-summary-job
+
+import-daily-summary-job: check-project ## 日次要約ジョブのみインポート
+	@echo "日次要約ジョブをインポート中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
+	terraform import google_cloud_run_v2_job.daily_summary projects/$(PROJECT_ID)/locations/$(REGION)/jobs/daily-summary-job
 
 import-cloud-sql: check-project ## 既存のCloud SQLインスタンスをインポート
 	@echo "Cloud SQLインスタンスをインポート中..."

@@ -277,3 +277,245 @@ resource "google_cloud_run_v2_job" "migrate" {
     ]
   }
 }
+
+# Cloud Run Job (記事要約処理用)
+resource "google_cloud_run_v2_job" "article_summary" {
+  name     = "article-summary-job"
+  location = var.region
+
+  labels = local.labels
+
+  template {
+    # ジョブレベルの設定
+    parallelism = 1
+    task_count  = 1
+
+    template {
+      service_account = google_service_account.cloud_run.email
+
+      # VPCアクセス設定
+      vpc_access {
+        connector = google_vpc_access_connector.main.id
+        egress    = "ALL_TRAFFIC"
+      }
+
+      # Cloud SQL接続設定
+      volumes {
+        name = "cloudsql"
+        cloud_sql_instance {
+          instances = [local.cloud_sql_connection_name]
+        }
+      }
+
+      containers {
+        image = var.container_image
+
+        # 記事要約処理を実行
+        command = ["pnpm"]
+        args    = ["run", "run-job:articleSummary"]
+
+        resources {
+          limits = {
+            cpu    = "2000m"
+            memory = "2Gi"
+          }
+        }
+
+        # 環境変数
+        env {
+          name  = "NODE_ENV"
+          value = var.environment
+        }
+
+        env {
+          name  = "LOG_LEVEL"
+          value = var.log_level
+        }
+
+        # データベース接続情報を個別の環境変数として設定
+        env {
+          name  = "DB_HOST"
+          value = "localhost"
+        }
+
+        env {
+          name  = "DB_PORT"
+          value = "3306"
+        }
+
+        env {
+          name  = "DB_USER"
+          value = local.db_user
+        }
+
+        env {
+          name  = "DB_NAME"
+          value = local.database
+        }
+
+        env {
+          name  = "DB_SOCKET_PATH"
+          value = "/cloudsql/${local.cloud_sql_connection_name}"
+        }
+
+        # Secret Manager からの環境変数
+        env {
+          name = "DB_PASSWORD"
+          value_source {
+            secret_key_ref {
+              secret  = google_secret_manager_secret.db_password.secret_id
+              version = "latest"
+            }
+          }
+        }
+
+        # GCS設定
+        env {
+          name  = "GCS_AUDIO_BUCKET"
+          value = google_storage_bucket.audio_files.name
+        }
+
+        # Cloud SQL ボリュームマウント
+        volume_mounts {
+          name       = "cloudsql"
+          mount_path = "/cloudsql"
+        }
+      }
+    }
+  }
+
+  depends_on = [
+    google_project_service.required_apis,
+    google_sql_database_instance.main,
+    google_secret_manager_secret_version.db_password,
+    google_vpc_access_connector.main,
+    google_storage_bucket.audio_files
+  ]
+
+  lifecycle {
+    ignore_changes = [
+      template[0].template[0].containers[0].image
+    ]
+  }
+}
+
+# Cloud Run Job (日次要約処理用)
+resource "google_cloud_run_v2_job" "daily_summary" {
+  name     = "daily-summary-job"
+  location = var.region
+
+  labels = local.labels
+
+  template {
+    # ジョブレベルの設定
+    parallelism = 1
+    task_count  = 1
+
+    template {
+      service_account = google_service_account.cloud_run.email
+
+      # VPCアクセス設定
+      vpc_access {
+        connector = google_vpc_access_connector.main.id
+        egress    = "ALL_TRAFFIC"
+      }
+
+      # Cloud SQL接続設定
+      volumes {
+        name = "cloudsql"
+        cloud_sql_instance {
+          instances = [local.cloud_sql_connection_name]
+        }
+      }
+
+      containers {
+        image = var.container_image
+
+        # 日次要約処理を実行
+        command = ["pnpm"]
+        args    = ["run", "run-job:dailySummary"]
+
+        resources {
+          limits = {
+            cpu    = "2000m"
+            memory = "2Gi"
+          }
+        }
+
+        # 環境変数
+        env {
+          name  = "NODE_ENV"
+          value = var.environment
+        }
+
+        env {
+          name  = "LOG_LEVEL"
+          value = var.log_level
+        }
+
+        # データベース接続情報を個別の環境変数として設定
+        env {
+          name  = "DB_HOST"
+          value = "localhost"
+        }
+
+        env {
+          name  = "DB_PORT"
+          value = "3306"
+        }
+
+        env {
+          name  = "DB_USER"
+          value = local.db_user
+        }
+
+        env {
+          name  = "DB_NAME"
+          value = local.database
+        }
+
+        env {
+          name  = "DB_SOCKET_PATH"
+          value = "/cloudsql/${local.cloud_sql_connection_name}"
+        }
+
+        # Secret Manager からの環境変数
+        env {
+          name = "DB_PASSWORD"
+          value_source {
+            secret_key_ref {
+              secret  = google_secret_manager_secret.db_password.secret_id
+              version = "latest"
+            }
+          }
+        }
+
+        # GCS設定
+        env {
+          name  = "GCS_AUDIO_BUCKET"
+          value = google_storage_bucket.audio_files.name
+        }
+
+        # Cloud SQL ボリュームマウント
+        volume_mounts {
+          name       = "cloudsql"
+          mount_path = "/cloudsql"
+        }
+      }
+    }
+  }
+
+  depends_on = [
+    google_project_service.required_apis,
+    google_sql_database_instance.main,
+    google_secret_manager_secret_version.db_password,
+    google_vpc_access_connector.main,
+    google_storage_bucket.audio_files
+  ]
+
+  lifecycle {
+    ignore_changes = [
+      template[0].template[0].containers[0].image
+    ]
+  }
+}
