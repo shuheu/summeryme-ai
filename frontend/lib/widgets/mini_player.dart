@@ -10,8 +10,51 @@ import '../themes/app_theme.dart';
 
 /// ミニプレイヤーWidget
 /// 画面下部に固定表示され、基本的な音声コントロールを提供
-class MiniPlayer extends StatelessWidget {
+class MiniPlayer extends StatefulWidget {
   const MiniPlayer({super.key});
+
+  @override
+  State<MiniPlayer> createState() => _MiniPlayerState();
+}
+
+class _MiniPlayerState extends State<MiniPlayer>
+    with SingleTickerProviderStateMixin {
+  late AnimationController _animationController;
+  late Animation<Offset> _slideAnimation;
+  late Animation<double> _fadeAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 300),
+      vsync: this,
+    );
+    _slideAnimation = Tween<Offset>(
+      begin: const Offset(0.0, 1.0),
+      end: Offset.zero,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+
+    _fadeAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(
+      parent: _animationController,
+      curve: Curves.easeInOut,
+    ));
+
+    // アニメーションを開始
+    _animationController.forward();
+  }
+
+  @override
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -102,33 +145,40 @@ class MiniPlayer extends StatelessWidget {
             ],
           );
 
-    return Container(
-      height: isTablet ? 80 : 70,
-      width: double.infinity,
-      decoration: containerDecoration,
-      child: Material(
-        color: Colors.transparent,
-        child: InkWell(
-          onTap: () => _navigateToFullPlayer(context),
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isTablet ? 24.0 : 16.0,
-              vertical: 8.0,
-            ),
-            child: Row(
-              children: [
-                // アルバムアート（小）
-                _buildAlbumArt(isTablet),
-                const SizedBox(width: 12),
-
-                // トラック情報
-                Expanded(
-                  child: _buildTrackInfo(currentTrack, playbackState, isTablet),
+    return FadeTransition(
+      opacity: _fadeAnimation,
+      child: SlideTransition(
+        position: _slideAnimation,
+        child: Container(
+          height: isTablet ? 80 : 70,
+          width: double.infinity,
+          decoration: containerDecoration,
+          child: Material(
+            color: Colors.transparent,
+            child: InkWell(
+              onTap: () => _navigateToFullPlayer(context),
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isTablet ? 24.0 : 16.0,
+                  vertical: 8.0,
                 ),
+                child: Row(
+                  children: [
+                    // アルバムアート（小）
+                    _buildAlbumArt(isTablet),
+                    const SizedBox(width: 12),
 
-                // コントロールボタン
-                _buildControls(context, audioService, isTablet),
-              ],
+                    // トラック情報
+                    Expanded(
+                      child: _buildTrackInfo(
+                          currentTrack, playbackState, isTablet),
+                    ),
+
+                    // コントロールボタン
+                    _buildControls(context, audioService, isTablet),
+                  ],
+                ),
+              ),
             ),
           ),
         ),
@@ -298,9 +348,27 @@ class MiniPlayer extends StatelessWidget {
   void _navigateToFullPlayer(BuildContext context) {
     Navigator.push(
       context,
-      MaterialPageRoute<void>(
-        builder: (context) => const AudioPlayerScreen(),
+      PageRouteBuilder<void>(
+        pageBuilder: (context, animation, secondaryAnimation) =>
+            const AudioPlayerScreen(),
         settings: const RouteSettings(name: '/audio_player'),
+        transitionDuration: const Duration(milliseconds: 300),
+        reverseTransitionDuration: const Duration(milliseconds: 300),
+        transitionsBuilder: (context, animation, secondaryAnimation, child) {
+          // スライドアップアニメーション（上に向かって表示）
+          const begin = Offset(0.0, 1.0);
+          const end = Offset.zero;
+          const curve = Curves.easeInOut;
+
+          var tween = Tween(begin: begin, end: end).chain(
+            CurveTween(curve: curve),
+          );
+
+          return SlideTransition(
+            position: animation.drive(tween),
+            child: child,
+          );
+        },
       ),
     );
   }
