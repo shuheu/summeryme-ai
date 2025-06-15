@@ -257,7 +257,7 @@ flutter drive --target=test_driver/app.dart
 
 - Dart公式のlintルールに従う
 - `flutter_lints`パッケージを使用
-- コードフォーマット: `flutter format .`
+- コードフォーマット: `dart format .`
 
 ### 分析
 
