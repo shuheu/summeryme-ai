@@ -22,7 +22,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 app.use(
   '*',
   cors({
-    origin: isDevelopment ? '*' : ['https://summaryme-ai.web.app'],
+    origin: isDevelopment ? '*' : 'https://summaryme-ai.web.app',
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
     credentials: false,
