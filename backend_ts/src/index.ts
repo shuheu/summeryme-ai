@@ -25,7 +25,7 @@ app.use(
   cors({
     origin: isDevelopment ? '*' : 'https://summaryme-ai.web.app',
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowHeaders: ['Content-Type', 'Authorization'],
+    allowHeaders: ['Content-Type', 'Authorization', 'x-user-uid'],
     credentials: false,
   }),
 );
