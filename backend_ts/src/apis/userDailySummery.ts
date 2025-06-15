@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import { globalPrisma } from '../lib/dbClient.js';
+import { AudioUrlService } from '../services/audioUrlService.js';
 
 import type { ZodIssue } from 'zod';
 
@@ -146,6 +147,83 @@ userDailySummaryRouter.get('/:id', async (c) => {
     });
   } catch (error) {
     console.error('UserDailySummary取得エラー:', error);
+    return c.json({ error: 'サーバーエラーが発生しました' }, 500);
+  }
+});
+
+// 特定のUserDailySummaryの音声URLを取得するエンドポイント
+userDailySummaryRouter.get('/:id/audio-urls', async (c) => {
+  try {
+    // パスパラメータのバリデーション
+    const pathParams = {
+      id: c.req.param('id'),
+    };
+
+    const validationResult =
+      getUserDailySummaryByIdSchema.safeParse(pathParams);
+
+    if (!validationResult.success) {
+      return c.json(
+        {
+          error: 'バリデーションエラー',
+          details: validationResult.error.errors.map((err: ZodIssue) => ({
+            field: err.path.join('.'),
+            message: err.message,
+          })),
+        },
+        400,
+      );
+    }
+
+    const { id } = validationResult.data;
+
+    // TODO: ユーザーIDの取得処理を追加する
+    const userId = 1;
+
+    // デイリーサマリーの存在確認
+    const userDailySummary = await globalPrisma.userDailySummary.findUnique({
+      where: {
+        id: id,
+        userId: userId,
+      },
+    });
+
+    if (!userDailySummary) {
+      return c.json({ error: 'デイリーサマリーが見つかりません' }, 404);
+    }
+
+    // 音声URL取得サービスを初期化
+    const audioUrlService = new AudioUrlService();
+
+    // 音声ファイルの存在確認
+    const hasAudioFiles = await audioUrlService.hasAudioFiles(userId, id);
+
+    if (!hasAudioFiles) {
+      return c.json({
+        data: {
+          audioFiles: [],
+          hasAudio: false,
+          message: 'この記事には音声サマリーがありません',
+        },
+      });
+    }
+
+    // 署名付きURLを取得
+    const audioFiles = await audioUrlService.getAudioUrlsForDailySummary(
+      userId,
+      id,
+    );
+
+    return c.json({
+      data: {
+        audioFiles: audioFiles,
+        hasAudio: audioFiles.length > 0,
+        totalFiles: audioFiles.length,
+        expiresInMinutes: audioUrlService.getUrlExpirationMinutes(),
+      },
+    });
+  } catch (error) {
+    console.error('音声URL取得エラー:', error);
     return c.json({ error: 'サーバーエラーが発生しました' }, 500);
   }
 });

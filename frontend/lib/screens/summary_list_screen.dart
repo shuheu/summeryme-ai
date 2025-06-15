@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/user_daily_summary.dart';
+import '../models/playlist.dart';
 import '../screens/digest_detail_screen.dart';
 import '../services/api_service.dart';
+import '../services/audio_player_service.dart';
 import '../themes/app_theme.dart';
 
 class SummaryListScreen extends StatefulWidget {
@@ -304,25 +307,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
                   ],
                 ),
                 child: ElevatedButton.icon(
-                  onPressed: () {
-                    if (userDailySummary.audioUrl != null) {
-                      // TODO: 実際の音声再生機能を実装
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              '🎧 音声サマリーを再生します: ${userDailySummary.audioUrl}'),
-                          backgroundColor: AppColors.primary,
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('この記事には音声サマリーがありません'),
-                          backgroundColor: AppColors.textSecondary,
-                        ),
-                      );
-                    }
-                  },
+                  onPressed: () => _playAudioSummary(context, userDailySummary),
                   icon: Container(
                     padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
@@ -537,6 +522,82 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _playAudioSummary(
+      BuildContext context, UserDailySummary userDailySummary) async {
+    try {
+      // ローディング表示
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      // 音声URLを取得
+      final audioTracks = await _apiService.fetchAudioUrlsForDailySummary(
+        userDailySummary.id,
+      );
+
+      // ローディング閉じる
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+
+      if (audioTracks.isEmpty) {
+        // 音声ファイルが存在しない場合
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('この記事には音声サマリーがありません'),
+              backgroundColor: AppColors.textSecondary,
+            ),
+          );
+        }
+        return;
+      }
+
+      // 音声プレイヤーサービスで再生
+      final audioPlayerService = Provider.of<AudioPlayerService>(
+        context,
+        listen: false,
+      );
+
+      // AudioTrackのリストからPlaylistを作成
+      final playlist = Playlist(
+        id: 'daily_summary_${userDailySummary.id}',
+        title: 'デイリーサマリー ${userDailySummary.id}',
+        tracks: audioTracks,
+        currentIndex: 0,
+        createdAt: DateTime.now(),
+      );
+
+      await audioPlayerService.playPlaylist(playlist);
+
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('🎧 音声サマリーを再生開始 (${audioTracks.length}件)'),
+            backgroundColor: AppColors.primary,
+          ),
+        );
+      }
+    } catch (e) {
+      // エラーが発生した場合
+      if (context.mounted) {
+        // ローディング画面が表示されている場合は閉じる
+        Navigator.of(context).popUntil((route) => route.isFirst);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('音声の再生に失敗しました: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _addArticle(BuildContext context) async {
