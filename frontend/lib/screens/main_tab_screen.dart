@@ -17,7 +17,7 @@ class _MainTabScreenState extends State<MainTabScreen> {
   final List<Widget> _screens = [
     const SummaryListScreen(),
     const SavedArticlesScreen(),
-    const SettingsScreen(),
+    SettingsScreen(),
   ];
 
   @override

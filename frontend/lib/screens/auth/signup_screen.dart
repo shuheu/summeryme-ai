@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'login_screen.dart';
 import '../main_tab_screen.dart';
+import '../../services/auth_service.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -20,6 +21,7 @@ class _SignupScreenState extends State<SignupScreen> {
   bool _isConfirmPasswordVisible = false;
   bool _isLoading = false;
   bool _agreeToTerms = false;
+  final AuthService _authService = AuthService();
 
   @override
   void dispose() {
@@ -444,12 +446,61 @@ class _SignupScreenState extends State<SignupScreen> {
                     SizedBox(
                       height: 50,
                       child: OutlinedButton.icon(
-                        onPressed: () {
+                        onPressed: () async {
                           // Google 登録
+                          setState(() {
+                            _isLoading = true;
+                          });
+
+                          try {
+                            final user = await _authService.signInWithGoogle();
+
+                            if (!context.mounted) return;
+
+                            if (user != null) {
+                              // Successfully signed in
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute<void>(
+                                  builder: (context) => const MainTabScreen(),
+                                ),
+                              );
+                            } else {
+                              // User cancelled the sign-in
+                              setState(() {
+                                _isLoading = false;
+                              });
+                            }
+                          } catch (e) {
+                            if (context.mounted) {
+                              setState(() {
+                                _isLoading = false;
+                              });
+
+                              // Show error message
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('登録に失敗しました: ${e.toString()}'),
+                                  backgroundColor: Colors.red,
+                                ),
+                              );
+                            }
+                          }
                         },
-                        icon: const Icon(Icons.g_mobiledata, size: 24),
+                        icon: _isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Color(0xFF007AFF),
+                                  ),
+                                ),
+                              )
+                            : const Icon(Icons.g_mobiledata, size: 24),
                         label: Text(
-                          'Googleで登録',
+                          _isLoading ? '登録中...' : 'Googleで登録',
                           style: TextStyle(
                             fontSize: isTablet ? 16 : 14,
                             fontWeight: FontWeight.w500,
