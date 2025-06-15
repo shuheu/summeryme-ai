@@ -3,6 +3,7 @@ import '../models/user_daily_summary.dart';
 import '../models/article.dart';
 import '../services/api_service.dart';
 import '../themes/app_theme.dart';
+import '../widgets/app_scaffold.dart';
 import 'article_detail_screen.dart';
 
 class DigestDetailScreen extends StatefulWidget {
@@ -53,7 +54,7 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
     final maxWidth = AppResponsive.getMaxWidth(context);
 
     if (_isLoading) {
-      return Scaffold(
+      return AppScaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -66,7 +67,7 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
     }
 
     if (_errorMessage != null) {
-      return Scaffold(
+      return AppScaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -105,7 +106,7 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
     final dateFormat =
         '${userDailySummary.generatedDate.year}年${userDailySummary.generatedDate.month}月${userDailySummary.generatedDate.day}日';
 
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: AppColors.background,
       body: CustomScrollView(
         slivers: [

@@ -36,6 +36,11 @@ class AudioPlayerService extends ChangeNotifier {
   void _initializePlayer() {
     _audioPlayer = AudioPlayer();
 
+    // iOS/Android環境での音声セッション設定
+    if (!kIsWeb) {
+      _initializeMobileAudio();
+    }
+
     // プレイヤー状態の変更を監視
     _playerStateSubscription = _audioPlayer.playerStateStream.listen((state) {
       _updatePlayerState(state);
@@ -50,6 +55,18 @@ class AudioPlayerService extends ChangeNotifier {
     _durationSubscription = _audioPlayer.durationStream.listen((duration) {
       _updateDuration(duration);
     });
+  }
+
+  /// モバイル環境での音声初期化
+  Future<void> _initializeMobileAudio() async {
+    try {
+      // iOSシミュレーターでの初期化問題を回避
+      // 実際の音声ファイル再生時に初期化を行う
+      await _audioPlayer.setVolume(1.0);
+    } catch (e) {
+      // 初期化エラーは無視（シミュレーター環境での問題を回避）
+      print('Mobile audio initialization warning: $e');
+    }
   }
 
   /// 現在のプレイリスト

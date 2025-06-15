@@ -7,6 +7,7 @@ import '../screens/audio_player_screen.dart';
 import '../services/api_service.dart';
 import '../services/audio_player_service.dart';
 import '../themes/app_theme.dart';
+import '../widgets/app_scaffold.dart';
 
 class SummaryListScreen extends StatefulWidget {
   const SummaryListScreen({super.key});
@@ -96,7 +97,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
     final maxWidth = isTablet ? 800.0 : double.infinity;
 
     if (_isLoading && _userDailySummaryList.isEmpty) {
-      return Scaffold(
+      return AppScaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -111,7 +112,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
     }
 
     if (_errorMessage != null && _userDailySummaryList.isEmpty) {
-      return Scaffold(
+      return AppScaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -148,7 +149,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
       );
     }
 
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -582,14 +583,6 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
           SnackBar(
             content: Text('🎧 音声サマリーを再生開始 (${audioTracks.length}件)'),
             backgroundColor: AppColors.primary,
-          ),
-        );
-
-        // プレイヤー画面に遷移
-        Navigator.push(
-          context,
-          MaterialPageRoute<void>(
-            builder: (context) => const AudioPlayerScreen(),
           ),
         );
       }
