@@ -1,6 +1,6 @@
-# Summeryme.ai Frontend
+# Summaryme.ai Frontend
 
-Summeryme.aiのフロントエンドアプリケーションです。Flutterを使用してクロスプラットフォーム対応のモバイル・ウェブアプリケーションを開発しています。
+Summaryme.aiのフロントエンドアプリケーションです。Flutterを使用してクロスプラットフォーム対応のモバイル・ウェブアプリケーションを開発しています。
 
 ## 📱 プロジェクト概要
 
@@ -24,6 +24,7 @@ Summeryme.aiのフロントエンドアプリケーションです。Flutterを�
 ### 前提条件
 
 1. **Flutter SDK** (3.7.2以上)
+
    ```bash
    flutter --version
    ```
@@ -36,6 +37,7 @@ Summeryme.aiのフロントエンドアプリケーションです。Flutterを�
 ### インストール手順
 
 1. **リポジトリのクローン**
+
    ```bash
    git clone <repository-url>
    cd frontend
@@ -252,11 +254,13 @@ flutter drive --target=test_driver/app.dart
 ## 🔍 開発ガイドライン
 
 ### コードスタイル
+
 - Dart公式のlintルールに従う
 - `flutter_lints`パッケージを使用
 - コードフォーマット: `flutter format .`
 
 ### 分析
+
 ```bash
 # コード分析実行
 flutter analyze
@@ -271,15 +275,18 @@ flutter pub outdated
 ## 🚀 デプロイ
 
 ### Android (Google Play Store)
+
 1. `flutter build appbundle --release`
 2. Google Play Consoleにアップロード
 
 ### iOS (App Store)
+
 1. `flutter build ios --release`
 2. Xcodeでアーカイブ
 3. App Store Connectにアップロード
 
 ### Web
+
 1. `flutter build web --release`
 2. `build/web/`フォルダをWebサーバーにデプロイ
 
@@ -288,17 +295,20 @@ flutter pub outdated
 ### よくある問題
 
 1. **Flutter Doctor エラー**
+
    ```bash
    flutter doctor --verbose
    ```
 
 2. **依存関係の問題**
+
    ```bash
    flutter clean
    flutter pub get
    ```
 
 3. **キャッシュクリア**
+
    ```bash
    flutter clean
    rm -rf ~/.pub-cache
@@ -335,3 +345,134 @@ flutter pub outdated
 ---
 
 **注意**: このプロジェクトは開発中です。本番環境での使用前に十分なテストを行ってください。
+
+## 🚀 Firebase Hosting デプロイガイド
+
+このプロジェクトは Flutter Web アプリケーションで、Firebase Hosting を使用して Google Cloud 環境にデプロイされます。
+
+## 📋 前提条件
+
+### 必要なツール
+
+- Flutter SDK 3.7.2+
+- Firebase CLI
+- Node.js 16+
+- Git
+
+#### Firebase ログイン
+
+```bash
+firebase login
+```
+
+## 🔧 プロジェクト設定
+
+### 1. Firebase プロジェクトの初期化
+
+```bash
+cd frontend
+firebase init hosting
+```
+
+### 2. Flutter 依存関係のインストール
+
+```bash
+flutter pub get
+```
+
+## 🚀 デプロイ方法
+
+### 方法1: スクリプトを使用（推奨）
+
+#### 本番環境
+
+```bash
+cd frontend
+./scripts/deploy.sh production
+```
+
+## 🔄 GitHub Actions CI/CD
+
+### 自動デプロイの設定
+
+1. **Firebase Service Account の作成**
+
+```bash
+firebase projects:list
+firebase init hosting:github
+```
+
+2. **GitHub Secrets の設定**
+   - `FIREBASE_SERVICE_ACCOUNT_<project_id>`: Firebase サービスアカウントの JSON キー
+
+### デプロイ トリガー
+
+- **プルリクエスト**: プレビュー環境に自動デプロイ
+- **develop ブランチ**: ステージング環境に自動デプロイ
+- **main ブランチ**: 本番環境に自動デプロイ
+
+## 🌐 デプロイ環境
+
+### 本番環境
+
+- **ブランチ**: `master`
+- **自動デプロイ**: ✅
+
+### プレビュー環境
+
+- **URL**: 動的生成（PRごと）
+- **ブランチ**: プルリクエスト
+- **自動デプロイ**: ✅
+
+## 📊 ビルド設定
+
+### Web レンダラー
+
+- **CanvasKit**: 高性能レンダリング（デフォルト）
+- **HTML**: 軽量だが機能制限あり
+
+## 🔧 トラブルシューティング
+
+### よくある問題
+
+#### 1. Firebase CLI ログイン問題
+```bash
+firebase logout
+firebase login --reauth
+```
+
+#### 2. ビルドエラー
+```bash
+flutter clean
+flutter pub get
+flutter build web
+```
+
+#### 3. デプロイ権限エラー
+```bash
+firebase projects:list
+firebase use <project_id>
+```
+
+### ログ確認
+
+```bash
+# Firebase Hosting ログ
+firebase hosting:sites:list
+
+# GitHub Actions ログ
+# GitHubのActions タブから確認
+```
+
+### コマンド一覧
+
+```bash
+# ビルド
+flutter build web
+
+# デプロイ状況確認
+firebase hosting:sites:list
+
+# ログ確認
+firebase hosting:sites:get <project_id>
+```
