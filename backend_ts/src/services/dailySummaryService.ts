@@ -194,9 +194,9 @@ export class DailySummaryService {
             gte: startOfDay,
             lte: endOfDay,
           },
-          // savedArticleSummary: {
-          //   isNot: null, // 要約が生成済みの記事のみ
-          // },
+          savedArticleSummary: {
+            is: null, // 要約がまだ生成されていない記事のみ
+          },
         },
         include: {
           user: {
@@ -402,24 +402,64 @@ export class DailySummaryService {
  * 日次要約バッチメイン実行関数
  */
 async function main(): Promise<void> {
+  console.log('日次要約バッチ処理開始 (全ユーザー対象 - チャンク処理)');
+  const service = new DailySummaryService();
+  let totalSuccessCount = 0;
+  let totalFailureCount = 0;
+  const chunkSize = 10;
+
   try {
-    // 環境変数からユーザーIDを取得（デフォルト: 1）
-    const userId = Number(process.env.BATCH_USER_ID) || 1;
+    const users = await globalPrisma.user.findMany({
+      select: { id: true },
+      orderBy: { id: 'asc' }, // 処理順序を安定させるためにIDでソート
+    });
 
-    const service = new DailySummaryService();
-    const result = await service.execute({ userId });
+    if (users.length === 0) {
+      console.log('処理対象のユーザーが見つかりませんでした。');
+      return;
+    }
 
-    console.log('=== 日次要約バッチ処理結果 ===');
-    console.log(`処理記事数: ${result.processedArticles}`);
-    console.log(`音声ファイル: ${result.audioFileName || 'なし'}`);
-    console.log(
-      `日次要約生成: ${result.dailySummaryGenerated ? '成功' : '既存またはスキップ'}`,
-    );
-    console.log(`処理時間: ${result.processingTime}ms`);
-    console.log('=========================');
+    console.log(`${users.length}人のユーザーを${chunkSize}件ずつのチャンクで処理します。`);
+
+    for (let i = 0; i < users.length; i += chunkSize) {
+      const chunk = users.slice(i, i + chunkSize);
+      console.log(`チャンク ${Math.floor(i / chunkSize) + 1} の処理を開始 (ユーザー ${i + 1} から ${Math.min(i + chunkSize, users.length)})`);
+
+      let chunkSuccessCount = 0;
+      let chunkFailureCount = 0;
+
+      for (const user of chunk) {
+        try {
+          console.log(`  ユーザーID: ${user.id} の処理を開始します。`);
+          const result = await service.execute({ userId: user.id });
+          console.log(`  === ユーザーID: ${user.id} の日次要約バッチ処理結果 ===`);
+          console.log(`    処理記事数: ${result.processedArticles}`);
+          console.log(`    音声ファイル: ${result.audioFileName || 'なし'}`);
+          console.log(
+            `    日次要約生成: ${result.dailySummaryGenerated ? '成功' : '既存またはスキップ'}`,
+          );
+          console.log(`    処理時間: ${result.processingTime}ms`);
+          console.log('  ===================================');
+          totalSuccessCount++;
+          chunkSuccessCount++;
+        } catch (error) {
+          console.error(`  ユーザーID: ${user.id} の処理中にエラーが発生しました:`, error);
+          totalFailureCount++;
+          chunkFailureCount++;
+        }
+      }
+      console.log(`チャンク ${Math.floor(i / chunkSize) + 1} の処理完了 - 成功: ${chunkSuccessCount}, 失敗: ${chunkFailureCount}`);
+    }
   } catch (error) {
-    console.error('日次要約バッチメイン処理エラー:', error);
+    console.error('日次要約バッチ処理の全体でエラーが発生しました:', error);
+    // 全体エラーの場合、ここで終了する
     process.exit(1);
+  } finally {
+    console.log('=== 全ユーザーの日次要約バッチ処理完了 (チャンク処理) ===');
+    console.log(`総成功ユーザー数: ${totalSuccessCount}`);
+    console.log(`総失敗ユーザー数: ${totalFailureCount}`);
+    console.log('==================================================');
+    // process.exit(0); // 通常は不要
   }
 }
 
