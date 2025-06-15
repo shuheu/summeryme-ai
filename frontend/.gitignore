@@ -44,6 +44,30 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Firebase関連 🔥
+.firebase/
+*-debug.log
+firebase-debug.log
+firestore-debug.log
+ui-debug.log
+storage-debug.log
+
+# Firebase Functions（使用する場合）
+functions/node_modules/
+functions/.runtimeconfig.json
+functions/lib/
+functions/dist/
+
+# Firebase Emulator
+.firebaserc.local
+firebase.json.backup
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# macOS
 .DS_Store
 
 # specstory cursor拡張機能

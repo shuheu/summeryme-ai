@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "numeric-skill-460414-d3"
+  },
+  "targets": {
+    "numeric-skill-460414-d3": {
+      "hosting": {
+        "production": [
+          "summaryme-ai"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
