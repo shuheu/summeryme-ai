@@ -60,6 +60,7 @@ echo -e "${BLUE}🔨 Flutter Webをビルド中...${NC}"
 flutter build web \
   --release \
   --base-href / \
+  --dart-define=API_BASE_URL=$API_BASE_URL \
   --dart-define=FLUTTER_WEB_USE_SKIA=false # false で HTML レンダラー使用, 軽量、テキスト中心のアプリに向いている
 # --dart-define=FLUTTER_WEB_USE_SKIA=true --dart-define=FLUTTER_WEB_CANVASKIT_URL=/canvaskit/ \  # true で CanvasKit (Skia) レンダラー使用 高品質グラフィック、複雑なアニメーション
 
