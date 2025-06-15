@@ -50,11 +50,11 @@ export class AudioUrlService {
    */
   async getAudioUrlsForDailySummary(
     userId: string | number,
-    dailySummaryId: string | number,
+    audioUrl: string,
   ): Promise<AudioFileInfo[]> {
     try {
       const bucket = this.gcsClient.bucket(this.bucketName);
-      const prefix = `audio/${String(userId)}/tts-${String(dailySummaryId)}_`;
+      const prefix = `audio/${String(userId)}/tts-${String(audioUrl)}_`;
 
       // 指定されたプレフィックスに一致するファイルを検索
       const [files] = await bucket.getFiles({
@@ -89,7 +89,7 @@ export class AudioUrlService {
       audioFiles.sort((a, b) => a.fileName.localeCompare(b.fileName));
 
       console.log(
-        `音声ファイル ${audioFiles.length} 件の署名付きURLを生成しました (userId: ${String(userId)}, dailySummaryId: ${String(dailySummaryId)})`,
+        `音声ファイル ${audioFiles.length} 件の署名付きURLを生成しました (userId: ${String(userId)}, audioUrl: ${String(audioUrl)})`,
       );
 
       return audioFiles;
@@ -160,23 +160,30 @@ export class AudioUrlService {
   /**
    * 音声ファイルの存在確認
    * @param {string | number} userId - ユーザーID
-   * @param {string | number} dailySummaryId - デイリーサマリーID
+   * @param {string | number} audioUrl - 音声URL
    * @returns {Promise<boolean>} 音声ファイルが存在するかどうか
    */
   async hasAudioFiles(
     userId: string | number,
-    dailySummaryId: string | number,
+    audioUrl: string,
   ): Promise<boolean> {
     try {
       const bucket = this.gcsClient.bucket(this.bucketName);
-      const prefix = `audio/${String(userId)}/tts-${String(dailySummaryId)}_`;
+      const prefix = `audio/${String(userId)}/tts-${String(audioUrl)}_`;
 
       const [files] = await bucket.getFiles({
         prefix: prefix,
         maxResults: 1, // 存在確認なので1件でOK
       });
 
-      return files.length > 0;
+      const hasFiles = files.length > 0;
+
+      // デバッグ用ログ
+      console.log(
+        `音声ファイル存在確認: userId=${userId}, audioUrl=${audioUrl}, prefix=${prefix}, hasFiles=${hasFiles}`,
+      );
+
+      return hasFiles;
     } catch (error) {
       console.error('音声ファイル存在確認エラー:', error);
       return false;
@@ -186,12 +193,16 @@ export class AudioUrlService {
   /**
    * ユーザーの音声ファイル一覧を取得
    * @param {string | number} userId - ユーザーID
+   * @param {string | number} audioUrl - 音声URL
    * @returns {Promise<AudioFileInfo[]>} ユーザーの全音声ファイル情報
    */
-  async getUserAudioFiles(userId: string | number): Promise<AudioFileInfo[]> {
+  async getUserAudioFiles(
+    userId: string | number,
+    audioUrl: string,
+  ): Promise<AudioFileInfo[]> {
     try {
       const bucket = this.gcsClient.bucket(this.bucketName);
-      const prefix = `audio/${String(userId)}/`;
+      const prefix = `audio/${String(userId)}/tts-${String(audioUrl)}`;
 
       const [files] = await bucket.getFiles({
         prefix: prefix,

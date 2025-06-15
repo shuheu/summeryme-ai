@@ -15,6 +15,9 @@ node_modules/
 .env
 .env.production
 
+# Google Cloud Service Account Keys
+*-service-account-key.json
+
 # logs
 logs/
 *.log

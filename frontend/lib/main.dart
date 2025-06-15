@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 import 'screens/auth/login_screen.dart';
+import 'services/audio_player_service.dart';
 import 'themes/app_theme.dart';
 
 void main() async {
@@ -33,17 +35,25 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'summeryme.ai',
-      theme: AppTheme.lightTheme.copyWith(
-        // プラットフォーム別の最適なフォントを使用
-        textTheme: AppTheme.lightTheme.textTheme.apply(
-          fontFamily: _platformFont,
+    return MultiProvider(
+      providers: [
+        // 音声プレイヤーサービスをアプリ全体で提供
+        ChangeNotifierProvider(
+          create: (context) => AudioPlayerService(),
         ),
+      ],
+      child: MaterialApp(
+        title: 'summeryme.ai',
+        theme: AppTheme.lightTheme.copyWith(
+          // プラットフォーム別の最適なフォントを使用
+          textTheme: AppTheme.lightTheme.textTheme.apply(
+            fontFamily: _platformFont,
+          ),
+        ),
+        // 常にログイン画面から開始（デバッグモードではスキップボタンが表示される）
+        home: const LoginScreen(),
+        debugShowCheckedModeBanner: false,
       ),
-      // 常にログイン画面から開始（デバッグモードではスキップボタンが表示される）
-      home: const LoginScreen(),
-      debugShowCheckedModeBanner: false,
     );
   }
 }

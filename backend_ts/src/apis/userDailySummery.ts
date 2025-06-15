@@ -192,11 +192,18 @@ userDailySummaryRouter.get('/:id/audio-urls', async (c) => {
       return c.json({ error: 'デイリーサマリーが見つかりません' }, 404);
     }
 
+    if (!userDailySummary.audioUrl) {
+      return c.json({ error: '音声URLがありません' }, 404);
+    }
+
     // 音声URL取得サービスを初期化
     const audioUrlService = new AudioUrlService();
 
     // 音声ファイルの存在確認
-    const hasAudioFiles = await audioUrlService.hasAudioFiles(userId, id);
+    const hasAudioFiles = await audioUrlService.hasAudioFiles(
+      userId,
+      userDailySummary.audioUrl,
+    );
 
     if (!hasAudioFiles) {
       return c.json({
@@ -211,7 +218,7 @@ userDailySummaryRouter.get('/:id/audio-urls', async (c) => {
     // 署名付きURLを取得
     const audioFiles = await audioUrlService.getAudioUrlsForDailySummary(
       userId,
-      id,
+      userDailySummary.audioUrl,
     );
 
     return c.json({

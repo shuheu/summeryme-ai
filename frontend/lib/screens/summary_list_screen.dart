@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../models/user_daily_summary.dart';
 import '../models/playlist.dart';
 import '../screens/digest_detail_screen.dart';
+import '../screens/audio_player_screen.dart';
 import '../services/api_service.dart';
 import '../services/audio_player_service.dart';
 import '../themes/app_theme.dart';
@@ -581,6 +582,14 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
           SnackBar(
             content: Text('🎧 音声サマリーを再生開始 (${audioTracks.length}件)'),
             backgroundColor: AppColors.primary,
+          ),
+        );
+
+        // プレイヤー画面に遷移
+        Navigator.push(
+          context,
+          MaterialPageRoute<void>(
+            builder: (context) => const AudioPlayerScreen(),
           ),
         );
       }
