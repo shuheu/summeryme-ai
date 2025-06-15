@@ -44,6 +44,13 @@ dependencies:
   openapi_generator_annotations: ^6.1.0
   dio: ^5.8.0+1
 
+  # Audio player dependencies
+  just_audio: ^0.9.35
+  audio_service: ^0.18.12
+  just_audio_web: ^0.4.8
+  path_provider: ^2.1.2
+  permission_handler: ^11.1.0
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
