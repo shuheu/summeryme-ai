@@ -1,15 +1,19 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import '../models/user_daily_summary.dart';
 import '../models/saved_article.dart';
 
 class ApiService {
-  static String get baseUrl =>
-      dotenv.env['API_BASE_URL'] ?? 'http://localhost:8080';
+  // ignore: prefer_const_constructors
+  static final String baseUrl = String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://localhost:8080',
+  );
 
-  Future<Map<String, dynamic>> fetchSavedArticles(
-      {int page = 1, int limit = 10}) async {
+  Future<Map<String, dynamic>> fetchSavedArticles({
+    int page = 1,
+    int limit = 10,
+  }) async {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/api/saved-articles?page=$page&limit=$limit'),
@@ -91,7 +95,8 @@ class ApiService {
         return data as Map<String, dynamic>;
       } else {
         throw Exception(
-            'Failed to load daily summaries: ${response.statusCode}');
+          'Failed to load daily summaries: ${response.statusCode}',
+        );
       }
     } catch (e) {
       throw Exception('Error fetching daily summaries: $e');

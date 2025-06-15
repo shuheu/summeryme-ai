@@ -22,11 +22,7 @@ const isDevelopment = process.env.NODE_ENV !== 'production';
 app.use(
   '*',
   cors({
-    origin: isDevelopment
-      ? '*'
-      : [
-          'https://summeryme-ai.web.app', // TODO: 本番環境のドメイン（例）
-        ],
+    origin: isDevelopment ? '*' : ['https://summaryme-ai.web.app'],
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],
     credentials: false,

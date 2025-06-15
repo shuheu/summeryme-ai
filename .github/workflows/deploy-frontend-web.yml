@@ -30,9 +30,6 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Create .env
-        run: echo "API_BASE_URL=${{ env.API_BASE_URL }}" >> .env
-
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -71,6 +68,7 @@ jobs:
           firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_NUMERIC_SKILL_460414_D3 }}'
           projectId: ${{ env.FIREBASE_PROJECT_ID }}
           target: production
+          channelId: live
           entryPoint: ./frontend
 
       # - name: Deploy to Firebase Hosting (Staging)
