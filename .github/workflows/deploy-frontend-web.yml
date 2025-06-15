@@ -17,6 +17,9 @@ env:
   BUILD_BASE_HREF: /
   WEB_RENDERER: 'false' # FLUTTER_WEB_USE_SKIA
   API_BASE_URL: ${{ vars.API_BASE_URL }}
+  WEB_API_KEY: ${{ secrets.WEB_API_KEY }}
+  ANDROID_API_KEY: ${{ secrets.ANDROID_API_KEY }}
+  IOS_API_KEY: ${{ secrets.IOS_API_KEY }}
 
 jobs:
   build-and-deploy:
@@ -50,7 +53,10 @@ jobs:
             --base-href ${{ env.BUILD_BASE_HREF }} \
             --dart-define=FLUTTER_WEB_USE_SKIA=${{ env.WEB_RENDERER }} \
             --dart-define=FLUTTER_WEB_CANVASKIT_URL=/canvaskit/ \
-            --dart-define=API_BASE_URL=${{ env.API_BASE_URL }}
+            --dart-define=API_BASE_URL=${{ env.API_BASE_URL }} \
+            --dart-define=WEB_API_KEY=${{ env.WEB_API_KEY }} \
+            --dart-define=ANDROID_API_KEY=${{ env.ANDROID_API_KEY }} \
+            --dart-define=IOS_API_KEY=${{ env.IOS_API_KEY }}
 
       # - name: Deploy to Firebase Hosting (Preview)
       #   if: github.event_name == 'pull_request'

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import '../main_tab_screen.dart';
+import '../../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -11,24 +12,44 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
+  final AuthService _authService = AuthService();
 
   Future<void> _googleLogin() async {
     setState(() {
       _isLoading = true;
     });
 
-    // TODO: Google ログイン処理を実装
-    await Future<void>.delayed(const Duration(seconds: 2));
+    try {
+      final user = await _authService.signInWithGoogle();
 
-    setState(() {
-      _isLoading = false;
-    });
+      if (!mounted) return;
 
-    if (mounted) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute<void>(builder: (context) => const MainTabScreen()),
-      );
+      if (user != null) {
+        // Successfully signed in
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute<void>(builder: (context) => const MainTabScreen()),
+        );
+      } else {
+        // User cancelled the sign-in
+        setState(() {
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+        });
+
+        // Show error message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('ログインに失敗しました: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
     }
   }
 

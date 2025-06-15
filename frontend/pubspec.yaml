@@ -40,9 +40,12 @@ dependencies:
   cached_network_image: ^3.3.0
   shared_preferences: ^2.2.2
   provider: ^6.1.1
-  intl: ^0.19.0
+  intl: ^0.20.2
   openapi_generator_annotations: ^6.1.0
   dio: ^5.8.0+1
+  firebase_core: ^3.14.0
+  firebase_auth: ^5.6.0
+  google_sign_in: ^6.3.0
 
   # Audio player dependencies
   just_audio: ^0.9.35

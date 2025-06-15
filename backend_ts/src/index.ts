@@ -4,6 +4,7 @@ import { cors } from 'hono/cors';
 import { logger } from 'hono/logger';
 
 import savedArticleRouter from './apis/savedArticle.js';
+import userRouter from './apis/user.js';
 import userDailySummaryRouter from './apis/userDailySummery.js';
 
 import type { PrismaClient } from '@prisma/client/extension';
@@ -83,6 +84,7 @@ app.get('/health', async (c) => {
 // 動的にルーターをインポート
 app.route('/api/saved-articles', savedArticleRouter);
 app.route('/api/user-daily-summaries', userDailySummaryRouter);
+app.route('/api/users', userRouter);
 
 // Prismaクライアントの接続を適切に終了
 process.on('SIGINT', async () => {

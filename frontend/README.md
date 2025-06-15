@@ -59,61 +59,61 @@ Summaryme.aiのフロントエンドアプリケーションです。Flutterを�
 
 ```bash
 # iOS シミュレーター
-flutter run -d ios
+flutter run -d ios --dart-define-from-file=.env
 
 # Android エミュレーター
-flutter run -d android
+flutter run -d android --dart-define-from-file=.env
 
 # Web ブラウザ
-flutter run -d web-server
+flutter run -d web-server --dart-define-from-file=.env
 
 # デスクトップ (macOS)
-flutter run -d macos
+flutter run -d macos --dart-define-from-file=.env
 
 # デスクトップ (Windows)
-flutter run -d windows
+flutter run -d windows --dart-define-from-file=.env
 
 # デスクトップ (Linux)
-flutter run -d linux
+flutter run -d linux --dart-define-from-file=.env
 ```
 
 ### デバッグモード
 ```bash
-flutter run --debug
+flutter run --debug --dart-define-from-file=.env
 ```
 
 ### リリースモード
 ```bash
-flutter run --release
+flutter run --release --dart-define-from-file=.env
 ```
 
 ## 🔧 ビルド
 
 ### Android APK
 ```bash
-flutter build apk --release
+flutter build apk --release --dart-define-from-file=.env
 ```
 
 ### iOS IPA (macOSのみ)
 ```bash
-flutter build ios --release
+flutter build ios --release --dart-define-from-file=.env
 ```
 
 ### Web
 ```bash
-flutter build web --release
+flutter build web --release --dart-define-from-file=.env
 ```
 
 ### デスクトップ
 ```bash
 # macOS
-flutter build macos --release
+flutter build macos --release --dart-define-from-file=.env
 
 # Windows
-flutter build windows --release
+flutter build windows --release --dart-define-from-file=.env
 
 # Linux
-flutter build linux --release
+flutter build linux --release --dart-define-from-file=.env
 ```
 
 ## 📁 プロジェクト構造

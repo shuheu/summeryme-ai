@@ -5,7 +5,12 @@ import 'package:provider/provider.dart';
 import 'dart:io';
 import 'screens/auth/login_screen.dart';
 import 'services/audio_player_service.dart';
+import 'screens/main_tab_screen.dart';
 import 'themes/app_theme.dart';
+import 'firebase_options.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'services/auth_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -16,6 +21,10 @@ void main() async {
       const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
     );
   }
+
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
 
   runApp(const MyApp());
 }
@@ -50,10 +59,41 @@ class MyApp extends StatelessWidget {
             fontFamily: _platformFont,
           ),
         ),
-        // 常にログイン画面から開始（デバッグモードではスキップボタンが表示される）
-        home: const LoginScreen(),
+        home: const AuthWrapper(),
         debugShowCheckedModeBanner: false,
       ),
+    );
+  }
+}
+
+// Widget to handle authentication state
+class AuthWrapper extends StatelessWidget {
+  const AuthWrapper({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final authService = AuthService();
+
+    return StreamBuilder<User?>(
+      stream: authService.authStateChanges,
+      builder: (context, snapshot) {
+        // While checking auth state
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(
+            body: Center(
+              child: CircularProgressIndicator(),
+            ),
+          );
+        }
+
+        // If user is signed in
+        if (snapshot.hasData) {
+          return const MainTabScreen();
+        }
+
+        // If user is not signed in
+        return const LoginScreen();
+      },
     );
   }
 }
