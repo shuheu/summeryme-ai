@@ -1,19 +1,15 @@
 name: 🚀 [Deploy][WEB] Frontend to Firebase Hosting
 
 on:
-  push:
-    paths:
-      - 'frontend/**'
-      - '.github/workflows/deploy-frontend-web.yml'
-  # workflow_dispatch:
-  #   inputs:
-  #     environment:
-  #       description: 'Environment to deploy to'
-  #       required: true
-  #       default: 'production'
-  #       type: choice
-  #       options:
-  #         - production
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy to'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
 
 env:
   FIREBASE_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
