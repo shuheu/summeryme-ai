@@ -109,7 +109,11 @@ export class DailySummaryService {
 
       // ステップ2: 日次要約をDBに保存（音声URLなしで初期作成）
       console.log('ステップ2: 日次要約をDBに保存します');
-      await this.createUserDailySummary(config.userId, userDailySummary, articles);
+      await this.createUserDailySummary(
+        config.userId,
+        userDailySummary,
+        articles,
+      );
 
       // ステップ3: トークスクリプト生成と音声ファイル作成
       console.log('ステップ3: 音声ファイル生成を開始します');
