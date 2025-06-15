@@ -169,12 +169,6 @@ resource "google_cloud_run_v2_service" "main" {
     google_vpc_access_connector.main,
     google_storage_bucket.audio_files
   ]
-
-  lifecycle {
-    ignore_changes = [
-      template[0].containers[0].image
-    ]
-  }
 }
 
 # Cloud Run Job (マイグレーション用)
@@ -292,12 +286,6 @@ resource "google_cloud_run_v2_job" "migrate" {
     google_vpc_access_connector.main,
     google_storage_bucket.audio_files
   ]
-
-  lifecycle {
-    ignore_changes = [
-      template[0].template[0].containers[0].image
-    ]
-  }
 }
 
 # Cloud Run Job (記事要約処理用)
@@ -424,12 +412,6 @@ resource "google_cloud_run_v2_job" "article_summary" {
     google_vpc_access_connector.main,
     google_storage_bucket.audio_files
   ]
-
-  lifecycle {
-    ignore_changes = [
-      template[0].template[0].containers[0].image
-    ]
-  }
 }
 
 # Cloud Run Job (日次要約処理用)
@@ -556,10 +538,4 @@ resource "google_cloud_run_v2_job" "daily_summary" {
     google_vpc_access_connector.main,
     google_storage_bucket.audio_files
   ]
-
-  lifecycle {
-    ignore_changes = [
-      template[0].template[0].containers[0].image
-    ]
-  }
 }
