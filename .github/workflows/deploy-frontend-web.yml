@@ -17,6 +17,9 @@ env:
   BUILD_BASE_HREF: /
   WEB_RENDERER: 'false' # FLUTTER_WEB_USE_SKIA
   API_BASE_URL: ${{ vars.API_BASE_URL }}
+  WEB_API_KEY: ${{ secrets.WEB_API_KEY }}
+  ANDROID_API_KEY: ${{ secrets.ANDROID_API_KEY }}
+  IOS_API_KEY: ${{ secrets.IOS_API_KEY }}
 
 jobs:
   build-and-deploy:
