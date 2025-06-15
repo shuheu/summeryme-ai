@@ -109,7 +109,7 @@ export class DailySummaryService {
 
       // ステップ2: 日次要約をDBに保存（音声URLなしで初期作成）
       console.log('ステップ2: 日次要約をDBに保存します');
-      await this.createUserDailySummary(config.userId, userDailySummary);
+      await this.createUserDailySummary(config.userId, userDailySummary, articles);
 
       // ステップ3: トークスクリプト生成と音声ファイル作成
       console.log('ステップ3: 音声ファイル生成を開始します');
@@ -305,6 +305,7 @@ export class DailySummaryService {
   private async createUserDailySummary(
     userId: number,
     summary: string,
+    articles: SavedArticleWithUser[],
   ): Promise<void> {
     try {
       const today = new Date();
@@ -314,13 +315,35 @@ export class DailySummaryService {
         `UserDailySummary作成開始 - ユーザーID: ${userId}, 日付: ${today.toISOString().slice(0, 10)}`,
       );
 
-      await globalPrisma.userDailySummary.create({
-        data: {
-          userId: userId,
-          summary: summary,
-          generatedDate: today,
-          audioUrl: null, // 初期は音声URLなし
-        },
+      // トランザクションでUserDailySummaryとUserDailySummarySavedArticleを作成
+      await globalPrisma.$transaction(async (prisma) => {
+        // UserDailySummaryを作成
+        const userDailySummary = await prisma.userDailySummary.create({
+          data: {
+            userId: userId,
+            summary: summary,
+            generatedDate: today,
+            audioUrl: null, // 初期は音声URLなし
+          },
+        });
+
+        console.log(`UserDailySummary作成完了 - ID: ${userDailySummary.id}`);
+
+        // UserDailySummarySavedArticleレコードを作成
+        if (articles.length > 0) {
+          const userDailySummarySavedArticles = articles.map((article) => ({
+            userDailySummaryId: userDailySummary.id,
+            savedArticleId: article.id,
+          }));
+
+          await prisma.userDailySummarySavedArticle.createMany({
+            data: userDailySummarySavedArticles,
+          });
+
+          console.log(
+            `UserDailySummarySavedArticle作成完了 - ${articles.length}件の関連記事を保存`,
+          );
+        }
       });
 
       console.log(`UserDailySummary保存完了 - ユーザーID: ${userId}`);
