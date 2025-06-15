@@ -375,7 +375,7 @@ packages:
     source: hosted
     version: "0.2.7+7"
   firebase_ui_auth:
-    dependency: "direct main"
+    dependency: transitive
     description:
       name: firebase_ui_auth
       sha256: bdd40bd93dae8b4f1cd20929a9ed60fa0e7a72ae2f686a7861356423e2989504
