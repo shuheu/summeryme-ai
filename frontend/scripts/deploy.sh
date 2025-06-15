@@ -116,6 +116,7 @@ echo -e "${GREEN}🌍 URL: https://$SITE_ID.web.app${NC}"
 # デプロイ統計
 echo -e "${BLUE}📊 デプロイ統計:${NC}"
 echo "🏷️  Site ID: $SITE_ID"
+echo "🔍 API_BASE_URL: $API_BASE_URL"
 echo "🌍 URL: https://$SITE_ID.web.app"
 echo "📦 Environment: $ENVIRONMENT"
 

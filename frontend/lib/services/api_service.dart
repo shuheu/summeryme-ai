@@ -4,11 +4,17 @@ import '../models/user_daily_summary.dart';
 import '../models/saved_article.dart';
 
 class ApiService {
-  // ignore: prefer_const_constructors
-  static final String baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://localhost:8080',
-  );
+  // 遅延初期化で環境変数を取得
+  static String? _baseUrl;
+
+  static String get baseUrl {
+    // null の場合のみ初期化
+    _baseUrl ??= const String.fromEnvironment(
+      'API_BASE_URL',
+      defaultValue: 'http://localhost:8080',
+    );
+    return _baseUrl!;
+  }
 
   Future<Map<String, dynamic>> fetchSavedArticles({
     int page = 1,
