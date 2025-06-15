@@ -60,7 +60,7 @@ jobs:
       #   uses: FirebaseExtended/action-hosting-deploy@v0
       #   with:
       #     repoToken: '${{ secrets.GITHUB_TOKEN }}'
-      #     firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+      #     firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_NUMERIC_SKILL_460414_D3 }}'
       #     projectId: ${{ env.FIREBASE_PROJECT_ID }}
       #     entryPoint: ./frontend
 
@@ -68,7 +68,7 @@ jobs:
         uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: '${{ secrets.GITHUB_TOKEN }}'
-          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_NUMERIC_SKILL_460414_D3 }}'
           projectId: ${{ env.FIREBASE_PROJECT_ID }}
           target: production
           entryPoint: ./frontend
@@ -78,7 +78,7 @@ jobs:
       #   uses: FirebaseExtended/action-hosting-deploy@v0
       #   with:
       #     repoToken: '${{ secrets.GITHUB_TOKEN }}'
-      #     firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+      #     firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT_NUMERIC_SKILL_460414_D3 }}'
       #     channelId: staging
       #     projectId: ${{ env.FIREBASE_PROJECT_ID }}
       #     entryPoint: ./frontend
