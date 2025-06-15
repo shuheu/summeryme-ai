@@ -11,10 +11,9 @@ on:
         options:
           - production
 
-# ✅ 環境変数セクションを追加
 env:
   FIREBASE_PROJECT_ID: ${{ vars.GCP_PROJECT_ID }}
-  FLUTTER_VERSION: '3.7.2'
+  FLUTTER_VERSION: '3.29.3'
   BUILD_BASE_HREF: /
   WEB_RENDERER: 'false' # FLUTTER_WEB_USE_SKIA
   API_BASE_URL: ${{ vars.API_BASE_URL }}
