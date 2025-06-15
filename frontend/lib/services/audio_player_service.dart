@@ -87,6 +87,9 @@ class AudioPlayerService extends ChangeNotifier {
   /// 停止中かどうか
   bool get isStopped => _playbackState.isStopped;
 
+  /// ローディング中かどうか
+  bool get isLoading => _playbackState.isLoading;
+
   /// プレイリストを設定して再生を開始
   Future<void> playPlaylist(Playlist playlist) async {
     try {
@@ -244,27 +247,41 @@ class AudioPlayerService extends ChangeNotifier {
   /// プレイヤー状態を更新
   void _updatePlayerState(PlayerState state) {
     models.PlayerState modelState;
+    bool shouldClearLoading = false;
 
     switch (state.processingState) {
       case ProcessingState.idle:
         modelState = models.PlayerState.stopped;
+        shouldClearLoading = true;
         break;
       case ProcessingState.loading:
       case ProcessingState.buffering:
         modelState = models.PlayerState.buffering;
+        // ローディング状態は維持
         break;
       case ProcessingState.ready:
         modelState = state.playing
             ? models.PlayerState.playing
             : models.PlayerState.paused;
+        shouldClearLoading = true;
         break;
       case ProcessingState.completed:
         modelState = models.PlayerState.completed;
+        shouldClearLoading = true;
         _handleTrackCompleted();
         break;
     }
 
-    _playbackState = _playbackState.copyWith(playerState: modelState);
+    // ローディング状態をクリアする必要がある場合
+    if (shouldClearLoading && _playbackState.isLoading) {
+      _playbackState = _playbackState.copyWith(
+        playerState: modelState,
+        isLoading: false,
+      );
+    } else {
+      _playbackState = _playbackState.copyWith(playerState: modelState);
+    }
+
     notifyListeners();
   }
 

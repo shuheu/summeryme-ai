@@ -295,71 +295,114 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
               const SizedBox(height: 16),
 
               // Play Summary button - MAIN FEATURE
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: AppGradients.primary,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton.icon(
-                  onPressed: () => _playAudioSummary(context, userDailySummary),
-                  icon: Container(
-                    padding: const EdgeInsets.all(4),
+              Consumer<AudioPlayerService>(
+                builder: (context, audioPlayerService, child) {
+                  final currentPlaylistId =
+                      'daily_summary_${userDailySummary.id}';
+                  final isCurrentlyPlaying =
+                      audioPlayerService.currentPlaylist?.id ==
+                          currentPlaylistId;
+                  final isPlaying = audioPlayerService.isPlaying;
+                  final isLoading = audioPlayerService.isLoading;
+
+                  // ボタンの状態を決定
+                  final bool isButtonEnabled =
+                      !isCurrentlyPlaying || !isPlaying;
+                  final bool showPlayingState =
+                      isCurrentlyPlaying && (isPlaying || isLoading);
+
+                  return Container(
+                    width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.headphones,
-                      size: 20,
-                      color: Colors.white,
-                    ),
-                  ),
-                  label: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        '音声で聞く',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      gradient: AppGradients.primary, // 常に青いグラデーション
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
+                      ],
+                    ),
+                    child: ElevatedButton.icon(
+                      onPressed: isButtonEnabled
+                          ? () => _playAudioSummary(context, userDailySummary)
+                          : null,
+                      icon: Container(
+                        padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: showPlayingState
+                            ? (isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.volume_up,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ))
+                            : const Icon(
+                                Icons.headphones,
+                                size: 20,
+                                color: Colors.white,
+                              ),
+                      ),
+                      label: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            showPlayingState
+                                ? (isLoading ? '読み込み中...' : '再生中')
+                                : '音声で聞く',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: isButtonEnabled
+                                  ? Colors.white
+                                  : Colors.white70,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              showPlayingState ? '🎵' : '約3分',
+                              style: const TextStyle(
+                                  fontSize: 12, color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Text(
-                          '約3分',
-                          style: TextStyle(fontSize: 12, color: Colors.white),
-                        ),
+                        disabledBackgroundColor: Colors.transparent,
+                        disabledForegroundColor: Colors.white70,
                       ),
-                    ],
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ],
           ),
@@ -577,15 +620,6 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
       );
 
       await audioPlayerService.playPlaylist(playlist);
-
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('🎧 音声サマリーを再生開始 (${audioTracks.length}件)'),
-            backgroundColor: AppColors.primary,
-          ),
-        );
-      }
     } catch (e) {
       // エラーが発生した場合
       if (context.mounted) {

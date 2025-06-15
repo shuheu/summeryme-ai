@@ -5,6 +5,9 @@ import '../services/api_service.dart';
 import '../themes/app_theme.dart';
 import '../widgets/app_scaffold.dart';
 import 'article_detail_screen.dart';
+import 'package:provider/provider.dart';
+import '../services/audio_player_service.dart';
+import '../models/playlist.dart';
 
 class DigestDetailScreen extends StatefulWidget {
   const DigestDetailScreen({super.key, required this.digestId});
@@ -372,43 +375,72 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                         const SizedBox(height: 24),
 
                         // Play button
-                        SizedBox(
-                          width: double.infinity,
-                          child: ElevatedButton.icon(
-                            onPressed: () {
-                              if (userDailySummary.audioUrl != null) {
-                                // TODO: 実際の音声再生機能を実装
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(
-                                    content: Text(
-                                        '音声サマリーを再生します: ${userDailySummary.audioUrl}'),
-                                    backgroundColor: AppColors.primary,
+                        Consumer<AudioPlayerService>(
+                          builder: (context, audioPlayerService, child) {
+                            final currentPlaylistId =
+                                'daily_summary_${userDailySummary.id}';
+                            final isCurrentlyPlaying =
+                                audioPlayerService.currentPlaylist?.id ==
+                                    currentPlaylistId;
+                            final isPlaying = audioPlayerService.isPlaying;
+                            final isLoading = audioPlayerService.isLoading;
+
+                            // ボタンの状態を決定
+                            final bool isButtonEnabled =
+                                !isCurrentlyPlaying || !isPlaying;
+                            final bool showPlayingState =
+                                isCurrentlyPlaying && (isPlaying || isLoading);
+
+                            return SizedBox(
+                              width: double.infinity,
+                              child: ElevatedButton.icon(
+                                onPressed: isButtonEnabled
+                                    ? () => _playAudioSummary(
+                                        context, userDailySummary)
+                                    : null,
+                                icon: showPlayingState
+                                    ? (isLoading
+                                        ? const SizedBox(
+                                            width: 24,
+                                            height: 24,
+                                            child: CircularProgressIndicator(
+                                              strokeWidth: 2,
+                                              valueColor:
+                                                  AlwaysStoppedAnimation<Color>(
+                                                      Colors.white),
+                                            ),
+                                          )
+                                        : const Icon(Icons.volume_up, size: 24))
+                                    : const Icon(Icons.headphones, size: 24),
+                                label: Text(
+                                  showPlayingState
+                                      ? (isLoading ? '読み込み中...' : '再生中')
+                                      : '音声で聞く',
+                                  style: AppTextStyles.labelLarge(isTablet)
+                                      .copyWith(
+                                    color: isButtonEnabled
+                                        ? Colors.white
+                                        : Colors.white70,
                                   ),
-                                );
-                              } else {
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  const SnackBar(
-                                    content: Text('この記事には音声サマリーがありません'),
-                                    backgroundColor: AppColors.textSecondary,
+                                ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: showPlayingState
+                                      ? const Color(0xFF4CAF50)
+                                      : AppColors.primary,
+                                  foregroundColor: Colors.white,
+                                  padding:
+                                      const EdgeInsets.symmetric(vertical: 18),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
                                   ),
-                                );
-                              }
-                            },
-                            icon: const Icon(Icons.headphones, size: 24),
-                            label: Text(
-                              '音声で聞く',
-                              style: AppTextStyles.labelLarge(isTablet),
-                            ),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary,
-                              foregroundColor: Colors.white,
-                              padding: const EdgeInsets.symmetric(vertical: 18),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
+                                  elevation: 0,
+                                  disabledBackgroundColor:
+                                      AppColors.primary.withValues(alpha: 0.6),
+                                  disabledForegroundColor: Colors.white70,
+                                ),
                               ),
-                              elevation: 0,
-                            ),
-                          ),
+                            );
+                          },
                         ),
 
                         const SizedBox(height: 12),
@@ -565,6 +597,73 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
       return '${difference.inMinutes}分前';
     } else {
       return 'たった今';
+    }
+  }
+
+  Future<void> _playAudioSummary(
+      BuildContext context, UserDailySummary userDailySummary) async {
+    try {
+      // ローディング表示
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      // 音声URLを取得
+      final audioTracks = await _apiService.fetchAudioUrlsForDailySummary(
+        userDailySummary.id,
+      );
+
+      // ローディング閉じる
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+
+      if (audioTracks.isEmpty) {
+        // 音声ファイルが存在しない場合
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('この記事には音声サマリーがありません'),
+              backgroundColor: AppColors.textSecondary,
+            ),
+          );
+        }
+        return;
+      }
+
+      // 音声プレイヤーサービスで再生
+      final audioPlayerService = Provider.of<AudioPlayerService>(
+        context,
+        listen: false,
+      );
+
+      // AudioTrackのリストからPlaylistを作成
+      final playlist = Playlist(
+        id: 'daily_summary_${userDailySummary.id}',
+        title: 'デイリーサマリー ${userDailySummary.id}',
+        tracks: audioTracks,
+        currentIndex: 0,
+        createdAt: DateTime.now(),
+      );
+
+      await audioPlayerService.playPlaylist(playlist);
+    } catch (e) {
+      // エラーが発生した場合
+      if (context.mounted) {
+        // ローディング画面が表示されている場合は閉じる
+        Navigator.of(context).popUntil((route) => route.isFirst);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('音声の再生に失敗しました: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 }
