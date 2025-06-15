@@ -115,7 +115,6 @@ echo -e "${GREEN}🌍 URL: https://$SITE_ID.web.app${NC}"
 
 # デプロイ統計
 echo -e "${BLUE}📊 デプロイ統計:${NC}"
-echo "📱 Project: $(firebase use --quiet)"
 echo "🏷️  Site ID: $SITE_ID"
 echo "🌍 URL: https://$SITE_ID.web.app"
 echo "📦 Environment: $ENVIRONMENT"
