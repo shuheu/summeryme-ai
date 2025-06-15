@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import '../services/auth_service.dart';
 
 class SettingsScreen extends StatelessWidget {
-  const SettingsScreen({super.key});
+  SettingsScreen({super.key});
+
+  final AuthService _authService = AuthService();
 
   @override
   Widget build(BuildContext context) {
@@ -46,7 +49,7 @@ class SettingsScreen extends StatelessWidget {
                 _buildSettingsItem(
                   'ログアウト',
                   Icons.logout_outlined,
-                  onTap: () {},
+                  onTap: () => _handleLogout(context),
                   textColor: const Color(0xFFD32F2F), // 弱めの赤
                 ),
               ]),
@@ -100,7 +103,7 @@ class SettingsScreen extends StatelessWidget {
               // Delete account button
               Center(
                 child: TextButton(
-                  onPressed: () {},
+                  onPressed: () => _handleDeleteAccount(context),
                   child: const Text(
                     'アカウントを削除',
                     style: TextStyle(
@@ -178,6 +181,11 @@ class SettingsScreen extends StatelessWidget {
   }
 
   Widget _buildAccountInfo() {
+    final user = _authService.currentUser;
+    final displayName = user?.displayName ?? 'ゲストユーザー';
+    final email = user?.email ?? 'guest@example.com';
+    final photoUrl = user?.photoURL;
+
     return Container(
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
@@ -212,8 +220,20 @@ class SettingsScreen extends StatelessWidget {
                 ),
               ],
             ),
-            child: const Center(
-              child: Text('🐕', style: TextStyle(fontSize: 28)),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(30),
+              child: photoUrl != null
+                  ? Image.network(
+                      photoUrl,
+                      fit: BoxFit.cover,
+                      errorBuilder: (context, error, stackTrace) =>
+                          const Center(
+                        child: Text('👤', style: TextStyle(fontSize: 28)),
+                      ),
+                    )
+                  : const Center(
+                      child: Text('👤', style: TextStyle(fontSize: 28)),
+                    ),
             ),
           ),
           const SizedBox(width: 16),
@@ -222,9 +242,9 @@ class SettingsScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'ユーザー名',
-                  style: TextStyle(
+                Text(
+                  displayName,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w600,
                     color: Colors.black87,
@@ -232,7 +252,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  'user@example.com',
+                  email,
                   style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                 ),
               ],
@@ -276,6 +296,77 @@ class SettingsScreen extends StatelessWidget {
               : null),
       onTap: onTap,
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+    );
+  }
+
+  void _handleLogout(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('ログアウト'),
+          content: const Text('本当にログアウトしますか？'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('キャンセル'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                await _authService.signOut();
+                // The AuthWrapper will automatically redirect to login screen
+              },
+              child: const Text(
+                'ログアウト',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _handleDeleteAccount(BuildContext context) {
+    showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('アカウントを削除'),
+          content: const Text(
+            'アカウントを削除すると、すべてのデータが失われます。\nこの操作は取り消すことができません。\n\n本当に削除しますか？',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('キャンセル'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                try {
+                  await _authService.deleteAccount();
+                  // The AuthWrapper will automatically redirect to login screen
+                } catch (e) {
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('アカウントの削除に失敗しました: ${e.toString()}'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text(
+                '削除する',
+                style: TextStyle(color: Colors.red),
+              ),
+            ),
+          ],
+        );
+      },
     );
   }
 }

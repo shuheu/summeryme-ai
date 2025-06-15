@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { globalPrisma } from '../lib/dbClient.js';
 import { AudioUrlService } from '../services/audioUrlService.js';
+import { requireAuth } from '../middleware/auth.js';
 
 import type { ZodIssue } from 'zod';
 
@@ -22,7 +23,7 @@ const getUserDailySummaryByIdSchema = z.object({
 });
 
 // UserDailySummaryの一覧を取得するエンドポイント
-userDailySummaryRouter.get('/', async (c) => {
+userDailySummaryRouter.get('/', requireAuth, async (c) => {
   try {
     // クエリパラメータのバリデーション
     const queryParams = {
@@ -47,8 +48,9 @@ userDailySummaryRouter.get('/', async (c) => {
 
     const { page, limit } = validationResult.data;
 
-    // TODO: ユーザーIDの取得処理を追加する
-    const userId = 1;
+    // 認証されたユーザーのIDを取得
+    const user = c.get('user');
+    const userId = user.id;
 
     // ページネーションの計算
     const skip = (page - 1) * limit;
@@ -92,7 +94,7 @@ userDailySummaryRouter.get('/', async (c) => {
 });
 
 // 特定のUserDailySummaryを取得するエンドポイント
-userDailySummaryRouter.get('/:id', async (c) => {
+userDailySummaryRouter.get('/:id', requireAuth, async (c) => {
   try {
     // パスパラメータのバリデーション
     const pathParams = {
@@ -117,8 +119,9 @@ userDailySummaryRouter.get('/:id', async (c) => {
 
     const { id } = validationResult.data;
 
-    // TODO: ユーザーIDの取得処理を追加する
-    const userId = 1;
+    // 認証されたユーザーのIDを取得
+    const user = c.get('user');
+    const userId = user.id;
 
     const userDailySummary = await globalPrisma.userDailySummary.findUnique({
       where: {

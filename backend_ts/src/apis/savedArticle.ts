@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import { globalPrisma } from '../lib/dbClient.js';
+import { requireAuth } from '../middleware/auth.js';
 
 import type { ZodIssue } from 'zod';
 
@@ -39,7 +40,7 @@ const deleteSavedArticleSchema = z.object({
 });
 
 // savedArticleの一覧を取得するエンドポイント
-savedArticleRouter.get('/', async (c) => {
+savedArticleRouter.get('/', requireAuth, async (c) => {
   try {
     // クエリパラメータのバリデーション
     const queryParams = {
@@ -64,8 +65,9 @@ savedArticleRouter.get('/', async (c) => {
 
     const { page, limit } = validationResult.data;
 
-    // TODO: ユーザーIDの取得処理を追加する
-    const userId = 1;
+    // 認証されたユーザーのIDを取得
+    const user = c.get('user');
+    const userId = user.id;
 
     // ページネーションの計算
     const skip = (page - 1) * limit;
@@ -114,7 +116,7 @@ savedArticleRouter.get('/', async (c) => {
 });
 
 // savedArticleを作成するエンドポイント
-savedArticleRouter.post('/', async (c) => {
+savedArticleRouter.post('/', requireAuth, async (c) => {
   try {
     const body = await c.req.json();
 
@@ -135,15 +137,16 @@ savedArticleRouter.post('/', async (c) => {
 
     const { title, url } = validationResult.data;
 
-    // TODO: ユーザーIDの取得処理を追加する
-    const userId = 1;
+    // 認証されたユーザーのIDを取得
+    const user = c.get('user');
+    const userId = user.id;
 
     // ユーザーが存在するかチェック
-    const user = await globalPrisma.user.findUnique({
+    const userExists = await globalPrisma.user.findUnique({
       where: { id: userId },
     });
 
-    if (!user) {
+    if (!userExists) {
       return c.json({ error: 'ユーザーが見つかりません' }, 404);
     }
 
@@ -185,7 +188,7 @@ savedArticleRouter.post('/', async (c) => {
 });
 
 // 特定のsavedArticleを取得するエンドポイント
-savedArticleRouter.get('/:id', async (c) => {
+savedArticleRouter.get('/:id', requireAuth, async (c) => {
   try {
     // パスパラメータのバリデーション
     const pathParams = {
@@ -209,8 +212,9 @@ savedArticleRouter.get('/:id', async (c) => {
 
     const { id } = validationResult.data;
 
-    // TODO: ユーザーIDの取得処理を追加する
-    const userId = 1;
+    // 認証されたユーザーのIDを取得
+    const user = c.get('user');
+    const userId = user.id;
 
     const savedArticle = await globalPrisma.savedArticle.findUnique({
       where: {
@@ -236,7 +240,7 @@ savedArticleRouter.get('/:id', async (c) => {
 });
 
 // savedArticleを削除するエンドポイント
-savedArticleRouter.delete('/:id', async (c) => {
+savedArticleRouter.delete('/:id', requireAuth, async (c) => {
   try {
     // パスパラメータのバリデーション
     const pathParams = {
@@ -260,8 +264,9 @@ savedArticleRouter.delete('/:id', async (c) => {
 
     const { id } = validationResult.data;
 
-    // TODO: ユーザーIDの取得処理を追加する
-    const userId = 1;
+    // 認証されたユーザーのIDを取得
+    const user = c.get('user');
+    const userId = user.id;
 
     // 削除対象の記事が存在するかチェック
     const existingArticle = await globalPrisma.savedArticle.findUnique({
