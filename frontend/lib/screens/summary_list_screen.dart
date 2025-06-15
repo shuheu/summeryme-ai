@@ -604,21 +604,23 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
       }
 
       // 音声プレイヤーサービスで再生
-      final audioPlayerService = Provider.of<AudioPlayerService>(
-        context,
-        listen: false,
-      );
+      if (context.mounted) {
+        final audioPlayerService = Provider.of<AudioPlayerService>(
+          context,
+          listen: false,
+        );
 
-      // AudioTrackのリストからPlaylistを作成
-      final playlist = Playlist(
-        id: 'daily_summary_${userDailySummary.id}',
-        title: 'デイリーサマリー ${userDailySummary.id}',
-        tracks: audioTracks,
-        currentIndex: 0,
-        createdAt: DateTime.now(),
-      );
+        // AudioTrackのリストからPlaylistを作成
+        final playlist = Playlist(
+          id: 'daily_summary_${userDailySummary.id}',
+          title: 'デイリーサマリー ${userDailySummary.id}',
+          tracks: audioTracks,
+          currentIndex: 0,
+          createdAt: DateTime.now(),
+        );
 
-      await audioPlayerService.playPlaylist(playlist);
+        await audioPlayerService.playPlaylist(playlist);
+      }
     } catch (e) {
       // エラーが発生した場合
       if (context.mounted) {
