@@ -65,7 +65,9 @@ class AudioPlayerService extends ChangeNotifier {
       await _audioPlayer.setVolume(1.0);
     } catch (e) {
       // 初期化エラーは無視（シミュレーター環境での問題を回避）
-      print('Mobile audio initialization warning: $e');
+      if (kDebugMode) {
+        print('Mobile audio initialization warning: $e');
+      }
     }
   }
 
