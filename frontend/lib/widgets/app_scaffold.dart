@@ -38,6 +38,11 @@ class AppScaffold extends StatelessWidget {
         final isAudioPlayerScreen = currentRoute == '/audio_player' ||
             context.widget.runtimeType.toString().contains('AudioPlayerScreen');
 
+        // ミニプレイヤーが表示されるかどうか
+        final showMiniPlayer = !isAudioPlayerScreen &&
+            (audioService.currentTrack != null ||
+                (kIsWeb && audioService.currentPlaylist != null));
+
         return Scaffold(
           appBar: appBar,
           body: Column(
@@ -46,13 +51,19 @@ class AppScaffold extends StatelessWidget {
               Expanded(child: body),
 
               // ミニプレイヤー（AudioPlayerScreen以外で表示）
-              if (!isAudioPlayerScreen &&
-                  (audioService.currentTrack != null ||
-                      (kIsWeb && audioService.currentPlaylist != null)))
-                const MiniPlayer(),
+              if (showMiniPlayer) const MiniPlayer(),
             ],
           ),
-          floatingActionButton: floatingActionButton,
+          floatingActionButton: showMiniPlayer && floatingActionButton != null
+              ? Padding(
+                  padding: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).size.width > 600
+                        ? 90
+                        : 80, // タブレット: 90, モバイル: 80
+                  ),
+                  child: floatingActionButton,
+                )
+              : floatingActionButton,
           backgroundColor: backgroundColor,
           bottomNavigationBar: bottomNavigationBar,
           drawer: drawer,
