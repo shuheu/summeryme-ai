@@ -194,9 +194,9 @@ export class DailySummaryService {
             gte: startOfDay,
             lte: endOfDay,
           },
-          // savedArticleSummary: {
-          //   isNot: null, // 要約が生成済みの記事のみ
-          // },
+          savedArticleSummary: {
+            is: null, // 要約がまだ生成されていない記事のみ
+          },
         },
         include: {
           user: {
@@ -402,24 +402,56 @@ export class DailySummaryService {
  * 日次要約バッチメイン実行関数
  */
 async function main(): Promise<void> {
+  console.log('日次要約バッチ処理開始 (全ユーザー対象)');
+  const service = new DailySummaryService();
+  let successCount = 0;
+  let failureCount = 0;
+
   try {
-    // 環境変数からユーザーIDを取得（デフォルト: 1）
-    const userId = Number(process.env.BATCH_USER_ID) || 1;
+    const users = await globalPrisma.user.findMany({
+      select: { id: true },
+    });
 
-    const service = new DailySummaryService();
-    const result = await service.execute({ userId });
+    if (users.length === 0) {
+      console.log('処理対象のユーザーが見つかりませんでした。');
+      return;
+    }
 
-    console.log('=== 日次要約バッチ処理結果 ===');
-    console.log(`処理記事数: ${result.processedArticles}`);
-    console.log(`音声ファイル: ${result.audioFileName || 'なし'}`);
-    console.log(
-      `日次要約生成: ${result.dailySummaryGenerated ? '成功' : '既存またはスキップ'}`,
-    );
-    console.log(`処理時間: ${result.processingTime}ms`);
-    console.log('=========================');
+    console.log(`${users.length}人のユーザーを処理します。`);
+
+    for (const user of users) {
+      try {
+        console.log(`ユーザーID: ${user.id} の処理を開始します。`);
+        const result = await service.execute({ userId: user.id });
+        console.log(`=== ユーザーID: ${user.id} の日次要約バッチ処理結果 ===`);
+        console.log(`  処理記事数: ${result.processedArticles}`);
+        console.log(`  音声ファイル: ${result.audioFileName || 'なし'}`);
+        console.log(
+          `  日次要約生成: ${result.dailySummaryGenerated ? '成功' : '既存またはスキップ'}`,
+        );
+        console.log(`  処理時間: ${result.processingTime}ms`);
+        console.log('===================================');
+        successCount++;
+      } catch (error) {
+        console.error(`ユーザーID: ${user.id} の処理中にエラーが発生しました:`, error);
+        failureCount++;
+      }
+    }
   } catch (error) {
-    console.error('日次要約バッチメイン処理エラー:', error);
-    process.exit(1);
+    console.error('日次要約バッチ処理の全体でエラーが発生しました:', error);
+    // 全体エラーの場合、失敗カウンターを全ユーザー数にするか、別途考慮も可能
+    // ここではループ外のエラーとして処理し、個別の成功・失敗数はループ内のものとする
+    // process.exit(1); // エラー内容に応じて終了コードを変えることも検討
+  } finally {
+    console.log('=== 全ユーザーの日次要約バッチ処理完了 ===');
+    console.log(`成功ユーザー数: ${successCount}`);
+    console.log(`失敗ユーザー数: ${failureCount}`);
+    console.log('=====================================');
+    // process.exit(0); // 通常は不要、親プロセスが管理する場合
+    // バッチ処理が失敗したユーザーが一人でもいればエラー終了するなどの仕様も検討可能
+    if (failureCount > 0) {
+      // process.exit(1); // 失敗があった場合に終了コード1で終了する例
+    }
   }
 }
 
