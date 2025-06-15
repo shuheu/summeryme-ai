@@ -217,9 +217,7 @@ class ApiService {
     try {
       final response = await http.get(
         Uri.parse('$baseUrl/api/user-daily-summaries/$id/audio-urls'),
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: _getAuthHeaders(),
       );
 
       if (response.statusCode == 200) {

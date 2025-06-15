@@ -2,8 +2,8 @@ import { Hono } from 'hono';
 import { z } from 'zod';
 
 import { globalPrisma } from '../lib/dbClient.js';
-import { AudioUrlService } from '../services/audioUrlService.js';
 import { requireAuth } from '../middleware/auth.js';
+import { AudioUrlService } from '../services/audioUrlService.js';
 
 import type { ZodIssue } from 'zod';
 
@@ -180,8 +180,9 @@ userDailySummaryRouter.get('/:id/audio-urls', async (c) => {
 
     const { id } = validationResult.data;
 
-    // TODO: ユーザーIDの取得処理を追加する
-    const userId = 1;
+    // 認証されたユーザーのIDを取得
+    const user = c.get('user');
+    const userId = user.id;
 
     // デイリーサマリーの存在確認
     const userDailySummary = await globalPrisma.userDailySummary.findUnique({
