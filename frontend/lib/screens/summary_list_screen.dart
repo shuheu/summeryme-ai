@@ -1,8 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/user_daily_summary.dart';
+import '../models/playlist.dart';
 import '../screens/digest_detail_screen.dart';
 import '../services/api_service.dart';
+import '../services/audio_player_service.dart';
 import '../themes/app_theme.dart';
+import '../widgets/app_scaffold.dart';
 
 class SummaryListScreen extends StatefulWidget {
   const SummaryListScreen({super.key});
@@ -92,7 +96,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
     final maxWidth = isTablet ? 800.0 : double.infinity;
 
     if (_isLoading && _userDailySummaryList.isEmpty) {
-      return Scaffold(
+      return AppScaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -107,7 +111,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
     }
 
     if (_errorMessage != null && _userDailySummaryList.isEmpty) {
-      return Scaffold(
+      return AppScaffold(
         backgroundColor: AppColors.background,
         appBar: AppBar(
           backgroundColor: Colors.transparent,
@@ -144,7 +148,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
       );
     }
 
-    return Scaffold(
+    return AppScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
@@ -290,89 +294,114 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
               const SizedBox(height: 16),
 
               // Play Summary button - MAIN FEATURE
-              Container(
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  gradient: AppGradients.primary,
-                  borderRadius: BorderRadius.circular(12),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primary.withValues(alpha: 0.3),
-                      blurRadius: 12,
-                      offset: const Offset(0, 6),
-                    ),
-                  ],
-                ),
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    if (userDailySummary.audioUrl != null) {
-                      // TODO: 実際の音声再生機能を実装
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(
-                          content: Text(
-                              '🎧 音声サマリーを再生します: ${userDailySummary.audioUrl}'),
-                          backgroundColor: AppColors.primary,
-                        ),
-                      );
-                    } else {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('この記事には音声サマリーがありません'),
-                          backgroundColor: AppColors.textSecondary,
-                        ),
-                      );
-                    }
-                  },
-                  icon: Container(
-                    padding: const EdgeInsets.all(4),
+              Consumer<AudioPlayerService>(
+                builder: (context, audioPlayerService, child) {
+                  final currentPlaylistId =
+                      'daily_summary_${userDailySummary.id}';
+                  final isCurrentlyPlaying =
+                      audioPlayerService.currentPlaylist?.id ==
+                          currentPlaylistId;
+                  final isPlaying = audioPlayerService.isPlaying;
+                  final isLoading = audioPlayerService.isLoading;
+
+                  // ボタンの状態を決定
+                  final bool isButtonEnabled =
+                      !isCurrentlyPlaying || !isPlaying;
+                  final bool showPlayingState =
+                      isCurrentlyPlaying && (isPlaying || isLoading);
+
+                  return Container(
+                    width: double.infinity,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.2),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.headphones,
-                      size: 20,
-                      color: Colors.white,
-                    ),
-                  ),
-                  label: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      const Text(
-                        '音声で聞く',
-                        style: TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
+                      gradient: AppGradients.primary, // 常に青いグラデーション
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: [
+                        BoxShadow(
+                          color: AppColors.primary.withValues(alpha: 0.3),
+                          blurRadius: 12,
+                          offset: const Offset(0, 6),
                         ),
-                      ),
-                      const SizedBox(width: 8),
-                      Container(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 8,
-                          vertical: 2,
-                        ),
+                      ],
+                    ),
+                    child: ElevatedButton.icon(
+                      onPressed: isButtonEnabled
+                          ? () => _playAudioSummary(context, userDailySummary)
+                          : null,
+                      icon: Container(
+                        padding: const EdgeInsets.all(4),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.2),
+                          shape: BoxShape.circle,
+                        ),
+                        child: showPlayingState
+                            ? (isLoading
+                                ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                          Colors.white),
+                                    ),
+                                  )
+                                : const Icon(
+                                    Icons.volume_up,
+                                    size: 20,
+                                    color: Colors.white,
+                                  ))
+                            : const Icon(
+                                Icons.headphones,
+                                size: 20,
+                                color: Colors.white,
+                              ),
+                      ),
+                      label: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            showPlayingState
+                                ? (isLoading ? '読み込み中...' : '再生中')
+                                : '音声で聞く',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: isButtonEnabled
+                                  ? Colors.white
+                                  : Colors.white70,
+                            ),
+                          ),
+                          const SizedBox(width: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withValues(alpha: 0.2),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              showPlayingState ? '🎵' : '約3分',
+                              style: const TextStyle(
+                                  fontSize: 12, color: Colors.white),
+                            ),
+                          ),
+                        ],
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.transparent,
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        padding: const EdgeInsets.symmetric(vertical: 16),
+                        shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(12),
                         ),
-                        child: const Text(
-                          '約3分',
-                          style: TextStyle(fontSize: 12, color: Colors.white),
-                        ),
+                        disabledBackgroundColor: Colors.transparent,
+                        disabledForegroundColor: Colors.white70,
                       ),
-                    ],
-                  ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.transparent,
-                    foregroundColor: Colors.white,
-                    elevation: 0,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
                     ),
-                  ),
-                ),
+                  );
+                },
               ),
             ],
           ),
@@ -537,6 +566,75 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
         ),
       ),
     );
+  }
+
+  Future<void> _playAudioSummary(
+      BuildContext context, UserDailySummary userDailySummary) async {
+    try {
+      // ローディング表示
+      showDialog<void>(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => const Center(
+          child: CircularProgressIndicator(),
+        ),
+      );
+
+      // 音声URLを取得
+      final audioTracks = await _apiService.fetchAudioUrlsForDailySummary(
+        userDailySummary.id,
+      );
+
+      // ローディング閉じる
+      if (context.mounted) {
+        Navigator.pop(context);
+      }
+
+      if (audioTracks.isEmpty) {
+        // 音声ファイルが存在しない場合
+        if (context.mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('この記事には音声サマリーがありません'),
+              backgroundColor: AppColors.textSecondary,
+            ),
+          );
+        }
+        return;
+      }
+
+      // 音声プレイヤーサービスで再生
+      if (context.mounted) {
+        final audioPlayerService = Provider.of<AudioPlayerService>(
+          context,
+          listen: false,
+        );
+
+        // AudioTrackのリストからPlaylistを作成
+        final playlist = Playlist(
+          id: 'daily_summary_${userDailySummary.id}',
+          title: 'デイリーサマリー ${userDailySummary.id}',
+          tracks: audioTracks,
+          currentIndex: 0,
+          createdAt: DateTime.now(),
+        );
+
+        await audioPlayerService.playPlaylist(playlist);
+      }
+    } catch (e) {
+      // エラーが発生した場合
+      if (context.mounted) {
+        // ローディング画面が表示されている場合は閉じる
+        Navigator.of(context).popUntil((route) => route.isFirst);
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('音声の再生に失敗しました: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
   Future<void> _addArticle(BuildContext context) async {
