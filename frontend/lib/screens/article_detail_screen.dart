@@ -3,6 +3,7 @@ import '../models/article.dart';
 import '../models/saved_article.dart';
 import '../services/api_service.dart';
 import '../themes/app_theme.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ArticleDetailScreen extends StatefulWidget {
   const ArticleDetailScreen({super.key, required this.article});
@@ -281,13 +282,13 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                               ),
                             ),
                             child: InkWell(
-                              onTap: () {
-                                // TODO: 元記事のURLを開く
-                                final url =
-                                    _savedArticle?.url ?? widget.article.url;
-                                ScaffoldMessenger.of(context).showSnackBar(
-                                  SnackBar(content: Text('元記事を開きます: $url')),
-                                );
+                              onTap: () async {
+                                final url = _savedArticle?.url ??
+                                    widget.article.url ??
+                                    '';
+                                if (url.isNotEmpty) {
+                                  await _openUrl(url);
+                                }
                               },
                               borderRadius: BorderRadius.circular(
                                 isTablet ? 12 : 8,
@@ -382,6 +383,33 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
         ],
       ),
     );
+  }
+
+  Future<void> _openUrl(String url) async {
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('このURLを開くことができません: $url'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('URLの開き方に失敗しました: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
   }
 
   LinearGradient _getSourceGradient(String source) {

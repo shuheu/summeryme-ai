@@ -54,6 +54,9 @@ dependencies:
   path_provider: ^2.1.2
   permission_handler: ^11.1.0
 
+  # URL launcher for opening external links
+  url_launcher: ^6.2.2
+
 dev_dependencies:
   flutter_test:
     sdk: flutter
