@@ -12,18 +12,29 @@ import type { SavedArticle, User } from '../prisma/generated/prisma/index.js';
 
 /**
  * 日次要約処理設定
+ * @interface DailySummaryConfig
  */
 interface DailySummaryConfig {
-  /** 処理対象のユーザーID */
+  /**
+   * 処理対象のユーザーID
+   * @type {number}
+   */
   userId: number;
-  /** 対象日付（省略時は今日） */
+  /**
+   * 対象日付（省略時は今日）
+   * @type {Date} [targetDate]
+   */
   targetDate?: Date;
-  /** 出力ディレクトリ */
+  /**
+   * 出力ディレクトリ
+   * @type {string} [outputDir]
+   */
   outputDir?: string;
 }
 
 /**
  * 保存された記事（ユーザー情報付き）
+ * @typedef {SavedArticle & { user: Pick<User, 'id' | 'uid' | 'name'> }} SavedArticleWithUser
  */
 type SavedArticleWithUser = SavedArticle & {
   user: Pick<User, 'id' | 'uid' | 'name'>;
@@ -31,25 +42,44 @@ type SavedArticleWithUser = SavedArticle & {
 
 /**
  * 日次要約処理結果
+ * @interface DailySummaryResult
  */
 interface DailySummaryResult {
-  /** 処理された記事数 */
+  /**
+   * 処理された記事数
+   * @type {number}
+   */
   processedArticles: number;
-  /** 生成された音声ファイル名 */
+  /**
+   * 生成された音声ファイル名
+   * @type {string} [audioFileName]
+   */
   audioFileName?: string;
-  /** 日次要約が生成されたか */
+  /**
+   * 日次要約が生成されたか
+   * @type {boolean}
+   */
   dailySummaryGenerated: boolean;
-  /** 処理時間（ミリ秒） */
+  /**
+   * 処理時間（ミリ秒）
+   * @type {number}
+   */
   processingTime: number;
 }
 
 /**
  * 日次要約サービス
+ * @class DailySummaryService
+ * @description ユーザーの保存記事から日次要約を生成し、音声ファイルを作成するサービス
  */
 export class DailySummaryService {
   private readonly aiTextGenerator: AiTextContentGenerator;
   private readonly textToSpeechGenerator: TextToSpeechGenerator;
 
+  /**
+   * DailySummaryServiceのコンストラクタ
+   * @constructor
+   */
   constructor() {
     this.aiTextGenerator = new AiTextContentGenerator();
     this.textToSpeechGenerator = new TextToSpeechGenerator();
@@ -65,6 +95,10 @@ export class DailySummaryService {
 
   /**
    * 日次要約バッチ処理メイン関数
+   * @async
+   * @param {DailySummaryConfig} config - 日次要約処理設定
+   * @returns {Promise<DailySummaryResult>} 処理結果
+   * @throws {Error} 処理に失敗した場合
    */
   async execute(config: DailySummaryConfig): Promise<DailySummaryResult> {
     const startTime = Date.now();
@@ -145,6 +179,11 @@ export class DailySummaryService {
 
   /**
    * 既存の日次要約をチェック
+   * @async
+   * @private
+   * @param {number} userId - ユーザーID
+   * @param {Date} targetDate - 対象日付
+   * @returns {Promise<{ audioUrl: string | null } | null>} 既存の日次要約情報またはnull
    */
   private async checkExistingDailySummary(
     userId: number,
@@ -175,6 +214,11 @@ export class DailySummaryService {
 
   /**
    * ユーザーの未処理記事を取得
+   * @async
+   * @private
+   * @param {number} userId - ユーザーID
+   * @returns {Promise<SavedArticleWithUser[]>} 未処理記事の配列（最大5件）
+   * @throws {Error} 記事の取得に失敗した場合
    */
   private async fetchArticles(userId: number): Promise<SavedArticleWithUser[]> {
     try {
@@ -211,6 +255,12 @@ export class DailySummaryService {
 
   /**
    * トークスクリプト生成と音声ファイル作成
+   * @async
+   * @private
+   * @param {SavedArticleWithUser[]} articles - 処理対象の記事
+   * @param {number} userId - ユーザーID
+   * @returns {Promise<string>} 生成された音声ファイル名
+   * @throws {Error} トークスクリプトの生成に失敗した場合
    */
   private async generateTalkScriptAndAudio(
     articles: SavedArticleWithUser[],
@@ -255,6 +305,8 @@ export class DailySummaryService {
 
   /**
    * 音声ファイル名生成
+   * @private
+   * @returns {string} タイムスタンプとランダム文字列を含むファイル名
    */
   private generateAudioFileName(): string {
     const timestamp = new Date()
@@ -267,6 +319,11 @@ export class DailySummaryService {
 
   /**
    * ユーザー向け日次要約を生成
+   * @async
+   * @private
+   * @param {SavedArticleWithUser[]} articles - 要約対象の記事
+   * @returns {Promise<string>} 生成された日次要約
+   * @throws {Error} 日次要約の生成に失敗した場合
    */
   private async generateUserDailySummary(
     articles: SavedArticleWithUser[],
@@ -293,6 +350,13 @@ export class DailySummaryService {
 
   /**
    * UserDailySummaryレコードを作成（音声URLなし）
+   * @async
+   * @private
+   * @param {number} userId - ユーザーID
+   * @param {string} summary - 生成された日次要約
+   * @param {SavedArticleWithUser[]} articles - 要約に含まれる記事
+   * @returns {Promise<void>}
+   * @throws {Error} UserDailySummaryの保存に失敗した場合
    */
   private async createUserDailySummary(
     userId: number,
@@ -350,6 +414,12 @@ export class DailySummaryService {
 
   /**
    * UserDailySummaryレコードの音声URLを更新
+   * @async
+   * @private
+   * @param {number} userId - ユーザーID
+   * @param {string} audioFileName - 音声ファイル名
+   * @returns {Promise<void>}
+   * @throws {Error} UserDailySummaryの音声URL更新に失敗した場合
    */
   private async updateUserDailySummaryWithAudio(
     userId: number,
@@ -388,6 +458,10 @@ export class DailySummaryService {
 
 /**
  * 日次要約バッチメイン実行関数
+ * @async
+ * @function main
+ * @description 全ユーザーを対象に未処理記事があるユーザーの日次要約をバッチ処理で生成
+ * @returns {Promise<void>}
  */
 async function main(): Promise<void> {
   console.log('日次要約バッチ処理開始 (全ユーザー対象 - チャンク処理)');
@@ -397,8 +471,6 @@ async function main(): Promise<void> {
   const chunkSize = 10;
 
   try {
-    // TODO: 要約記事対象がある場合？
-
     const users = await globalPrisma.user.findMany({
       where: {
         savedArticles: {
