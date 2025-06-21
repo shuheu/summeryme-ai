@@ -1,13 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/user_daily_summary.dart';
-import '../models/article.dart';
 import '../services/api_service.dart';
 import '../themes/app_theme.dart';
 import '../widgets/app_scaffold.dart';
-import 'article_detail_screen.dart';
 import 'package:provider/provider.dart';
 import '../services/audio_player_service.dart';
 import '../models/playlist.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class DigestDetailScreen extends StatefulWidget {
   const DigestDetailScreen({super.key, required this.digestId});
@@ -475,27 +474,8 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                           color: Colors.transparent,
                           child: InkWell(
                             borderRadius: BorderRadius.circular(16),
-                            onTap: () {
-                              // SavedArticleからArticleモデルに変換
-                              final article = Article(
-                                id: savedArticle.id.toString(),
-                                title: savedArticle.title,
-                                source: _getSourceFromUrl(savedArticle.url),
-                                timeAgo: _getTimeAgo(savedArticle.createdAt),
-                                summary:
-                                    savedArticle.savedArticleSummary?.summary ??
-                                        '',
-                                url: savedArticle.url,
-                                createdAt: savedArticle.createdAt,
-                              );
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute<void>(
-                                  builder: (context) =>
-                                      ArticleDetailScreen(article: article),
-                                ),
-                              );
+                            onTap: () async {
+                              await _openUrl(savedArticle.url);
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(20),
@@ -575,28 +555,31 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
     );
   }
 
-  String _getSourceFromUrl(String url) {
-    final uri = Uri.tryParse(url);
-    if (uri != null) {
-      return uri.host.replaceAll('www.', '');
-    }
-    return 'Web';
-  }
 
-  String _getTimeAgo(DateTime dateTime) {
-    final now = DateTime.now();
-    final difference = now.difference(dateTime);
-
-    if (difference.inDays > 7) {
-      return '${(difference.inDays / 7).floor()}週間前';
-    } else if (difference.inDays > 0) {
-      return '${difference.inDays}日前';
-    } else if (difference.inHours > 0) {
-      return '${difference.inHours}時間前';
-    } else if (difference.inMinutes > 0) {
-      return '${difference.inMinutes}分前';
-    } else {
-      return 'たった今';
+  Future<void> _openUrl(String url) async {
+    try {
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        if (mounted) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('このURLを開くことができません: $url'),
+              backgroundColor: AppColors.error,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('URLの開き方に失敗しました: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
     }
   }
 
