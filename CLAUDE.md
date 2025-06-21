@@ -58,6 +58,7 @@ docker compose exec db mysql -uroot -ppassword summerymeai_development  # Access
 ```
 
 **Note**:
+
 - Ensure `.env` file exists with appropriate `DATABASE_URL`
 - For Docker: `DATABASE_URL=mysql://root:password@db:3306/summerymeai_development`
 - For local MySQL: `DATABASE_URL=mysql://root:password@localhost:3306/summerymeai_development`
