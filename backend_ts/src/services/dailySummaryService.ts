@@ -21,11 +21,6 @@ interface DailySummaryConfig {
    */
   userId: number;
   /**
-   * 対象日付（省略時は今日）
-   * @type {Date} [targetDate]
-   */
-  targetDate?: Date;
-  /**
    * 出力ディレクトリ
    * @type {string} [outputDir]
    */
@@ -105,24 +100,6 @@ export class DailySummaryService {
     console.log(`日次要約バッチ処理開始 - ユーザーID: ${config.userId}`);
 
     try {
-      const targetDate = config.targetDate || new Date();
-
-      // 既に当日の日次要約が存在するかチェック
-      const existingSummary = await this.checkExistingDailySummary(
-        config.userId,
-        targetDate,
-      );
-
-      if (existingSummary) {
-        console.log('要約対象がないため、処理をスキップします');
-        return {
-          processedArticles: 0,
-          audioFileName: existingSummary.audioUrl || undefined,
-          dailySummaryGenerated: false,
-          processingTime: Date.now() - startTime,
-        };
-      }
-
       // 記事データの取得
       const articles = await this.fetchArticles(config.userId);
 
@@ -174,41 +151,6 @@ export class DailySummaryService {
       throw new Error(
         `日次要約バッチ処理に失敗しました: ${error instanceof Error ? error.message : String(error)}`,
       );
-    }
-  }
-
-  /**
-   * 既存の日次要約をチェック
-   * @async
-   * @private
-   * @param {number} userId - ユーザーID
-   * @param {Date} targetDate - 対象日付
-   * @returns {Promise<{ audioUrl: string | null } | null>} 既存の日次要約情報またはnull
-   */
-  private async checkExistingDailySummary(
-    userId: number,
-    targetDate: Date,
-  ): Promise<{ audioUrl: string | null } | null> {
-    try {
-      const startOfDay = new Date(targetDate);
-      startOfDay.setHours(0, 0, 0, 0);
-
-      const existingSummary = await globalPrisma.userDailySummary.findUnique({
-        where: {
-          userId_generatedDate: {
-            userId: userId,
-            generatedDate: startOfDay,
-          },
-        },
-        select: {
-          audioUrl: true,
-        },
-      });
-
-      return existingSummary;
-    } catch (error) {
-      console.error('既存日次要約チェックエラー:', error);
-      return null;
     }
   }
 
@@ -499,17 +441,26 @@ async function main(): Promise<void> {
         `チャンク ${Math.floor(i / chunkSize) + 1} の処理を開始 (ユーザー ${i + 1} から ${Math.min(i + chunkSize, users.length)})`,
       );
 
+      // チャンク内のユーザーを並列処理
+      const chunkResults = await Promise.allSettled(
+        chunk.map(async (user) => {
+          console.log(`  ユーザーID: ${user.id} の処理を開始します。`);
+          const result = await service.execute({ userId: user.id });
+          return { userId: user.id, result };
+        }),
+      );
+
+      // 結果の集計とログ出力
       let chunkSuccessCount = 0;
       let chunkFailureCount = 0;
 
-      for (const user of chunk) {
-        try {
-          console.log(`  ユーザーID: ${user.id} の処理を開始します。`);
+      chunkResults.forEach((settledResult, index) => {
+        const userId = chunk[index].id;
 
-          const result = await service.execute({ userId: user.id });
-
+        if (settledResult.status === 'fulfilled') {
+          const { result } = settledResult.value;
           console.log(
-            `  === ユーザーID: ${user.id} の日次要約バッチ処理結果 ===`,
+            `  === ユーザーID: ${userId} の日次要約バッチ処理結果 ===`,
           );
           console.log(`    処理記事数: ${result.processedArticles}`);
           console.log(`    音声ファイル: ${result.audioFileName || 'なし'}`);
@@ -520,15 +471,15 @@ async function main(): Promise<void> {
           console.log('  ===================================');
           totalSuccessCount++;
           chunkSuccessCount++;
-        } catch (error) {
+        } else {
           console.error(
-            `  ユーザーID: ${user.id} の処理中にエラーが発生しました:`,
-            error,
+            `  ユーザーID: ${userId} の処理中にエラーが発生しました:`,
+            settledResult.reason,
           );
           totalFailureCount++;
           chunkFailureCount++;
         }
-      }
+      });
       console.log(
         `チャンク ${Math.floor(i / chunkSize) + 1} の処理完了 - 成功: ${chunkSuccessCount}, 失敗: ${chunkFailureCount}`,
       );
