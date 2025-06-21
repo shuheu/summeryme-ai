@@ -12,18 +12,24 @@ import type { SavedArticle, User } from '../prisma/generated/prisma/index.js';
 
 /**
  * 日次要約処理設定
+ * @interface DailySummaryConfig
  */
 interface DailySummaryConfig {
-  /** 処理対象のユーザーID */
+  /**
+   * 処理対象のユーザーID
+   * @type {number}
+   */
   userId: number;
-  /** 対象日付（省略時は今日） */
-  targetDate?: Date;
-  /** 出力ディレクトリ */
+  /**
+   * 出力ディレクトリ
+   * @type {string} [outputDir]
+   */
   outputDir?: string;
 }
 
 /**
  * 保存された記事（ユーザー情報付き）
+ * @typedef {SavedArticle & { user: Pick<User, 'id' | 'uid' | 'name'> }} SavedArticleWithUser
  */
 type SavedArticleWithUser = SavedArticle & {
   user: Pick<User, 'id' | 'uid' | 'name'>;
@@ -31,25 +37,44 @@ type SavedArticleWithUser = SavedArticle & {
 
 /**
  * 日次要約処理結果
+ * @interface DailySummaryResult
  */
 interface DailySummaryResult {
-  /** 処理された記事数 */
+  /**
+   * 処理された記事数
+   * @type {number}
+   */
   processedArticles: number;
-  /** 生成された音声ファイル名 */
+  /**
+   * 生成された音声ファイル名
+   * @type {string} [audioFileName]
+   */
   audioFileName?: string;
-  /** 日次要約が生成されたか */
+  /**
+   * 日次要約が生成されたか
+   * @type {boolean}
+   */
   dailySummaryGenerated: boolean;
-  /** 処理時間（ミリ秒） */
+  /**
+   * 処理時間（ミリ秒）
+   * @type {number}
+   */
   processingTime: number;
 }
 
 /**
  * 日次要約サービス
+ * @class DailySummaryService
+ * @description ユーザーの保存記事から日次要約を生成し、音声ファイルを作成するサービス
  */
 export class DailySummaryService {
   private readonly aiTextGenerator: AiTextContentGenerator;
   private readonly textToSpeechGenerator: TextToSpeechGenerator;
 
+  /**
+   * DailySummaryServiceのコンストラクタ
+   * @constructor
+   */
   constructor() {
     this.aiTextGenerator = new AiTextContentGenerator();
     this.textToSpeechGenerator = new TextToSpeechGenerator();
@@ -65,35 +90,21 @@ export class DailySummaryService {
 
   /**
    * 日次要約バッチ処理メイン関数
+   * @async
+   * @param {DailySummaryConfig} config - 日次要約処理設定
+   * @returns {Promise<DailySummaryResult>} 処理結果
+   * @throws {Error} 処理に失敗した場合
    */
   async execute(config: DailySummaryConfig): Promise<DailySummaryResult> {
     const startTime = Date.now();
     console.log(`日次要約バッチ処理開始 - ユーザーID: ${config.userId}`);
 
     try {
-      const targetDate = config.targetDate || new Date();
-
-      // 既に当日の日次要約が存在するかチェック
-      const existingSummary = await this.checkExistingDailySummary(
-        config.userId,
-        targetDate,
-      );
-
-      if (existingSummary) {
-        console.log('当日の日次要約は既に生成済みです');
-        return {
-          processedArticles: 0,
-          audioFileName: existingSummary.audioUrl || undefined,
-          dailySummaryGenerated: false,
-          processingTime: Date.now() - startTime,
-        };
-      }
-
       // 記事データの取得
-      const articles = await this.fetchArticles(config.userId, targetDate);
+      const articles = await this.fetchArticles(config.userId);
 
       if (articles.length === 0) {
-        console.log('記事が見つかりませんでした');
+        console.log('未処理の記事が見つかりませんでした');
         return {
           processedArticles: 0,
           dailySummaryGenerated: false,
@@ -101,7 +112,7 @@ export class DailySummaryService {
         };
       }
 
-      console.log(`${articles.length}件の記事から日次要約を生成開始`);
+      console.log(`${articles.length}件の未処理記事から日次要約を生成開始`);
 
       // ステップ1: ユーザー向け日次要約を生成
       console.log('ステップ1: 日次要約生成を開始します');
@@ -144,59 +155,21 @@ export class DailySummaryService {
   }
 
   /**
-   * 既存の日次要約をチェック
+   * ユーザーの未処理記事を取得
+   * @async
+   * @private
+   * @param {number} userId - ユーザーID
+   * @returns {Promise<SavedArticleWithUser[]>} 未処理記事の配列（最大5件）
+   * @throws {Error} 記事の取得に失敗した場合
    */
-  private async checkExistingDailySummary(
-    userId: number,
-    targetDate: Date,
-  ): Promise<{ audioUrl: string | null } | null> {
+  private async fetchArticles(userId: number): Promise<SavedArticleWithUser[]> {
     try {
-      const startOfDay = new Date(targetDate);
-      startOfDay.setHours(0, 0, 0, 0);
-
-      const existingSummary = await globalPrisma.userDailySummary.findUnique({
-        where: {
-          userId_generatedDate: {
-            userId: userId,
-            generatedDate: startOfDay,
-          },
-        },
-        select: {
-          audioUrl: true,
-        },
-      });
-
-      return existingSummary;
-    } catch (error) {
-      console.error('既存日次要約チェックエラー:', error);
-      return null;
-    }
-  }
-
-  /**
-   * ユーザーの記事を取得
-   */
-  private async fetchArticles(
-    userId: number,
-    targetDate: Date,
-  ): Promise<SavedArticleWithUser[]> {
-    try {
-      const startOfDay = new Date(targetDate);
-      startOfDay.setHours(0, 0, 0, 0);
-
-      const endOfDay = new Date(targetDate);
-      endOfDay.setHours(23, 59, 59, 999);
-
       const articles = await globalPrisma.savedArticle.findMany({
         where: {
           userId: userId,
-          createdAt: {
-            gte: startOfDay,
-            lte: endOfDay,
+          userDailySummarySavedArticles: {
+            none: {}, // 日次要約に含まれていない記事
           },
-          // savedArticleSummary: {
-          //   isNot: null, // 要約が生成済みの記事のみ
-          // },
         },
         include: {
           user: {
@@ -206,14 +179,15 @@ export class DailySummaryService {
               name: true,
             },
           },
-          savedArticleSummary: true,
+          savedArticleSummary: true, // 要約は任意（存在しない場合もある）
         },
         orderBy: {
-          createdAt: 'desc',
+          createdAt: 'asc', // 古い順
         },
+        take: 5, // 最大5件まで
       });
 
-      console.log(`${articles.length}件の記事を取得しました`);
+      console.log(`${articles.length}件の未処理記事を取得しました`);
       return articles;
     } catch (error) {
       console.error('記事取得エラー:', error);
@@ -223,6 +197,12 @@ export class DailySummaryService {
 
   /**
    * トークスクリプト生成と音声ファイル作成
+   * @async
+   * @private
+   * @param {SavedArticleWithUser[]} articles - 処理対象の記事
+   * @param {number} userId - ユーザーID
+   * @returns {Promise<string>} 生成された音声ファイル名
+   * @throws {Error} トークスクリプトの生成に失敗した場合
    */
   private async generateTalkScriptAndAudio(
     articles: SavedArticleWithUser[],
@@ -267,6 +247,8 @@ export class DailySummaryService {
 
   /**
    * 音声ファイル名生成
+   * @private
+   * @returns {string} タイムスタンプとランダム文字列を含むファイル名
    */
   private generateAudioFileName(): string {
     const timestamp = new Date()
@@ -279,6 +261,11 @@ export class DailySummaryService {
 
   /**
    * ユーザー向け日次要約を生成
+   * @async
+   * @private
+   * @param {SavedArticleWithUser[]} articles - 要約対象の記事
+   * @returns {Promise<string>} 生成された日次要約
+   * @throws {Error} 日次要約の生成に失敗した場合
    */
   private async generateUserDailySummary(
     articles: SavedArticleWithUser[],
@@ -305,6 +292,13 @@ export class DailySummaryService {
 
   /**
    * UserDailySummaryレコードを作成（音声URLなし）
+   * @async
+   * @private
+   * @param {number} userId - ユーザーID
+   * @param {string} summary - 生成された日次要約
+   * @param {SavedArticleWithUser[]} articles - 要約に含まれる記事
+   * @returns {Promise<void>}
+   * @throws {Error} UserDailySummaryの保存に失敗した場合
    */
   private async createUserDailySummary(
     userId: number,
@@ -362,6 +356,12 @@ export class DailySummaryService {
 
   /**
    * UserDailySummaryレコードの音声URLを更新
+   * @async
+   * @private
+   * @param {number} userId - ユーザーID
+   * @param {string} audioFileName - 音声ファイル名
+   * @returns {Promise<void>}
+   * @throws {Error} UserDailySummaryの音声URL更新に失敗した場合
    */
   private async updateUserDailySummaryWithAudio(
     userId: number,
@@ -400,26 +400,101 @@ export class DailySummaryService {
 
 /**
  * 日次要約バッチメイン実行関数
+ * @async
+ * @function main
+ * @description 全ユーザーを対象に未処理記事があるユーザーの日次要約をバッチ処理で生成
+ * @returns {Promise<void>}
  */
 async function main(): Promise<void> {
+  console.log('日次要約バッチ処理開始 (全ユーザー対象 - チャンク処理)');
+  // TODO: 音声だけ失敗した場合に再処理しづらい。testサマリとttsは別にしたほうがほうがやりやすい
+  const service = new DailySummaryService();
+  let totalSuccessCount = 0;
+  let totalFailureCount = 0;
+  const chunkSize = 10;
+
   try {
-    // 環境変数からユーザーIDを取得（デフォルト: 1）
-    const userId = Number(process.env.BATCH_USER_ID) || 1;
+    const users = await globalPrisma.user.findMany({
+      where: {
+        savedArticles: {
+          some: {
+            userDailySummarySavedArticles: {
+              none: {}, // user_daily_summary_saved_articlesに含まれていない
+            },
+          },
+        },
+      },
+      select: { id: true },
+      orderBy: { id: 'asc' },
+    });
+    if (users.length === 0) {
+      console.log('処理対象のユーザーが見つかりませんでした。');
+      return;
+    }
 
-    const service = new DailySummaryService();
-    const result = await service.execute({ userId });
-
-    console.log('=== 日次要約バッチ処理結果 ===');
-    console.log(`処理記事数: ${result.processedArticles}`);
-    console.log(`音声ファイル: ${result.audioFileName || 'なし'}`);
     console.log(
-      `日次要約生成: ${result.dailySummaryGenerated ? '成功' : '既存またはスキップ'}`,
+      `${users.length}人のユーザーを${chunkSize}件ずつのチャンクで処理します。`,
     );
-    console.log(`処理時間: ${result.processingTime}ms`);
-    console.log('=========================');
+
+    for (let i = 0; i < users.length; i += chunkSize) {
+      const chunk = users.slice(i, i + chunkSize);
+      console.log(
+        `チャンク ${Math.floor(i / chunkSize) + 1} の処理を開始 (ユーザー ${i + 1} から ${Math.min(i + chunkSize, users.length)})`,
+      );
+
+      // チャンク内のユーザーを並列処理
+      const chunkResults = await Promise.allSettled(
+        chunk.map(async (user) => {
+          console.log(`  ユーザーID: ${user.id} の処理を開始します。`);
+          const result = await service.execute({ userId: user.id });
+          return { userId: user.id, result };
+        }),
+      );
+
+      // 結果の集計とログ出力
+      let chunkSuccessCount = 0;
+      let chunkFailureCount = 0;
+
+      chunkResults.forEach((settledResult, index) => {
+        const userId = chunk[index].id;
+
+        if (settledResult.status === 'fulfilled') {
+          const { result } = settledResult.value;
+          console.log(
+            `  === ユーザーID: ${userId} の日次要約バッチ処理結果 ===`,
+          );
+          console.log(`    処理記事数: ${result.processedArticles}`);
+          console.log(`    音声ファイル: ${result.audioFileName || 'なし'}`);
+          console.log(
+            `    日次要約生成: ${result.dailySummaryGenerated ? '成功' : '既存またはスキップ'}`,
+          );
+          console.log(`    処理時間: ${result.processingTime}ms`);
+          console.log('  ===================================');
+          totalSuccessCount++;
+          chunkSuccessCount++;
+        } else {
+          console.error(
+            `  ユーザーID: ${userId} の処理中にエラーが発生しました:`,
+            settledResult.reason,
+          );
+          totalFailureCount++;
+          chunkFailureCount++;
+        }
+      });
+      console.log(
+        `チャンク ${Math.floor(i / chunkSize) + 1} の処理完了 - 成功: ${chunkSuccessCount}, 失敗: ${chunkFailureCount}`,
+      );
+    }
   } catch (error) {
-    console.error('日次要約バッチメイン処理エラー:', error);
+    console.error('日次要約バッチ処理の全体でエラーが発生しました:', error);
+    // 全体エラーの場合、ここで終了する
     process.exit(1);
+  } finally {
+    console.log('=== 全ユーザーの日次要約バッチ処理完了 (チャンク処理) ===');
+    console.log(`総成功ユーザー数: ${totalSuccessCount}`);
+    console.log(`総失敗ユーザー数: ${totalFailureCount}`);
+    console.log('==================================================');
+    // process.exit(0); // 通常は不要
   }
 }
 

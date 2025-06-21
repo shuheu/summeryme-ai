@@ -9,3 +9,5 @@ dist
 
 # Frontend environment variables
 frontend/.env
+
+*.local.md
