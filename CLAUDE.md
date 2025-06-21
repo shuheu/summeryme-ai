@@ -31,6 +31,16 @@ pnpm lint                    # Run ESLint
 pnpm format                  # Format with Prettier
 pnpm build                   # Build TypeScript
 
+# Batch Processing
+pnpm run-job:dailySummary    # Run daily summary batch processing
+pnpm run-job:articleSummary  # Run article summary batch processing
+
+# API Specification & Code Generation (TypeSpec) - Under development, currently unused
+pnpm typespec                # Compile TypeSpec specifications
+pnpm typespec:watch          # Watch mode for TypeSpec compilation
+pnpm generate:types          # Generate TypeScript type definitions
+pnpm generate-api-client     # Generate Dart API client
+
 # Docker-specific Commands
 docker compose ps            # Check container status
 docker compose logs db       # View MySQL logs
@@ -52,6 +62,17 @@ docker compose exec db mysql -uroot -ppassword summerymeai_development  # Access
 - For Docker: `DATABASE_URL=mysql://root:password@db:3306/summerymeai_development`
 - For local MySQL: `DATABASE_URL=mysql://root:password@localhost:3306/summerymeai_development`
 - The backend service runs on port 8080 when using Docker, port 8787 when using `pnpm dev` directly
+
+**Environment Variables**:
+
+**Required for Production**:
+- `DATABASE_URL`: MySQL connection string
+- `GEMINI_API_KEY`: Google Gemini AI API key
+- `GCS_AUDIO_BUCKET`: Google Cloud Storage bucket for audio files
+
+**Optional for Development**:
+- `USE_MOCK_TTS=true`: Enable mock mode for text-to-speech (no API calls)
+- `USE_MOCK_SUMMARY_AI=true`: Enable mock mode for AI text generation (no API calls)
 
 ### Frontend Development (frontend/)
 ```bash
@@ -90,6 +111,8 @@ make migrate                 # Run database migrations after deployment
 - **Database**: MySQL 8.0 with Prisma ORM
 - **APIs**: RESTful endpoints in `src/apis/`
 - **Services**: AI text generation and text-to-speech in `src/services/`
+- **Batch Processing**: Parallel processing with chunking for scalability
+- **Cloud Storage**: Google Cloud Storage for audio file storage
 - **Deployment**: Docker container on Google Cloud Run
 
 Key files:
@@ -114,6 +137,7 @@ Key screens:
 - **Secret Manager**: API keys and credentials
 - **VPC**: Private networking for database
 - **Artifact Registry**: Docker image storage
+- **Cloud Storage**: Audio file storage with automatic upload
 
 ## Development Workflow
 
@@ -133,6 +157,11 @@ Key screens:
    - Run `make plan` to preview
    - Apply with `make apply`
 
+4. **Batch Processing Development**:
+   - Use mock mode for development: Set `USE_MOCK_TTS=true` and `USE_MOCK_SUMMARY_AI=true`
+   - Test batch jobs: `pnpm run-job:dailySummary` or `pnpm run-job:articleSummary`
+   - Monitor processing with chunk-based parallel execution
+
 ## Important Notes
 
 - The backend uses environment variables from `.env` file locally
@@ -140,3 +169,5 @@ Key screens:
 - All secrets are managed via Google Secret Manager in production
 - Database migrations must be run manually after deployment
 - The project uses GitHub Actions for CI/CD (see CICD_SETUP.md)
+- Batch processing uses parallel execution with 10-user chunks to handle large datasets efficiently
+- Mock modes are available for development to avoid API costs
