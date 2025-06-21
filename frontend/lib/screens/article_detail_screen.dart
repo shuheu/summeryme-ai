@@ -283,8 +283,9 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                             ),
                             child: InkWell(
                               onTap: () async {
-                                final url =
-                                    _savedArticle?.url ?? widget.article.url ?? '';
+                                final url = _savedArticle?.url ??
+                                    widget.article.url ??
+                                    '';
                                 if (url.isNotEmpty) {
                                   await _openUrl(url);
                                 }

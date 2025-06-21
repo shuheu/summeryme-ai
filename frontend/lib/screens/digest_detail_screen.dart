@@ -395,7 +395,9 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                               child: ElevatedButton.icon(
                                 onPressed: isButtonEnabled
                                     ? () => _playAudioSummary(
-                                        context, userDailySummary,)
+                                          context,
+                                          userDailySummary,
+                                        )
                                     : null,
                                 icon: showPlayingState
                                     ? (isLoading
@@ -406,7 +408,8 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                                               strokeWidth: 2,
                                               valueColor:
                                                   AlwaysStoppedAnimation<Color>(
-                                                      Colors.white,),
+                                                Colors.white,
+                                              ),
                                             ),
                                           )
                                         : const Icon(Icons.volume_up, size: 24))
@@ -555,7 +558,6 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
     );
   }
 
-
   Future<void> _openUrl(String url) async {
     try {
       final uri = Uri.parse(url);
@@ -584,7 +586,9 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
   }
 
   Future<void> _playAudioSummary(
-      BuildContext context, UserDailySummary userDailySummary,) async {
+    BuildContext context,
+    UserDailySummary userDailySummary,
+  ) async {
     try {
       // ローディング表示
       showDialog<void>(
