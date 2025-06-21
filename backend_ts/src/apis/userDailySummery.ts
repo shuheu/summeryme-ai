@@ -155,7 +155,7 @@ userDailySummaryRouter.get('/:id', requireAuth, async (c) => {
 });
 
 // 特定のUserDailySummaryの音声URLを取得するエンドポイント
-userDailySummaryRouter.get('/:id/audio-urls', async (c) => {
+userDailySummaryRouter.get('/:id/audio-urls', requireAuth, async (c) => {
   try {
     // パスパラメータのバリデーション
     const pathParams = {
