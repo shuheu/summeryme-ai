@@ -407,6 +407,7 @@ export class DailySummaryService {
  */
 async function main(): Promise<void> {
   console.log('日次要約バッチ処理開始 (全ユーザー対象 - チャンク処理)');
+  // TODO: 音声だけ失敗した場合に再処理しづらい。testサマリとttsは別にしたほうがほうがやりやすい
   const service = new DailySummaryService();
   let totalSuccessCount = 0;
   let totalFailureCount = 0;
