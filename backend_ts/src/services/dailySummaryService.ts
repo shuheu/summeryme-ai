@@ -80,7 +80,7 @@ export class DailySummaryService {
       );
 
       if (existingSummary) {
-        console.log('当日の日次要約は既に生成済みです');
+        console.log('要約対象がないため、処理をスキップします');
         return {
           processedArticles: 0,
           audioFileName: existingSummary.audioUrl || undefined,
@@ -90,10 +90,10 @@ export class DailySummaryService {
       }
 
       // 記事データの取得
-      const articles = await this.fetchArticles(config.userId, targetDate);
+      const articles = await this.fetchArticles(config.userId);
 
       if (articles.length === 0) {
-        console.log('記事が見つかりませんでした');
+        console.log('未処理の記事が見つかりませんでした');
         return {
           processedArticles: 0,
           dailySummaryGenerated: false,
@@ -101,7 +101,7 @@ export class DailySummaryService {
         };
       }
 
-      console.log(`${articles.length}件の記事から日次要約を生成開始`);
+      console.log(`${articles.length}件の未処理記事から日次要約を生成開始`);
 
       // ステップ1: ユーザー向け日次要約を生成
       console.log('ステップ1: 日次要約生成を開始します');
@@ -174,28 +174,15 @@ export class DailySummaryService {
   }
 
   /**
-   * ユーザーの記事を取得
+   * ユーザーの未処理記事を取得
    */
-  private async fetchArticles(
-    userId: number,
-    targetDate: Date,
-  ): Promise<SavedArticleWithUser[]> {
+  private async fetchArticles(userId: number): Promise<SavedArticleWithUser[]> {
     try {
-      const startOfDay = new Date(targetDate);
-      startOfDay.setHours(0, 0, 0, 0);
-
-      const endOfDay = new Date(targetDate);
-      endOfDay.setHours(23, 59, 59, 999);
-
       const articles = await globalPrisma.savedArticle.findMany({
         where: {
           userId: userId,
-          createdAt: {
-            gte: startOfDay,
-            lte: endOfDay,
-          },
-          savedArticleSummary: {
-            is: null, // 要約がまだ生成されていない記事のみ
+          userDailySummarySavedArticles: {
+            none: {}, // 日次要約に含まれていない記事
           },
         },
         include: {
@@ -206,14 +193,15 @@ export class DailySummaryService {
               name: true,
             },
           },
-          savedArticleSummary: true,
+          savedArticleSummary: true, // 要約は任意（存在しない場合もある）
         },
         orderBy: {
-          createdAt: 'desc',
+          createdAt: 'asc', // 古い順
         },
+        take: 5, // 最大5件まで
       });
 
-      console.log(`${articles.length}件の記事を取得しました`);
+      console.log(`${articles.length}件の未処理記事を取得しました`);
       return articles;
     } catch (error) {
       console.error('記事取得エラー:', error);
@@ -409,21 +397,35 @@ async function main(): Promise<void> {
   const chunkSize = 10;
 
   try {
-    const users = await globalPrisma.user.findMany({
-      select: { id: true },
-      orderBy: { id: 'asc' }, // 処理順序を安定させるためにIDでソート
-    });
+    // TODO: 要約記事対象がある場合？
 
+    const users = await globalPrisma.user.findMany({
+      where: {
+        savedArticles: {
+          some: {
+            userDailySummarySavedArticles: {
+              none: {}, // user_daily_summary_saved_articlesに含まれていない
+            },
+          },
+        },
+      },
+      select: { id: true },
+      orderBy: { id: 'asc' },
+    });
     if (users.length === 0) {
       console.log('処理対象のユーザーが見つかりませんでした。');
       return;
     }
 
-    console.log(`${users.length}人のユーザーを${chunkSize}件ずつのチャンクで処理します。`);
+    console.log(
+      `${users.length}人のユーザーを${chunkSize}件ずつのチャンクで処理します。`,
+    );
 
     for (let i = 0; i < users.length; i += chunkSize) {
       const chunk = users.slice(i, i + chunkSize);
-      console.log(`チャンク ${Math.floor(i / chunkSize) + 1} の処理を開始 (ユーザー ${i + 1} から ${Math.min(i + chunkSize, users.length)})`);
+      console.log(
+        `チャンク ${Math.floor(i / chunkSize) + 1} の処理を開始 (ユーザー ${i + 1} から ${Math.min(i + chunkSize, users.length)})`,
+      );
 
       let chunkSuccessCount = 0;
       let chunkFailureCount = 0;
@@ -431,8 +433,12 @@ async function main(): Promise<void> {
       for (const user of chunk) {
         try {
           console.log(`  ユーザーID: ${user.id} の処理を開始します。`);
+
           const result = await service.execute({ userId: user.id });
-          console.log(`  === ユーザーID: ${user.id} の日次要約バッチ処理結果 ===`);
+
+          console.log(
+            `  === ユーザーID: ${user.id} の日次要約バッチ処理結果 ===`,
+          );
           console.log(`    処理記事数: ${result.processedArticles}`);
           console.log(`    音声ファイル: ${result.audioFileName || 'なし'}`);
           console.log(
@@ -443,12 +449,17 @@ async function main(): Promise<void> {
           totalSuccessCount++;
           chunkSuccessCount++;
         } catch (error) {
-          console.error(`  ユーザーID: ${user.id} の処理中にエラーが発生しました:`, error);
+          console.error(
+            `  ユーザーID: ${user.id} の処理中にエラーが発生しました:`,
+            error,
+          );
           totalFailureCount++;
           chunkFailureCount++;
         }
       }
-      console.log(`チャンク ${Math.floor(i / chunkSize) + 1} の処理完了 - 成功: ${chunkSuccessCount}, 失敗: ${chunkFailureCount}`);
+      console.log(
+        `チャンク ${Math.floor(i / chunkSize) + 1} の処理完了 - 成功: ${chunkSuccessCount}, 失敗: ${chunkFailureCount}`,
+      );
     }
   } catch (error) {
     console.error('日次要約バッチ処理の全体でエラーが発生しました:', error);
