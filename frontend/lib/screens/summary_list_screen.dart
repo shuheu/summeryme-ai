@@ -182,13 +182,24 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
           child: RefreshIndicator(
             onRefresh: _refreshDigests,
             child: ListView.builder(
-              padding: EdgeInsets.all(isTablet ? 24.0 : 16.0),
+              padding: EdgeInsets.only(
+                left: isTablet ? 24.0 : 16.0,
+                right: isTablet ? 24.0 : 16.0,
+                top: isTablet ? 24.0 : 16.0,
+                bottom: (isTablet ? 24.0 : 16.0) +
+                    MediaQuery.of(context).padding.bottom,
+              ),
               itemCount: _userDailySummaryList.length + (_hasMoreData ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == _userDailySummaryList.length) {
                   // Load more button/indicator
                   return Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: EdgeInsets.only(
+                      left: 16.0,
+                      right: 16.0,
+                      top: 16.0,
+                      bottom: 16.0 + MediaQuery.of(context).padding.bottom,
+                    ),
                     child: Center(
                       child: _isLoading
                           ? const CircularProgressIndicator()
@@ -731,7 +742,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
   /// 空状態表示を構築
   Widget _buildEmptyState(bool isTablet) {
     return Center(
-      child: Padding(
+      child: SingleChildScrollView(
         padding: EdgeInsets.all(isTablet ? 48.0 : 24.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
