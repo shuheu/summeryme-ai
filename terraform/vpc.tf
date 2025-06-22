@@ -1,5 +1,5 @@
 # VPC Network
-# Summeryme AI Backend
+# Summaryme AI Backend
 
 # VPCネットワーク
 resource "google_compute_network" "main" {

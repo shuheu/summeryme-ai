@@ -1,4 +1,4 @@
-# Summeryme AI Backend - Main Configuration
+# Summaryme AI Backend - Main Configuration
 #
 # このファイルは、Terraformの設定ファイルの中心となるファイルです。
 # 各リソースは機能別に分離されたファイルで管理されています。

@@ -1,5 +1,5 @@
 # ローカル変数定義
-# Summeryme AI Backend
+# Summaryme AI Backend
 
 locals {
   # サービス名
@@ -32,7 +32,8 @@ locals {
     "compute.googleapis.com",
     "servicenetworking.googleapis.com",
     "vpcaccess.googleapis.com",
-    "storage.googleapis.com"
+    "storage.googleapis.com",
+    "cloudscheduler.googleapis.com"
   ]
 
   # 環境別設定

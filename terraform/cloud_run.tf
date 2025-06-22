@@ -1,5 +1,5 @@
 # Cloud Run
-# Summeryme AI Backend
+# Summaryme AI Backend
 
 # VPCアクセスコネクタ
 resource "google_vpc_access_connector" "main" {

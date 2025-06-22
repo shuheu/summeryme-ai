@@ -1,5 +1,5 @@
 # Artifact Registry
-# Summeryme AI Backend
+# Summaryme AI Backend
 
 # Artifact Registry リポジトリ
 resource "google_artifact_registry_repository" "backend" {

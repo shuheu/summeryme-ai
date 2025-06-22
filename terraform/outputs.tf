@@ -1,4 +1,4 @@
-# Outputs for Summeryme AI Backend
+# Outputs for Summaryme AI Backend
 # Terraform Configuration
 
 # =============================================================================
@@ -192,6 +192,35 @@ output "daily_summary_job_location" {
 }
 
 # =============================================================================
+# Cloud Scheduler Jobs
+# =============================================================================
+
+output "cloud_scheduler_service_account_email" {
+  description = "Email address of the Cloud Scheduler service account"
+  value       = google_service_account.cloud_scheduler.email
+}
+
+output "article_summary_scheduler_name" {
+  description = "Name of the article summary scheduler job"
+  value       = google_cloud_scheduler_job.article_summary.name
+}
+
+output "article_summary_scheduler_schedule" {
+  description = "Schedule for the article summary job"
+  value       = google_cloud_scheduler_job.article_summary.schedule
+}
+
+output "daily_summary_scheduler_name" {
+  description = "Name of the daily summary scheduler job"
+  value       = google_cloud_scheduler_job.daily_summary.name
+}
+
+output "daily_summary_scheduler_schedule" {
+  description = "Schedule for the daily summary job"
+  value       = google_cloud_scheduler_job.daily_summary.schedule
+}
+
+# =============================================================================
 # Project Information
 # =============================================================================
 
@@ -240,6 +269,15 @@ output "useful_commands" {
     # GCS commands
     list_audio_files_command  = "gsutil ls gs://${google_storage_bucket.audio_files.name}/"
     audio_bucket_info_command = "gsutil du -s gs://${google_storage_bucket.audio_files.name}/"
+
+    # Cloud Scheduler commands
+    list_schedulers_command                  = "gcloud scheduler jobs list --location=${var.region}"
+    run_article_summary_scheduler_command    = "gcloud scheduler jobs run ${google_cloud_scheduler_job.article_summary.name} --location=${var.region}"
+    run_daily_summary_scheduler_command      = "gcloud scheduler jobs run ${google_cloud_scheduler_job.daily_summary.name} --location=${var.region}"
+    pause_article_summary_scheduler_command  = "gcloud scheduler jobs pause ${google_cloud_scheduler_job.article_summary.name} --location=${var.region}"
+    pause_daily_summary_scheduler_command    = "gcloud scheduler jobs pause ${google_cloud_scheduler_job.daily_summary.name} --location=${var.region}"
+    resume_article_summary_scheduler_command = "gcloud scheduler jobs resume ${google_cloud_scheduler_job.article_summary.name} --location=${var.region}"
+    resume_daily_summary_scheduler_command   = "gcloud scheduler jobs resume ${google_cloud_scheduler_job.daily_summary.name} --location=${var.region}"
   }
 }
 
@@ -271,6 +309,17 @@ output "resource_summary" {
       }
     }
 
+    cloud_scheduler_jobs = {
+      article_summary = {
+        name     = google_cloud_scheduler_job.article_summary.name
+        schedule = google_cloud_scheduler_job.article_summary.schedule
+      }
+      daily_summary = {
+        name     = google_cloud_scheduler_job.daily_summary.name
+        schedule = google_cloud_scheduler_job.daily_summary.schedule
+      }
+    }
+
     vpc_network = {
       name      = google_compute_network.main.name
       subnet    = google_compute_subnetwork.main.name
@@ -289,8 +338,9 @@ output "resource_summary" {
     }
 
     service_accounts = {
-      cloud_run      = google_service_account.cloud_run.email
-      github_actions = google_service_account.github_actions.email
+      cloud_run       = google_service_account.cloud_run.email
+      github_actions  = google_service_account.github_actions.email
+      cloud_scheduler = google_service_account.cloud_scheduler.email
     }
 
     secrets = {

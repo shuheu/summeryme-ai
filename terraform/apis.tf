@@ -1,5 +1,5 @@
 # Google Cloud APIs
-# Summeryme AI Backend
+# Summaryme AI Backend
 
 # 必要なAPIの有効化
 resource "google_project_service" "required_apis" {

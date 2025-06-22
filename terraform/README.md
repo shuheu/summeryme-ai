@@ -1,6 +1,6 @@
-# Summeryme AI Backend - Terraform Configuration
+# Summaryme AI Backend - Terraform Configuration
 
-このディレクトリには、Summeryme AI BackendのGCPリソースをTerraformで管理するための設定ファイルが含まれています。
+このディレクトリには、Summaryme AI BackendのGCPリソースをTerraformで管理するための設定ファイルが含まれています。
 
 ## 🗄️ 状態管理（GCS Backend）
 
@@ -429,6 +429,12 @@ make security-scan
 **バージョン**: 2.0.0 (ベストプラクティス準拠版)
 
 ## 🔄 バージョン履歴
+
+### v2.1.0 (2025-06-22)
+- ✨ Cloud Schedulerサポート追加
+- ✨ バッチジョブのスケジュール実行対応
+- ✨ Cloud Storageバケット追加
+- ✨ Gemini APIキー管理追加
 
 ### v2.0.0 (2025-05-31)
 - ✨ ベストプラクティスに沿ったファイル構成に変更

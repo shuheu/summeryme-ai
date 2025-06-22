@@ -26,8 +26,12 @@ No modules.
 | [google_artifact_registry_repository_iam_member.cloud_run_reader](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/artifact_registry_repository_iam_member) | resource |
 | [google_artifact_registry_repository_iam_member.github_actions_writer](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/artifact_registry_repository_iam_member) | resource |
 | [google_cloud_run_service_iam_member.public_access](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_service_iam_member) | resource |
+| [google_cloud_run_v2_job.article_summary](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_job) | resource |
+| [google_cloud_run_v2_job.daily_summary](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_job) | resource |
 | [google_cloud_run_v2_job.migrate](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_job) | resource |
 | [google_cloud_run_v2_service.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_run_v2_service) | resource |
+| [google_cloud_scheduler_job.article_summary](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_scheduler_job) | resource |
+| [google_cloud_scheduler_job.daily_summary](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/cloud_scheduler_job) | resource |
 | [google_compute_global_address.private_ip_address](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_global_address) | resource |
 | [google_compute_network.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_network) | resource |
 | [google_compute_router.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_router) | resource |
@@ -35,20 +39,26 @@ No modules.
 | [google_compute_subnetwork.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/compute_subnetwork) | resource |
 | [google_project_iam_member.cloud_run_secret_accessor](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_iam_member.cloud_run_sql_client](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
+| [google_project_iam_member.cloud_scheduler_run_invoker](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_iam_member.github_actions_editor](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_iam_member.github_actions_run_admin](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_iam_member.github_actions_secret_admin](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_iam_member.github_actions_sql_admin](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_iam_member) | resource |
 | [google_project_service.required_apis](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/project_service) | resource |
 | [google_secret_manager_secret.db_password](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret) | resource |
+| [google_secret_manager_secret.gemini_api_key](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret) | resource |
 | [google_secret_manager_secret_iam_member.db_password_access](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
+| [google_secret_manager_secret_iam_member.gemini_api_key_access](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_iam_member) | resource |
 | [google_secret_manager_secret_version.db_password](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/secret_manager_secret_version) | resource |
 | [google_service_account.cloud_run](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
+| [google_service_account.cloud_scheduler](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
 | [google_service_account.github_actions](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_account) | resource |
 | [google_service_networking_connection.private_vpc_connection](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/service_networking_connection) | resource |
 | [google_sql_database.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database) | resource |
 | [google_sql_database_instance.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_database_instance) | resource |
 | [google_sql_user.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/sql_user) | resource |
+| [google_storage_bucket.audio_files](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket) | resource |
+| [google_storage_bucket_iam_member.audio_bucket_admin](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/storage_bucket_iam_member) | resource |
 | [google_vpc_access_connector.main](https://registry.terraform.io/providers/hashicorp/google/latest/docs/resources/vpc_access_connector) | resource |
 | [random_password.db_password](https://registry.terraform.io/providers/hashicorp/random/latest/docs/resources/password) | resource |
 
@@ -73,8 +83,13 @@ No modules.
 
 | Name | Description |
 |------|-------------|
+| <a name="output_article_summary_job_location"></a> [article\_summary\_job\_location](#output\_article\_summary\_job\_location) | Location of the Cloud Run article summary job |
+| <a name="output_article_summary_job_name"></a> [article\_summary\_job\_name](#output\_article\_summary\_job\_name) | Name of the Cloud Run article summary job |
 | <a name="output_artifact_registry_repository_name"></a> [artifact\_registry\_repository\_name](#output\_artifact\_registry\_repository\_name) | Name of the Artifact Registry repository |
 | <a name="output_artifact_registry_repository_url"></a> [artifact\_registry\_repository\_url](#output\_artifact\_registry\_repository\_url) | URL of the Artifact Registry repository |
+| <a name="output_audio_storage_bucket_location"></a> [audio\_storage\_bucket\_location](#output\_audio\_storage\_bucket\_location) | Location of the GCS bucket for audio files |
+| <a name="output_audio_storage_bucket_name"></a> [audio\_storage\_bucket\_name](#output\_audio\_storage\_bucket\_name) | Name of the GCS bucket for audio files |
+| <a name="output_audio_storage_bucket_url"></a> [audio\_storage\_bucket\_url](#output\_audio\_storage\_bucket\_url) | URL of the GCS bucket for audio files |
 | <a name="output_backend_configuration"></a> [backend\_configuration](#output\_backend\_configuration) | GCS backend configuration for Terraform state management |
 | <a name="output_cloud_run_service_account_email"></a> [cloud\_run\_service\_account\_email](#output\_cloud\_run\_service\_account\_email) | Email address of the Cloud Run service account |
 | <a name="output_cloud_run_service_account_id"></a> [cloud\_run\_service\_account\_id](#output\_cloud\_run\_service\_account\_id) | Unique ID of the Cloud Run service account |
@@ -87,11 +102,15 @@ No modules.
 | <a name="output_cloud_sql_instance_name"></a> [cloud\_sql\_instance\_name](#output\_cloud\_sql\_instance\_name) | Name of the Cloud SQL instance |
 | <a name="output_cloud_sql_instance_public_ip_address"></a> [cloud\_sql\_instance\_public\_ip\_address](#output\_cloud\_sql\_instance\_public\_ip\_address) | Public IP address of the Cloud SQL instance (if enabled) |
 | <a name="output_container_image_url"></a> [container\_image\_url](#output\_container\_image\_url) | Full URL of the container image used for deployment |
+| <a name="output_daily_summary_job_location"></a> [daily\_summary\_job\_location](#output\_daily\_summary\_job\_location) | Location of the Cloud Run daily summary job |
+| <a name="output_daily_summary_job_name"></a> [daily\_summary\_job\_name](#output\_daily\_summary\_job\_name) | Name of the Cloud Run daily summary job |
 | <a name="output_database_name"></a> [database\_name](#output\_database\_name) | Name of the application database |
 | <a name="output_database_user"></a> [database\_user](#output\_database\_user) | Database user name for application connections |
 | <a name="output_db_password_secret_id"></a> [db\_password\_secret\_id](#output\_db\_password\_secret\_id) | Secret Manager secret ID for database password |
 | <a name="output_db_password_secret_name"></a> [db\_password\_secret\_name](#output\_db\_password\_secret\_name) | Full resource name of the database password secret |
 | <a name="output_environment"></a> [environment](#output\_environment) | Environment name (development, staging, production) |
+| <a name="output_gemini_api_key_secret_id"></a> [gemini\_api\_key\_secret\_id](#output\_gemini\_api\_key\_secret\_id) | Secret Manager secret ID for GEMINI API key |
+| <a name="output_gemini_api_key_secret_name"></a> [gemini\_api\_key\_secret\_name](#output\_gemini\_api\_key\_secret\_name) | Full resource name of the GEMINI API key secret |
 | <a name="output_github_actions_service_account_email"></a> [github\_actions\_service\_account\_email](#output\_github\_actions\_service\_account\_email) | Email address of the GitHub Actions service account |
 | <a name="output_github_actions_service_account_id"></a> [github\_actions\_service\_account\_id](#output\_github\_actions\_service\_account\_id) | Unique ID of the GitHub Actions service account |
 | <a name="output_migration_job_location"></a> [migration\_job\_location](#output\_migration\_job\_location) | Location of the Cloud Run migration job |

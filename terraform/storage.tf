@@ -1,5 +1,5 @@
 # Google Cloud Storage
-# Summeryme AI Backend
+# Summaryme AI Backend
 
 # 音声ファイル保存用のGCSバケット
 resource "google_storage_bucket" "audio_files" {
