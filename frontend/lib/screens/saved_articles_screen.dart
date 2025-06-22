@@ -156,12 +156,9 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                             ),
                           )
                         : groupedArticles.isEmpty
-                            ? const Center(
-                                child: Text(
-                                  '保存された記事がありません',
-                                  style:
-                                      TextStyle(color: AppColors.textSecondary),
-                                ),
+                            ? SafeArea(
+                                bottom: true,
+                                child: _buildEmptyState(isTablet),
                               )
                             : RefreshIndicator(
                                 onRefresh: _loadSavedArticles,
@@ -183,13 +180,13 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                                         // Date header
                                         Padding(
                                           padding: const EdgeInsets.only(
-                                              top: 16, bottom: 12),
+                                              top: 16, bottom: 12,),
                                           child: Text(
                                             dateGroup,
                                             style: AppTextStyles.headline3(
                                               isTablet,
                                             ).copyWith(
-                                                color: AppColors.textPrimary),
+                                                color: AppColors.textPrimary,),
                                           ),
                                         ),
 
@@ -549,5 +546,161 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
         ),
       );
     }
+  }
+
+  /// 空状態表示を構築
+  Widget _buildEmptyState(bool isTablet) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(isTablet ? 48.0 : 24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // メインアイコン
+            Container(
+              padding: EdgeInsets.all(isTablet ? 32 : 24),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.bookmark_border,
+                size: isTablet ? 80 : 64,
+                color: AppColors.primary,
+              ),
+            ),
+
+            SizedBox(height: isTablet ? 32 : 24),
+
+            // タイトル
+            Text(
+              '保存された記事はまだありません',
+              style: AppTextStyles.headline2(isTablet),
+              textAlign: TextAlign.center,
+            ),
+
+            SizedBox(height: isTablet ? 24 : 16),
+
+            // サブタイトル
+            Text(
+              '気になる記事を保存して、いつでも読み返しましょう',
+              style: AppTextStyles.bodyLarge(isTablet).copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            SizedBox(height: isTablet ? 40 : 32),
+
+            // 機能リスト
+            _buildFeatureList(isTablet),
+
+            SizedBox(height: isTablet ? 40 : 32),
+
+            // CTAボタン
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => _showAddArticleModal(context),
+                icon: const Icon(Icons.add),
+                label: const Text('記事を追加'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: isTablet ? 20 : 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 機能リストを構築
+  Widget _buildFeatureList(bool isTablet) {
+    final features = [
+      {
+        'icon': Icons.bookmark_add,
+        'title': '記事の保存',
+        'description': 'URLを追加して記事を保存・整理',
+      },
+      {
+        'icon': Icons.auto_awesome,
+        'title': 'AI要約',
+        'description': '保存した記事をAIが自動要約',
+      },
+      {
+        'icon': Icons.search,
+        'title': '検索機能',
+        'description': '保存した記事をすぐに見つけられる',
+      },
+      {
+        'icon': Icons.folder_outlined,
+        'title': '時系列整理',
+        'description': '今日・今週・以前で自動分類',
+      },
+    ];
+
+    return Column(
+      children: features
+          .map((feature) => _buildFeatureItem(
+                feature['icon'] as IconData,
+                feature['title'] as String,
+                feature['description'] as String,
+                isTablet,
+              ),)
+          .toList(),
+    );
+  }
+
+  /// 機能アイテムを構築
+  Widget _buildFeatureItem(
+      IconData icon, String title, String description, bool isTablet,) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: isTablet ? 20 : 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.all(isTablet ? 12 : 8),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              size: isTablet ? 24 : 20,
+              color: AppColors.primary,
+            ),
+          ),
+          SizedBox(width: isTablet ? 16 : 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTextStyles.bodyLarge(isTablet).copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: AppTextStyles.bodyMedium(isTablet).copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }
