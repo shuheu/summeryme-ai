@@ -10,8 +10,10 @@ import type { SavedArticle, User } from '../prisma/generated/prisma/index.js';
  * 記事要約処理設定
  */
 interface ArticleSummaryConfig {
-  /** 処理対象のユーザーID */
-  userId: number;
+  /** 処理対象のユーザーID（allUsersがtrueの場合は無視される） */
+  userId?: number;
+  /** 全ユーザーを処理対象とするか */
+  allUsers?: boolean;
   /** 並列処理数の制限 */
   concurrencyLimit?: number;
 }
@@ -20,7 +22,7 @@ interface ArticleSummaryConfig {
  * 保存された記事（ユーザー情報付き）
  */
 type SavedArticleWithUser = SavedArticle & {
-  user: Pick<User, 'id' | 'uid' | 'name'>;
+  user: Pick<User, 'id'>;
 };
 
 /**
@@ -59,11 +61,18 @@ export class ArticleSummaryService {
    */
   async execute(config: ArticleSummaryConfig): Promise<ArticleSummaryResult> {
     const startTime = Date.now();
-    console.log(`記事要約バッチ処理開始 - ユーザーID: ${config.userId}`);
+
+    if (config.allUsers) {
+      console.log('記事要約バッチ処理開始 - 全ユーザー対象');
+    } else {
+      console.log(`記事要約バッチ処理開始 - ユーザーID: ${config.userId}`);
+    }
 
     try {
       // 要約が未生成の記事データの取得
-      const articles = await this.fetchUnsummarizedArticles(config.userId);
+      const articles = config.allUsers
+        ? await this.fetchAllUsersUnsummarizedArticles()
+        : await this.fetchUnsummarizedArticles(config.userId!);
 
       if (articles.length === 0) {
         console.log('要約対象の記事が見つかりませんでした');
@@ -98,7 +107,41 @@ export class ArticleSummaryService {
   }
 
   /**
-   * ユーザーの要約未生成記事を取得
+   * 全ユーザーの要約未生成記事を取得
+   */
+  private async fetchAllUsersUnsummarizedArticles(): Promise<
+    SavedArticleWithUser[]
+  > {
+    try {
+      const articles = await globalPrisma.savedArticle.findMany({
+        where: {
+          savedArticleSummary: null, // 要約が未生成の記事のみ
+        },
+        include: {
+          user: {
+            select: {
+              id: true,
+            },
+          },
+        },
+        orderBy: [
+          { userId: 'asc' }, // ユーザーごとにグループ化
+          { createdAt: 'desc' },
+        ],
+      });
+
+      console.log(
+        `${articles.length}件の要約未生成記事を取得しました（全ユーザー対象）`,
+      );
+      return articles;
+    } catch (error) {
+      console.error('要約未生成記事取得エラー（全ユーザー）:', error);
+      throw new Error('要約未生成記事の取得に失敗しました');
+    }
+  }
+
+  /**
+   * 特定ユーザーの要約未生成記事を取得
    */
   private async fetchUnsummarizedArticles(
     userId: number,
@@ -113,8 +156,6 @@ export class ArticleSummaryService {
           user: {
             select: {
               id: true,
-              uid: true,
-              name: true,
             },
           },
         },
@@ -142,27 +183,52 @@ export class ArticleSummaryService {
     let successfulArticles = 0;
     let failedArticles = 0;
 
+    // ユーザー単位での統計表示用
+    const userStats = new Map<number, { success: number; failed: number }>();
+
     // 並列処理数を制限しながら処理
     const chunks = this.chunkArray(articles, this.concurrencyLimit);
 
-    for (const chunk of chunks) {
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+      console.log(
+        `チャンク ${i + 1}/${chunks.length} 処理中 (${chunk.length}件)`,
+      );
+
       const promises = chunk.map((article) =>
         this.processArticleSummary(article),
       );
       const results = await Promise.allSettled(promises);
 
-      // 成功・失敗数をカウント
-      results.forEach((result) => {
+      // 成功・失敗数をカウント & ユーザー別統計を更新
+      results.forEach((result, index) => {
+        const article = chunk[index];
+        const userId = article.user.id;
+
+        if (!userStats.has(userId)) {
+          userStats.set(userId, { success: 0, failed: 0 });
+        }
+        const stats = userStats.get(userId)!;
+
         if (result.status === 'fulfilled' && result.value) {
           successfulArticles++;
+          stats.success++;
         } else {
           failedArticles++;
+          stats.failed++;
         }
       });
     }
 
+    // ユーザー別統計を表示
+    console.log('\n=== ユーザー別処理結果 ===');
+    userStats.forEach((stats, userId) => {
+      const total = stats.success + stats.failed;
+      console.log(`ユーザー (ID: ${userId}): 成功 ${stats.success}/${total}件`);
+    });
+
     console.log(
-      `記事要約処理が完了しました - 成功: ${successfulArticles}件, 失敗: ${failedArticles}件`,
+      `\n記事要約処理が完了しました - 成功: ${successfulArticles}件, 失敗: ${failedArticles}件`,
     );
 
     return { successfulArticles, failedArticles };
@@ -224,12 +290,11 @@ export class ArticleSummaryService {
  */
 async function main(): Promise<void> {
   try {
-    // 環境変数からユーザーIDを取得（デフォルト: 1）
-    const userId = Number(process.env.BATCH_USER_ID) || 1; // TODO: 全userをとってきてもいいのかも？
     const concurrencyLimit = Number(process.env.BATCH_CONCURRENCY_LIMIT) || 3;
-
     const service = new ArticleSummaryService(concurrencyLimit);
-    const result = await service.execute({ userId });
+
+    // デフォルトで全ユーザー処理
+    const result = await service.execute({ allUsers: true });
 
     console.log('=== 記事要約バッチ処理結果 ===');
     console.log(`処理記事数: ${result.processedArticles}`);
