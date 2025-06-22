@@ -102,8 +102,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title:
-              Text('AI Summary', style: AppTextStyles.headline2(isTablet)),
+          title: Text('AI Summary', style: AppTextStyles.headline2(isTablet)),
         ),
         body: const Center(
           child: CircularProgressIndicator(),
@@ -117,8 +116,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title:
-              Text('AI Summary', style: AppTextStyles.headline2(isTablet)),
+          title: Text('AI Summary', style: AppTextStyles.headline2(isTablet)),
         ),
         body: Center(
           child: Column(
@@ -156,8 +154,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title:
-              Text('AI Summary', style: AppTextStyles.headline2(isTablet)),
+          title: Text('AI Summary', style: AppTextStyles.headline2(isTablet)),
         ),
         body: SafeArea(
           bottom: true,

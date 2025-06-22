@@ -52,7 +52,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
