@@ -1,5 +1,5 @@
 # プロバイダー設定
-# Summeryme AI Backend
+# Summaryme AI Backend
 
 terraform {
   required_version = ">= 1.0"

@@ -1,4 +1,4 @@
-# Outputs for Summeryme AI Backend
+# Outputs for Summaryme AI Backend
 # Terraform Configuration
 
 # =============================================================================

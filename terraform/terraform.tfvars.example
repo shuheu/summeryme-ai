@@ -1,4 +1,4 @@
-# Terraform Variables for Summeryme AI Backend
+# Terraform Variables for Summaryme AI Backend
 # このファイルをコピーして terraform.tfvars を作成し、実際の値を設定してください
 
 # 必須項目

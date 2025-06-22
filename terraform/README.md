@@ -1,6 +1,6 @@
-# Summeryme AI Backend - Terraform Configuration
+# Summaryme AI Backend - Terraform Configuration
 
-このディレクトリには、Summeryme AI BackendのGCPリソースをTerraformで管理するための設定ファイルが含まれています。
+このディレクトリには、Summaryme AI BackendのGCPリソースをTerraformで管理するための設定ファイルが含まれています。
 
 ## 🗄️ 状態管理（GCS Backend）
 

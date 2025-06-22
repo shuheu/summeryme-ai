@@ -1,5 +1,5 @@
 # Cloud SQL
-# Summeryme AI Backend
+# Summaryme AI Backend
 
 # Cloud SQL インスタンス
 resource "google_sql_database_instance" "main" {

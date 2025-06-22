@@ -1,5 +1,5 @@
 # Secret Manager
-# Summeryme AI Backend
+# Summaryme AI Backend
 
 # データベースパスワード生成
 resource "random_password" "db_password" {

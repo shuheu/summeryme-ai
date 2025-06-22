@@ -1,5 +1,5 @@
 # ローカル変数定義
-# Summeryme AI Backend
+# Summaryme AI Backend
 
 locals {
   # サービス名

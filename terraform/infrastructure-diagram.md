@@ -1,8 +1,8 @@
-# Summeryme AI Backend - インフラ構成図
+# Summaryme AI Backend - インフラ構成図
 
 ## アーキテクチャ概要
 
-このドキュメントは、Terraformで管理されているSummeryme AI Backendのインフラ構成を視覚化したものです。
+このドキュメントは、Terraformで管理されているSummaryme AI Backendのインフラ構成を視覚化したものです。
 
 ## インフラ構成図
 
@@ -56,7 +56,7 @@ flowchart TB
     User -->|HTTPS Requests| CloudRun
     GitHub -->|Deploy| CloudRun
     GitHub -->|Migrate| MigrationJob
-    
+
     %% Scheduler Flow
     ArticleScheduler -->|Trigger| ArticleSummaryJob
     DailyScheduler -->|Trigger| DailySummaryJob
@@ -94,7 +94,7 @@ flowchart TB
     SA_GitHub -.->|Assumes| GitHub
     SA_GitHub -.->|Deploy| CloudRun
     SA_GitHub -.->|Execute| MigrationJob
-    
+
     SA_Scheduler -.->|Assumes| ArticleScheduler
     SA_Scheduler -.->|Assumes| DailyScheduler
     SA_Scheduler -.->|Execute| ArticleSummaryJob
@@ -120,7 +120,7 @@ flowchart TB
 
 ```mermaid
 C4Context
-    title Summeryme AI Backend - System Context
+    title Summaryme AI Backend - System Context
 
     Person(user, "Users", "エンドユーザー")
     System_Ext(github, "GitHub Actions", "CI/CDパイプライン")
@@ -284,4 +284,4 @@ Cloud Run → Secret Manager (Google APIs経由)
 **生成日**: 2025/05/31
 **更新日**: 2025/06/22
 **Terraformバージョン**: 1.5+
-**プロジェクト**: Summeryme AI Backend
+**プロジェクト**: Summaryme AI Backend

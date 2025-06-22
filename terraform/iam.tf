@@ -1,5 +1,5 @@
 # IAM (Identity and Access Management)
-# Summeryme AI Backend
+# Summaryme AI Backend
 
 # Cloud Run サービス用のサービスアカウント
 resource "google_service_account" "cloud_run" {

@@ -1,5 +1,5 @@
 # Makefile for Terraform Operations
-# Summeryme AI Backend Infrastructure
+# Summaryme AI Backend Infrastructure
 
 .PHONY: help init plan apply destroy validate format check check-all clean import output state lint lint-fix checkov checkov-json checkov-quiet security-all
 
@@ -24,7 +24,7 @@ check-project:
 
 # デフォルトターゲット
 help: ## このヘルプメッセージを表示
-	@echo "Summeryme AI Backend - Terraform Operations"
+	@echo "Summaryme AI Backend - Terraform Operations"
 	@echo ""
 	@echo "現在のプロジェクト: $(PROJECT_ID)"
 	@echo ""

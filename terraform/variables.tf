@@ -1,4 +1,4 @@
-# Variables for Summeryme AI Backend
+# Variables for Summaryme AI Backend
 # Terraform Configuration
 
 # =============================================================================
