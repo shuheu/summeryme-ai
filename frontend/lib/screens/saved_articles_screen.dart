@@ -180,13 +180,16 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                                         // Date header
                                         Padding(
                                           padding: const EdgeInsets.only(
-                                              top: 16, bottom: 12,),
+                                            top: 16,
+                                            bottom: 12,
+                                          ),
                                           child: Text(
                                             dateGroup,
                                             style: AppTextStyles.headline3(
                                               isTablet,
                                             ).copyWith(
-                                                color: AppColors.textPrimary,),
+                                              color: AppColors.textPrimary,
+                                            ),
                                           ),
                                         ),
 
@@ -647,19 +650,25 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
 
     return Column(
       children: features
-          .map((feature) => _buildFeatureItem(
-                feature['icon'] as IconData,
-                feature['title'] as String,
-                feature['description'] as String,
-                isTablet,
-              ),)
+          .map(
+            (feature) => _buildFeatureItem(
+              feature['icon'] as IconData,
+              feature['title'] as String,
+              feature['description'] as String,
+              isTablet,
+            ),
+          )
           .toList(),
     );
   }
 
   /// 機能アイテムを構築
   Widget _buildFeatureItem(
-      IconData icon, String title, String description, bool isTablet,) {
+    IconData icon,
+    String title,
+    String description,
+    bool isTablet,
+  ) {
     return Padding(
       padding: EdgeInsets.only(bottom: isTablet ? 20 : 16),
       child: Row(

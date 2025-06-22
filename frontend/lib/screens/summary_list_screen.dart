@@ -54,7 +54,8 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
       final List<dynamic> digestData = response['data'] as List<dynamic>;
       final List<UserDailySummary> newDigests = digestData
           .map(
-              (json) => UserDailySummary.fromJson(json as Map<String, dynamic>),)
+            (json) => UserDailySummary.fromJson(json as Map<String, dynamic>),
+          )
           .toList();
 
       final pagination = response['pagination'] as Map<String, dynamic>;
@@ -218,7 +219,10 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
   }
 
   Widget _buildDigestCard(
-      BuildContext context, UserDailySummary userDailySummary, bool isFirst,) {
+    BuildContext context,
+    UserDailySummary userDailySummary,
+    bool isFirst,
+  ) {
     // Format date for display
     final dateFormat =
         '${userDailySummary.generatedDate.year}年${userDailySummary.generatedDate.month}月${userDailySummary.generatedDate.day}日';
@@ -364,7 +368,8 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white,),
+                                        Colors.white,
+                                      ),
                                     ),
                                   )
                                 : const Icon(
@@ -406,7 +411,9 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
                             child: Text(
                               showPlayingState ? '🎵' : '約3分',
                               style: const TextStyle(
-                                  fontSize: 12, color: Colors.white,),
+                                fontSize: 12,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ],
@@ -592,7 +599,9 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
   }
 
   Future<void> _playAudioSummary(
-      BuildContext context, UserDailySummary userDailySummary,) async {
+    BuildContext context,
+    UserDailySummary userDailySummary,
+  ) async {
     try {
       // ローディング表示
       showDialog<void>(
@@ -821,19 +830,25 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
 
     return Column(
       children: features
-          .map((feature) => _buildFeatureItem(
-                feature['icon'] as IconData,
-                feature['title'] as String,
-                feature['description'] as String,
-                isTablet,
-              ),)
+          .map(
+            (feature) => _buildFeatureItem(
+              feature['icon'] as IconData,
+              feature['title'] as String,
+              feature['description'] as String,
+              isTablet,
+            ),
+          )
           .toList(),
     );
   }
 
   /// 機能アイテムを構築
   Widget _buildFeatureItem(
-      IconData icon, String title, String description, bool isTablet,) {
+    IconData icon,
+    String title,
+    String description,
+    bool isTablet,
+  ) {
     return Padding(
       padding: EdgeInsets.only(bottom: isTablet ? 20 : 16),
       child: Row(

@@ -589,7 +589,9 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
   }
 
   void _navigateToArticleDetail(
-      BuildContext context, SavedArticle savedArticle,) {
+    BuildContext context,
+    SavedArticle savedArticle,
+  ) {
     try {
       final article = Article(
         id: savedArticle.id.toString(),

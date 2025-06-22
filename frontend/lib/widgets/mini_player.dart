@@ -33,18 +33,22 @@ class _MiniPlayerState extends State<MiniPlayer>
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0.0, 1.0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ),);
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
 
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ),);
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
 
     // アニメーションを開始
     _animationController.forward();
@@ -173,7 +177,10 @@ class _MiniPlayerState extends State<MiniPlayer>
                     // トラック情報
                     Expanded(
                       child: _buildTrackInfo(
-                          currentTrack, playbackState, isTablet,),
+                        currentTrack,
+                        playbackState,
+                        isTablet,
+                      ),
                     ),
 
                     // コントロールボタン
