@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/foundation.dart';
 import '../main_tab_screen.dart';
 import '../../services/auth_service.dart';
 
@@ -53,6 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
   }
 
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -61,73 +61,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
-      appBar: kDebugMode
-          ? AppBar(
-              backgroundColor: Colors.transparent,
-              elevation: 0,
-              title: Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 8,
-                  vertical: 4,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.orange.withValues(alpha: 0.1),
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: Colors.orange.withValues(alpha: 0.3),
-                  ),
-                ),
-                child: const Text(
-                  '🚧 Debug Mode',
-                  style: TextStyle(
-                    color: Colors.orange,
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                ),
-              ),
-              actions: [
-                Container(
-                  margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (context) => const MainTabScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.skip_next,
-                      size: 18,
-                      color: Colors.white,
-                    ),
-                    label: const Text(
-                      'Skip Auth',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            )
-          : null,
+      appBar: null,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(

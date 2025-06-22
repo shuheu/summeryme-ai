@@ -103,7 +103,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           title:
-              Text('Daily Summary', style: AppTextStyles.headline2(isTablet)),
+              Text('AI Summary', style: AppTextStyles.headline2(isTablet)),
         ),
         body: const Center(
           child: CircularProgressIndicator(),
@@ -118,7 +118,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           title:
-              Text('Daily Summary', style: AppTextStyles.headline2(isTablet)),
+              Text('AI Summary', style: AppTextStyles.headline2(isTablet)),
         ),
         body: Center(
           child: Column(
@@ -157,7 +157,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
           backgroundColor: Colors.transparent,
           elevation: 0,
           title:
-              Text('Daily Summary', style: AppTextStyles.headline2(isTablet)),
+              Text('AI Summary', style: AppTextStyles.headline2(isTablet)),
         ),
         body: SafeArea(
           bottom: true,

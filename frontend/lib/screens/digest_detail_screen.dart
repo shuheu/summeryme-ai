@@ -228,7 +228,7 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                         ),
                         const SizedBox(height: 16),
                         const Text(
-                          'デイリーダイジェスト',
+                          'AIダイジェスト',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -668,7 +668,7 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
         // AudioTrackのリストからPlaylistを作成
         final playlist = Playlist(
           id: 'daily_summary_${userDailySummary.id}',
-          title: 'デイリーサマリー ${userDailySummary.id}',
+          title: 'AIダイジェスト ${userDailySummary.id}',
           tracks: audioTracks,
           currentIndex: 0,
           createdAt: DateTime.now(),
