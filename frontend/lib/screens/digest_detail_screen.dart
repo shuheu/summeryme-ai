@@ -550,7 +550,9 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                     }),
                   ],
 
-                  const SizedBox(height: 48),
+                  SizedBox(
+                    height: 48 + MediaQuery.of(context).padding.bottom,
+                  ),
                 ],
               ),
             ),
@@ -587,7 +589,7 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
   }
 
   void _navigateToArticleDetail(
-      BuildContext context, SavedArticle savedArticle) {
+      BuildContext context, SavedArticle savedArticle,) {
     try {
       final article = Article(
         id: savedArticle.id.toString(),

@@ -374,7 +374,10 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                       ),
                     ),
 
-                    SizedBox(height: isTablet ? 64 : 48),
+                    SizedBox(
+                      height: (isTablet ? 64 : 48) +
+                          MediaQuery.of(context).padding.bottom,
+                    ),
                   ],
                 ),
               ),

@@ -114,7 +114,9 @@ class SettingsScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              const SizedBox(height: 48),
+              SizedBox(
+                height: 48 + MediaQuery.of(context).padding.bottom,
+              ),
 
               // App version info
               Center(

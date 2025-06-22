@@ -45,14 +45,17 @@ class AppScaffold extends StatelessWidget {
 
         return Scaffold(
           appBar: appBar,
-          body: Column(
-            children: [
-              // メインコンテンツ
-              Expanded(child: body),
+          body: SafeArea(
+            bottom: false, // 下部SafeAreaは個別に制御
+            child: Column(
+              children: [
+                // メインコンテンツ
+                Expanded(child: body),
 
-              // ミニプレイヤー（AudioPlayerScreen以外で表示）
-              if (showMiniPlayer) const MiniPlayer(),
-            ],
+                // ミニプレイヤー（AudioPlayerScreen以外で表示）
+                if (showMiniPlayer) const MiniPlayer(),
+              ],
+            ),
           ),
           floatingActionButton: showMiniPlayer && floatingActionButton != null
               ? Padding(
