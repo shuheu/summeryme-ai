@@ -38,7 +38,7 @@ class _MainTabScreenState extends State<MainTabScreen> {
             ),
             child: Row(
               children: [
-                _buildNavItem(Icons.auto_awesome, 'Daily Summary', 0),
+                _buildNavItem(Icons.auto_awesome, 'AI Summary', 0),
                 _buildNavItem(Icons.bookmark_outline, 'Saved', 1),
                 _buildNavItem(Icons.settings_outlined, 'Settings', 2),
               ],

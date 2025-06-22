@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import '../models/user_daily_summary.dart';
+import '../models/article.dart';
+import '../models/saved_article.dart';
 import '../services/api_service.dart';
 import '../themes/app_theme.dart';
 import '../widgets/app_scaffold.dart';
 import 'package:provider/provider.dart';
 import '../services/audio_player_service.dart';
 import '../models/playlist.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'article_detail_screen.dart';
 
 class DigestDetailScreen extends StatefulWidget {
   const DigestDetailScreen({super.key, required this.digestId});
@@ -226,7 +228,7 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                         ),
                         const SizedBox(height: 16),
                         const Text(
-                          'デイリーダイジェスト',
+                          'AIダイジェスト',
                           style: TextStyle(
                             fontSize: 24,
                             fontWeight: FontWeight.bold,
@@ -477,8 +479,8 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                           color: Colors.transparent,
                           child: InkWell(
                             borderRadius: BorderRadius.circular(16),
-                            onTap: () async {
-                              await _openUrl(savedArticle.url);
+                            onTap: () {
+                              _navigateToArticleDetail(context, savedArticle);
                             },
                             child: Padding(
                               padding: const EdgeInsets.all(20),
@@ -548,7 +550,9 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                     }),
                   ],
 
-                  const SizedBox(height: 48),
+                  SizedBox(
+                    height: 48 + MediaQuery.of(context).padding.bottom,
+                  ),
                 ],
               ),
             ),
@@ -558,26 +562,58 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
     );
   }
 
-  Future<void> _openUrl(String url) async {
+  String _calculateTimeAgo(DateTime createdAt) {
+    final now = DateTime.now();
+    final difference = now.difference(createdAt);
+
+    if (difference.inDays > 7) {
+      return '${(difference.inDays / 7).floor()}週間前';
+    } else if (difference.inDays > 0) {
+      return '${difference.inDays}日前';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}時間前';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}分前';
+    } else {
+      return 'たった今';
+    }
+  }
+
+  String _extractSourceFromUrl(String url) {
     try {
       final uri = Uri.parse(url);
-      if (await canLaunchUrl(uri)) {
-        await launchUrl(uri, mode: LaunchMode.externalApplication);
-      } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(
-              content: Text('このURLを開くことができません: $url'),
-              backgroundColor: AppColors.error,
-            ),
-          );
-        }
-      }
+      return uri.host.replaceAll('www.', '');
+    } catch (e) {
+      return 'Web';
+    }
+  }
+
+  void _navigateToArticleDetail(
+    BuildContext context,
+    SavedArticle savedArticle,
+  ) {
+    try {
+      final article = Article(
+        id: savedArticle.id.toString(),
+        title: savedArticle.title,
+        source: _extractSourceFromUrl(savedArticle.url),
+        timeAgo: _calculateTimeAgo(savedArticle.createdAt),
+        summary: savedArticle.savedArticleSummary?.summary ?? '',
+        url: savedArticle.url,
+        createdAt: savedArticle.createdAt,
+      );
+
+      Navigator.push<void>(
+        context,
+        MaterialPageRoute<void>(
+          builder: (context) => ArticleDetailScreen(article: article),
+        ),
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('URLの開き方に失敗しました: $e'),
+            content: Text('記事の表示に失敗しました: $e'),
             backgroundColor: AppColors.error,
           ),
         );
@@ -632,7 +668,7 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
         // AudioTrackのリストからPlaylistを作成
         final playlist = Playlist(
           id: 'daily_summary_${userDailySummary.id}',
-          title: 'デイリーサマリー ${userDailySummary.id}',
+          title: 'AIダイジェスト ${userDailySummary.id}',
           tracks: audioTracks,
           currentIndex: 0,
           createdAt: DateTime.now(),

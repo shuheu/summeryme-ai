@@ -47,6 +47,47 @@ if [ ! -f "pubspec.yaml" ]; then
   exit 1
 fi
 
+# .envファイルの読み込み
+ENV_FILE=".env"
+if [ -f "$ENV_FILE" ]; then
+  echo -e "${BLUE}📄 .envファイルを読み込み中...${NC}"
+  export $(grep -v '^#' "$ENV_FILE" | xargs)
+else
+  echo -e "${YELLOW}⚠️  .envファイルが見つかりません。環境変数を手動設定してください${NC}"
+fi
+
+# 必須環境変数の確認
+echo -e "${BLUE}🔍 環境変数を確認中...${NC}"
+
+# API_BASE_URLの確認
+if [ -z "$API_BASE_URL" ]; then
+  echo -e "${RED}Error: API_BASE_URL環境変数が設定されていません${NC}"
+  echo -e "${YELLOW}ヒント: .envファイルに以下を追加してください${NC}"
+  echo "API_BASE_URL=https://your-api-url.com"
+  exit 1
+fi
+
+# API_KEYsの確認
+if [ -z "$WEB_API_KEY" ]; then
+  echo -e "${RED}Error: WEB_API_KEY環境変数が設定されていません${NC}"
+  echo -e "${YELLOW}ヒント: .envファイルにWEB_API_KEY=your-web-api-keyを追加してください${NC}"
+  exit 1
+fi
+
+if [ -z "$ANDROID_API_KEY" ]; then
+  echo -e "${RED}Error: ANDROID_API_KEY環境変数が設定されていません${NC}"
+  echo -e "${YELLOW}ヒント: .envファイルにANDROID_API_KEY=your-android-api-keyを追加してください${NC}"
+  exit 1
+fi
+
+if [ -z "$IOS_API_KEY" ]; then
+  echo -e "${RED}Error: IOS_API_KEY環境変数が設定されていません${NC}"
+  echo -e "${YELLOW}ヒント: .envファイルにIOS_API_KEY=your-ios-api-keyを追加してください${NC}"
+  exit 1
+fi
+
+echo -e "${GREEN}✅ 全ての環境変数が設定されています${NC}"
+
 # Flutter依存関係の取得
 echo -e "${BLUE}📦 Flutter依存関係を取得中...${NC}"
 flutter pub get
@@ -61,6 +102,9 @@ flutter build web \
   --release \
   --base-href / \
   --dart-define=API_BASE_URL=$API_BASE_URL \
+  --dart-define=WEB_API_KEY=$WEB_API_KEY \
+  --dart-define=ANDROID_API_KEY=$ANDROID_API_KEY \
+  --dart-define=IOS_API_KEY=$IOS_API_KEY \
   --dart-define=FLUTTER_WEB_USE_SKIA=false # false で HTML レンダラー使用, 軽量、テキスト中心のアプリに向いている
 # --dart-define=FLUTTER_WEB_USE_SKIA=true --dart-define=FLUTTER_WEB_CANVASKIT_URL=/canvaskit/ \  # true で CanvasKit (Skia) レンダラー使用 高品質グラフィック、複雑なアニメーション
 
@@ -117,6 +161,9 @@ echo -e "${GREEN}🌍 URL: https://$SITE_ID.web.app${NC}"
 echo -e "${BLUE}📊 デプロイ統計:${NC}"
 echo "🏷️  Site ID: $SITE_ID"
 echo "🔍 API_BASE_URL: $API_BASE_URL"
+echo "🔑 WEB_API_KEY: ${WEB_API_KEY:0:10}..."
+echo "🔑 ANDROID_API_KEY: ${ANDROID_API_KEY:0:10}..."
+echo "🔑 IOS_API_KEY: ${IOS_API_KEY:0:10}..."
 echo "🌍 URL: https://$SITE_ID.web.app"
 echo "📦 Environment: $ENVIRONMENT"
 

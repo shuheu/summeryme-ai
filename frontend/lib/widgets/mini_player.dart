@@ -33,18 +33,22 @@ class _MiniPlayerState extends State<MiniPlayer>
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0.0, 1.0),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
 
     _fadeAnimation = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _animationController,
-      curve: Curves.easeInOut,
-    ));
+    ).animate(
+      CurvedAnimation(
+        parent: _animationController,
+        curve: Curves.easeInOut,
+      ),
+    );
 
     // アニメーションを開始
     _animationController.forward();
@@ -150,7 +154,7 @@ class _MiniPlayerState extends State<MiniPlayer>
       child: SlideTransition(
         position: _slideAnimation,
         child: Container(
-          height: isTablet ? 80 : 70,
+          height: (isTablet ? 80 : 70) + MediaQuery.of(context).padding.bottom,
           width: double.infinity,
           decoration: containerDecoration,
           child: Material(
@@ -158,9 +162,11 @@ class _MiniPlayerState extends State<MiniPlayer>
             child: InkWell(
               onTap: () => _navigateToFullPlayer(context),
               child: Padding(
-                padding: EdgeInsets.symmetric(
-                  horizontal: isTablet ? 24.0 : 16.0,
-                  vertical: 8.0,
+                padding: EdgeInsets.only(
+                  left: isTablet ? 24.0 : 16.0,
+                  right: isTablet ? 24.0 : 16.0,
+                  top: 8.0,
+                  bottom: 8.0 + MediaQuery.of(context).padding.bottom,
                 ),
                 child: Row(
                   children: [
@@ -171,7 +177,10 @@ class _MiniPlayerState extends State<MiniPlayer>
                     // トラック情報
                     Expanded(
                       child: _buildTrackInfo(
-                          currentTrack, playbackState, isTablet),
+                        currentTrack,
+                        playbackState,
+                        isTablet,
+                      ),
                     ),
 
                     // コントロールボタン
@@ -360,7 +369,7 @@ class _MiniPlayerState extends State<MiniPlayer>
           const end = Offset.zero;
           const curve = Curves.easeInOut;
 
-          var tween = Tween(begin: begin, end: end).chain(
+          final tween = Tween(begin: begin, end: end).chain(
             CurveTween(curve: curve),
           );
 

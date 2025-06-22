@@ -15,12 +15,15 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
   final ApiService _apiService = ApiService();
   final _urlController = TextEditingController();
   final _titleController = TextEditingController();
+  final _searchController = TextEditingController();
   Map<String, List<Article>> groupedArticles = {};
+  Map<String, List<Article>> filteredGroupedArticles = {};
   bool isLoading = true;
   String? errorMessage;
   int currentPage = 1;
   int totalPages = 1;
   bool hasMorePages = false;
+  String searchQuery = '';
 
   @override
   void initState() {
@@ -32,6 +35,7 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
   void dispose() {
     _urlController.dispose();
     _titleController.dispose();
+    _searchController.dispose();
     super.dispose();
   }
 
@@ -83,16 +87,48 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
 
       setState(() {
         groupedArticles = grouped;
+        filteredGroupedArticles = grouped;
         totalPages = pagination['totalPages'] as int;
         hasMorePages = pagination['hasNextPage'] as bool;
         isLoading = false;
       });
+
+      // Apply current search filter
+      if (searchQuery.isNotEmpty) {
+        _filterArticles(searchQuery);
+      }
     } catch (e) {
       setState(() {
         errorMessage = 'Failed to load articles: $e';
         isLoading = false;
       });
     }
+  }
+
+  void _filterArticles(String query) {
+    setState(() {
+      searchQuery = query;
+      if (query.isEmpty) {
+        filteredGroupedArticles = groupedArticles;
+      } else {
+        final filteredGroups = <String, List<Article>>{};
+        final lowerQuery = query.toLowerCase();
+
+        groupedArticles.forEach((dateGroup, articles) {
+          final filteredArticles = articles.where((article) {
+            return article.title.toLowerCase().contains(lowerQuery) ||
+                (article.url?.toLowerCase().contains(lowerQuery) ?? false) ||
+                article.source.toLowerCase().contains(lowerQuery);
+          }).toList();
+
+          if (filteredArticles.isNotEmpty) {
+            filteredGroups[dateGroup] = filteredArticles;
+          }
+        });
+
+        filteredGroupedArticles = filteredGroups;
+      }
+    });
   }
 
   @override
@@ -120,16 +156,31 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                     color: AppColors.surfaceVariant,
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const TextField(
+                  child: TextField(
+                    controller: _searchController,
+                    onChanged: _filterArticles,
                     decoration: InputDecoration(
                       hintText: '検索',
-                      hintStyle: TextStyle(color: AppColors.textSecondary),
-                      prefixIcon: Icon(
+                      hintStyle:
+                          const TextStyle(color: AppColors.textSecondary),
+                      prefixIcon: const Icon(
                         Icons.search,
                         color: AppColors.textSecondary,
                       ),
+                      suffixIcon: searchQuery.isNotEmpty
+                          ? IconButton(
+                              icon: const Icon(
+                                Icons.clear,
+                                color: AppColors.textSecondary,
+                              ),
+                              onPressed: () {
+                                _searchController.clear();
+                                _filterArticles('');
+                              },
+                            )
+                          : null,
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(
+                      contentPadding: const EdgeInsets.symmetric(
                         horizontal: 16,
                         vertical: 12,
                       ),
@@ -155,13 +206,12 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                               ],
                             ),
                           )
-                        : groupedArticles.isEmpty
-                            ? const Center(
-                                child: Text(
-                                  '保存された記事がありません',
-                                  style:
-                                      TextStyle(color: AppColors.textSecondary),
-                                ),
+                        : filteredGroupedArticles.isEmpty
+                            ? SafeArea(
+                                bottom: true,
+                                child: searchQuery.isNotEmpty
+                                    ? _buildSearchEmptyState(isTablet)
+                                    : _buildEmptyState(isTablet),
                               )
                             : RefreshIndicator(
                                 onRefresh: _loadSavedArticles,
@@ -169,12 +219,14 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                                   padding: EdgeInsets.symmetric(
                                     horizontal: isTablet ? 24.0 : 16.0,
                                   ),
-                                  itemCount: groupedArticles.keys.length,
+                                  itemCount:
+                                      filteredGroupedArticles.keys.length,
                                   itemBuilder: (context, index) {
-                                    final dateGroup =
-                                        groupedArticles.keys.elementAt(index);
+                                    final dateGroup = filteredGroupedArticles
+                                        .keys
+                                        .elementAt(index);
                                     final articles =
-                                        groupedArticles[dateGroup]!;
+                                        filteredGroupedArticles[dateGroup]!;
 
                                     return Column(
                                       crossAxisAlignment:
@@ -183,13 +235,16 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                                         // Date header
                                         Padding(
                                           padding: const EdgeInsets.only(
-                                              top: 16, bottom: 12),
+                                            top: 16,
+                                            bottom: 12,
+                                          ),
                                           child: Text(
                                             dateGroup,
                                             style: AppTextStyles.headline3(
                                               isTablet,
                                             ).copyWith(
-                                                color: AppColors.textPrimary),
+                                              color: AppColors.textPrimary,
+                                            ),
                                           ),
                                         ),
 
@@ -549,5 +604,241 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
         ),
       );
     }
+  }
+
+  /// 空状態表示を構築
+  Widget _buildEmptyState(bool isTablet) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(isTablet ? 48.0 : 24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // メインアイコン
+            Container(
+              padding: EdgeInsets.all(isTablet ? 32 : 24),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.bookmark_border,
+                size: isTablet ? 80 : 64,
+                color: AppColors.primary,
+              ),
+            ),
+
+            SizedBox(height: isTablet ? 32 : 24),
+
+            // タイトル
+            Text(
+              '保存された記事はまだありません',
+              style: AppTextStyles.headline2(isTablet),
+              textAlign: TextAlign.center,
+            ),
+
+            SizedBox(height: isTablet ? 24 : 16),
+
+            // サブタイトル
+            Text(
+              '気になる記事を保存して、いつでも読み返しましょう',
+              style: AppTextStyles.bodyLarge(isTablet).copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            SizedBox(height: isTablet ? 40 : 32),
+
+            // 機能リスト
+            _buildFeatureList(isTablet),
+
+            SizedBox(height: isTablet ? 40 : 32),
+
+            // CTAボタン
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => _showAddArticleModal(context),
+                icon: const Icon(Icons.add),
+                label: const Text('記事を追加'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: isTablet ? 20 : 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 機能リストを構築
+  Widget _buildFeatureList(bool isTablet) {
+    final features = [
+      {
+        'icon': Icons.bookmark_add,
+        'title': '記事の保存',
+        'description': 'URLを追加して記事を保存・整理',
+      },
+      {
+        'icon': Icons.auto_awesome,
+        'title': 'AI要約',
+        'description': '保存した記事をAIが自動要約',
+      },
+      {
+        'icon': Icons.search,
+        'title': '検索機能',
+        'description': '保存した記事をすぐに見つけられる',
+      },
+      {
+        'icon': Icons.folder_outlined,
+        'title': '時系列整理',
+        'description': '今日・今週・以前で自動分類',
+      },
+    ];
+
+    return Column(
+      children: features
+          .map(
+            (feature) => _buildFeatureItem(
+              feature['icon'] as IconData,
+              feature['title'] as String,
+              feature['description'] as String,
+              isTablet,
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  /// 機能アイテムを構築
+  Widget _buildFeatureItem(
+    IconData icon,
+    String title,
+    String description,
+    bool isTablet,
+  ) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: isTablet ? 20 : 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.all(isTablet ? 12 : 8),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              size: isTablet ? 24 : 20,
+              color: AppColors.primary,
+            ),
+          ),
+          SizedBox(width: isTablet ? 16 : 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTextStyles.bodyLarge(isTablet).copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: AppTextStyles.bodyMedium(isTablet).copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  /// 検索結果が空の場合の表示を構築
+  Widget _buildSearchEmptyState(bool isTablet) {
+    return Center(
+      child: Padding(
+        padding: EdgeInsets.all(isTablet ? 48.0 : 24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // メインアイコン
+            Container(
+              padding: EdgeInsets.all(isTablet ? 32 : 24),
+              decoration: BoxDecoration(
+                color: AppColors.textSecondary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.search_off,
+                size: isTablet ? 80 : 64,
+                color: AppColors.textSecondary,
+              ),
+            ),
+
+            SizedBox(height: isTablet ? 32 : 24),
+
+            // タイトル
+            Text(
+              '検索結果が見つかりません',
+              style: AppTextStyles.headline2(isTablet).copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            SizedBox(height: isTablet ? 24 : 16),
+
+            // サブタイトル
+            Text(
+              '「$searchQuery」に一致する記事がありません。\n別のキーワードで検索してみてください。',
+              style: AppTextStyles.bodyLarge(isTablet).copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            SizedBox(height: isTablet ? 40 : 32),
+
+            // クリアボタン
+            SizedBox(
+              width: double.infinity,
+              child: OutlinedButton.icon(
+                onPressed: () {
+                  _searchController.clear();
+                  _filterArticles('');
+                },
+                icon: const Icon(Icons.clear),
+                label: const Text('検索をクリア'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.textSecondary,
+                  side: BorderSide(
+                    color: AppColors.textSecondary.withValues(alpha: 0.3),
+                  ),
+                  padding: EdgeInsets.symmetric(vertical: isTablet ? 20 : 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

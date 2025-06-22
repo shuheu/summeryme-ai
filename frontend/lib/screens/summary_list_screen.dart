@@ -54,7 +54,8 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
       final List<dynamic> digestData = response['data'] as List<dynamic>;
       final List<UserDailySummary> newDigests = digestData
           .map(
-              (json) => UserDailySummary.fromJson(json as Map<String, dynamic>))
+            (json) => UserDailySummary.fromJson(json as Map<String, dynamic>),
+          )
           .toList();
 
       final pagination = response['pagination'] as Map<String, dynamic>;
@@ -101,8 +102,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title:
-              Text('Daily Summary', style: AppTextStyles.headline2(isTablet)),
+          title: Text('AI Summary', style: AppTextStyles.headline2(isTablet)),
         ),
         body: const Center(
           child: CircularProgressIndicator(),
@@ -116,8 +116,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
         appBar: AppBar(
           backgroundColor: Colors.transparent,
           elevation: 0,
-          title:
-              Text('Daily Summary', style: AppTextStyles.headline2(isTablet)),
+          title: Text('AI Summary', style: AppTextStyles.headline2(isTablet)),
         ),
         body: Center(
           child: Column(
@@ -148,6 +147,28 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
       );
     }
 
+    // Empty state: no loading, no error, but no data
+    if (!_isLoading && _errorMessage == null && _userDailySummaryList.isEmpty) {
+      return AppScaffold(
+        backgroundColor: AppColors.background,
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          title: Text('AI Summary', style: AppTextStyles.headline2(isTablet)),
+        ),
+        body: SafeArea(
+          bottom: true,
+          child: _buildEmptyState(isTablet),
+        ),
+        floatingActionButton: FloatingActionButton(
+          onPressed: () => _showAddArticleModal(context),
+          backgroundColor: AppColors.primary,
+          shape: const CircleBorder(),
+          child: const Icon(Icons.add, color: Colors.white),
+        ),
+      );
+    }
+
     return AppScaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
@@ -161,13 +182,24 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
           child: RefreshIndicator(
             onRefresh: _refreshDigests,
             child: ListView.builder(
-              padding: EdgeInsets.all(isTablet ? 24.0 : 16.0),
+              padding: EdgeInsets.only(
+                left: isTablet ? 24.0 : 16.0,
+                right: isTablet ? 24.0 : 16.0,
+                top: isTablet ? 24.0 : 16.0,
+                bottom: (isTablet ? 24.0 : 16.0) +
+                    MediaQuery.of(context).padding.bottom,
+              ),
               itemCount: _userDailySummaryList.length + (_hasMoreData ? 1 : 0),
               itemBuilder: (context, index) {
                 if (index == _userDailySummaryList.length) {
                   // Load more button/indicator
                   return Padding(
-                    padding: const EdgeInsets.all(16.0),
+                    padding: EdgeInsets.only(
+                      left: 16.0,
+                      right: 16.0,
+                      top: 16.0,
+                      bottom: 16.0 + MediaQuery.of(context).padding.bottom,
+                    ),
                     child: Center(
                       child: _isLoading
                           ? const CircularProgressIndicator()
@@ -195,7 +227,10 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
   }
 
   Widget _buildDigestCard(
-      BuildContext context, UserDailySummary userDailySummary, bool isFirst) {
+    BuildContext context,
+    UserDailySummary userDailySummary,
+    bool isFirst,
+  ) {
     // Format date for display
     final dateFormat =
         '${userDailySummary.generatedDate.year}年${userDailySummary.generatedDate.month}月${userDailySummary.generatedDate.day}日';
@@ -341,7 +376,8 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
                                     child: CircularProgressIndicator(
                                       strokeWidth: 2,
                                       valueColor: AlwaysStoppedAnimation<Color>(
-                                          Colors.white),
+                                        Colors.white,
+                                      ),
                                     ),
                                   )
                                 : const Icon(
@@ -383,7 +419,9 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
                             child: Text(
                               showPlayingState ? '🎵' : '約3分',
                               style: const TextStyle(
-                                  fontSize: 12, color: Colors.white),
+                                fontSize: 12,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
                         ],
@@ -569,7 +607,9 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
   }
 
   Future<void> _playAudioSummary(
-      BuildContext context, UserDailySummary userDailySummary) async {
+    BuildContext context,
+    UserDailySummary userDailySummary,
+  ) async {
     try {
       // ローディング表示
       showDialog<void>(
@@ -697,5 +737,167 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
         ),
       );
     }
+  }
+
+  /// 空状態表示を構築
+  Widget _buildEmptyState(bool isTablet) {
+    return Center(
+      child: SingleChildScrollView(
+        padding: EdgeInsets.all(isTablet ? 48.0 : 24.0),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // メインアイコン
+            Container(
+              padding: EdgeInsets.all(isTablet ? 32 : 24),
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(
+                Icons.auto_awesome,
+                size: isTablet ? 80 : 64,
+                color: AppColors.primary,
+              ),
+            ),
+
+            SizedBox(height: isTablet ? 32 : 24),
+
+            // タイトル
+            Text(
+              'AIダイジェストへようこそ！',
+              style: AppTextStyles.headline2(isTablet),
+              textAlign: TextAlign.center,
+            ),
+
+            SizedBox(height: isTablet ? 24 : 16),
+
+            // サブタイトル
+            Text(
+              '記事を追加してAIによる自動要約を体験しましょう',
+              style: AppTextStyles.bodyLarge(isTablet).copyWith(
+                color: AppColors.textSecondary,
+              ),
+              textAlign: TextAlign.center,
+            ),
+
+            SizedBox(height: isTablet ? 40 : 32),
+
+            // 機能リスト
+            _buildFeatureList(isTablet),
+
+            SizedBox(height: isTablet ? 40 : 32),
+
+            // CTAボタン
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () => _showAddArticleModal(context),
+                icon: const Icon(Icons.add),
+                label: const Text('最初の記事を追加'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primary,
+                  foregroundColor: Colors.white,
+                  padding: EdgeInsets.symmetric(vertical: isTablet ? 20 : 16),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  /// 機能リストを構築
+  Widget _buildFeatureList(bool isTablet) {
+    final features = [
+      {
+        'icon': Icons.auto_awesome,
+        'title': '記事の自動要約',
+        'description': 'URLを追加するだけでAIが要約を生成\n（朝昼夕のタイミングでお届け）',
+      },
+      {
+        'icon': Icons.headphones,
+        'title': '音声再生',
+        'description': '要約を音声で聞くことができる',
+      },
+      {
+        'icon': Icons.view_list,
+        'title': '記事ダイジェスト',
+        'description': '記事の要約をまとめて確認',
+      },
+      {
+        'icon': Icons.bookmark,
+        'title': '記事保存',
+        'description': '気になる記事を保存・あとで読む',
+      },
+    ];
+
+    return Column(
+      children: features
+          .map(
+            (feature) => _buildFeatureItem(
+              feature['icon'] as IconData,
+              feature['title'] as String,
+              feature['description'] as String,
+              isTablet,
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  /// 機能アイテムを構築
+  Widget _buildFeatureItem(
+    IconData icon,
+    String title,
+    String description,
+    bool isTablet,
+  ) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: isTablet ? 20 : 16),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: EdgeInsets.all(isTablet ? 12 : 8),
+            decoration: BoxDecoration(
+              color: AppColors.primary.withValues(alpha: 0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(
+              icon,
+              size: isTablet ? 24 : 20,
+              color: AppColors.primary,
+            ),
+          ),
+          SizedBox(width: isTablet ? 16 : 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: AppTextStyles.bodyLarge(isTablet).copyWith(
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  description,
+                  style: AppTextStyles.bodyMedium(isTablet).copyWith(
+                    color: AppColors.textSecondary,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
   }
 }

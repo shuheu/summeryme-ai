@@ -86,46 +86,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                 ),
               ),
-              actions: [
-                Container(
-                  margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute<void>(
-                          builder: (context) => const MainTabScreen(),
-                        ),
-                      );
-                    },
-                    icon: const Icon(
-                      Icons.skip_next,
-                      size: 18,
-                      color: Colors.white,
-                    ),
-                    label: const Text(
-                      'Skip Auth',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontWeight: FontWeight.w600,
-                        fontSize: 13,
-                      ),
-                    ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.orange,
-                      foregroundColor: Colors.white,
-                      elevation: 2,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 12,
-                        vertical: 6,
-                      ),
-                    ),
-                  ),
-                ),
-              ],
             )
           : null,
       body: SafeArea(
