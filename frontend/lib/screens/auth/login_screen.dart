@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/foundation.dart';
 import '../main_tab_screen.dart';
 import '../../services/auth_service.dart';
 
@@ -60,7 +61,73 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFF),
-      appBar: null,
+      appBar: kDebugMode
+          ? AppBar(
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              title: Container(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 8,
+                  vertical: 4,
+                ),
+                decoration: BoxDecoration(
+                  color: Colors.orange.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: Colors.orange.withValues(alpha: 0.3),
+                  ),
+                ),
+                child: const Text(
+                  '🚧 Debug Mode',
+                  style: TextStyle(
+                    color: Colors.orange,
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+              actions: [
+                Container(
+                  margin: const EdgeInsets.only(right: 16, top: 8, bottom: 8),
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute<void>(
+                          builder: (context) => const MainTabScreen(),
+                        ),
+                      );
+                    },
+                    icon: const Icon(
+                      Icons.skip_next,
+                      size: 18,
+                      color: Colors.white,
+                    ),
+                    label: const Text(
+                      'Skip Auth',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w600,
+                        fontSize: 13,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      elevation: 2,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(20),
+                      ),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            )
+          : null,
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -180,60 +247,65 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   SizedBox(height: isTablet ? 48 : 40),
 
-                  // Google login button
-                  SizedBox(
-                    height: 56,
-                    width: double.infinity,
-                    child: ElevatedButton.icon(
-                      onPressed: _isLoading ? null : _googleLogin,
-                      icon: _isLoading
-                          ? const SizedBox(
-                              height: 20,
-                              width: 20,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 2,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  Color(0xFF007AFF),
-                                ),
-                              ),
-                            )
-                          : Container(
-                              padding: const EdgeInsets.all(2),
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Image.network(
-                                'https://developers.google.com/identity/images/g-logo.png',
-                                height: 20,
-                                width: 20,
-                                errorBuilder: (context, error, stackTrace) =>
-                                    const Icon(
-                                  Icons.g_mobiledata,
-                                  size: 24,
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            ),
-                      label: Text(
-                        _isLoading ? 'ログイン中...' : 'Googleでログイン',
-                        style: TextStyle(
-                          fontSize: isTablet ? 18 : 16,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black87,
-                        ),
-                      ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Colors.white,
-                        foregroundColor: Colors.black87,
-                        elevation: 2,
-                        shadowColor: Colors.black.withValues(alpha: 0.1),
-                        side: const BorderSide(color: Color(0xFFE8E8E8)),
-                        shape: RoundedRectangleBorder(
+                  // Google login button - PWA対応版
+                  Material(
+                    color: Colors.white,
+                    elevation: 2,
+                    borderRadius: BorderRadius.circular(16),
+                    child: InkWell(
+                      onTap: _isLoading ? null : _googleLogin,
+                      borderRadius: BorderRadius.circular(16),
+                      child: Container(
+                        height: 56,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          border: Border.all(color: const Color(0xFFE8E8E8)),
                           borderRadius: BorderRadius.circular(16),
                         ),
-                        // PWA用のタッチ改善
-                        splashFactory: InkRipple.splashFactory,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            if (_isLoading)
+                              const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                  valueColor: AlwaysStoppedAnimation<Color>(
+                                    Color(0xFF007AFF),
+                                  ),
+                                ),
+                              )
+                            else
+                              Container(
+                                padding: const EdgeInsets.all(2),
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Image.network(
+                                  'https://developers.google.com/identity/images/g-logo.png',
+                                  height: 20,
+                                  width: 20,
+                                  errorBuilder: (context, error, stackTrace) =>
+                                      const Icon(
+                                    Icons.g_mobiledata,
+                                    size: 24,
+                                    color: Colors.blue,
+                                  ),
+                                ),
+                              ),
+                            const SizedBox(width: 12),
+                            Text(
+                              _isLoading ? 'ログイン中...' : 'Googleでログイン',
+                              style: TextStyle(
+                                fontSize: isTablet ? 18 : 16,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.black87,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ),
                   ),
