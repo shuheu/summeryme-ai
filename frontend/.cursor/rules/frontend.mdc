@@ -1,13 +1,13 @@
 ---
 description:
 globs:
-alwaysApply: true 
+alwaysApply: true
 ---
 
-# Summeryme.ai Flutter プロジェクト - Cursor ルール
+# Summaryme.ai Flutter プロジェクト - Cursor ルール
 
 ## プロジェクト概要
-- **プロジェクト名**: summeryme.ai
+- **プロジェクト名**: summaryme.ai
 - **フレームワーク**: Flutter 3.7.2+
 - **言語**: Dart
 - **アーキテクチャ**: クロスプラットフォーム（iOS、Android、Web、Windows、macOS、Linux）

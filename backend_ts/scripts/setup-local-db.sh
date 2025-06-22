@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # ローカル開発環境用 Cloud SQL Proxy セットアップスクリプト
-# Summeryme AI Backend
+# Summaryme AI Backend
 
 set -e
 

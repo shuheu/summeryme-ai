@@ -5,9 +5,9 @@ import "@typespec/openapi3";
 using TypeSpec.Http;
 using TypeSpec.Rest;
 
-@service(#{ title: "Summeryme AI API" })
+@service(#{ title: "Summaryme AI API" })
 @server("http://localhost:3000", "Local development server")
-namespace SummerymeAPI {
+namespace SummarymeAPI {
   // Common models
   model PaginationQuery {
     @query

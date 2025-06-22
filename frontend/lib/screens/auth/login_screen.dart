@@ -193,7 +193,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           stops: [0.0, 0.3, 0.7, 1.0],
                         ).createShader(bounds),
                         child: Text(
-                          'summeryme.ai',
+                          'summaryme.ai',
                           style: TextStyle(
                             fontSize: isTablet ? 36 : 32,
                             fontWeight: FontWeight.bold,

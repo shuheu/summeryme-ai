@@ -52,7 +52,7 @@ class MyApp extends StatelessWidget {
         ),
       ],
       child: MaterialApp(
-        title: 'summeryme.ai',
+        title: 'summaryme.ai',
         theme: AppTheme.lightTheme.copyWith(
           // プラットフォーム別の最適なフォントを使用
           textTheme: AppTheme.lightTheme.textTheme.apply(
