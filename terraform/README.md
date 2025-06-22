@@ -430,6 +430,12 @@ make security-scan
 
 ## 🔄 バージョン履歴
 
+### v2.1.0 (2025-06-22)
+- ✨ Cloud Schedulerサポート追加
+- ✨ バッチジョブのスケジュール実行対応
+- ✨ Cloud Storageバケット追加
+- ✨ Gemini APIキー管理追加
+
 ### v2.0.0 (2025-05-31)
 - ✨ ベストプラクティスに沿ったファイル構成に変更
 - ✨ 機能別ファイル分離（providers.tf, locals.tf, apis.tf等）
