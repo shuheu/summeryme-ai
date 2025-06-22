@@ -252,6 +252,108 @@ run-all-jobs: check-project ## 全ジョブを順次実行
 	gcloud run jobs execute daily-summary-job --region=$(REGION) --wait
 	@echo "✅ 全ジョブの実行が完了しました"
 
+# Cloud Scheduler操作
+scheduler-list: check-project ## Cloud Schedulerジョブ一覧を表示
+	@echo "📋 Cloud Schedulerジョブ一覧:"
+	@echo "プロジェクト: $(PROJECT_ID)"
+	gcloud scheduler jobs list --location=$(REGION) --format="table(name,schedule,timeZone,state,lastAttemptTime)"
+
+scheduler-status: check-project ## Cloud Schedulerジョブの詳細状態を表示
+	@echo "📊 Cloud Schedulerジョブの詳細:"
+	@echo "プロジェクト: $(PROJECT_ID)"
+	@echo ""
+	@echo "=== 記事要約スケジューラー ==="
+	@gcloud scheduler jobs describe article-summary-scheduler --location=$(REGION) --format="table(name,schedule,timeZone,state,lastAttemptTime,httpTarget.uri)" 2>/dev/null || echo "❌ article-summary-scheduler が見つかりません"
+	@echo ""
+	@echo "=== 日次要約スケジューラー ==="
+	@gcloud scheduler jobs describe daily-summary-scheduler --location=$(REGION) --format="table(name,schedule,timeZone,state,lastAttemptTime,httpTarget.uri)" 2>/dev/null || echo "❌ daily-summary-scheduler が見つかりません"
+
+scheduler-run-article: check-project ## 記事要約スケジューラーを手動実行
+	@echo "▶️  記事要約スケジューラーを手動実行中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
+	gcloud scheduler jobs run article-summary-scheduler --location=$(REGION)
+	@echo "✅ 手動実行をトリガーしました（実行完了まで数分かかる場合があります）"
+
+scheduler-run-daily: check-project ## 日次要約スケジューラーを手動実行
+	@echo "▶️  日次要約スケジューラーを手動実行中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
+	gcloud scheduler jobs run daily-summary-scheduler --location=$(REGION)
+	@echo "✅ 手動実行をトリガーしました（実行完了まで数分かかる場合があります）"
+
+scheduler-pause-article: check-project ## 記事要約スケジューラーを一時停止
+	@echo "⏸️  記事要約スケジューラーを一時停止中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
+	gcloud scheduler jobs pause article-summary-scheduler --location=$(REGION)
+	@echo "✅ スケジューラーを一時停止しました"
+
+scheduler-pause-daily: check-project ## 日次要約スケジューラーを一時停止
+	@echo "⏸️  日次要約スケジューラーを一時停止中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
+	gcloud scheduler jobs pause daily-summary-scheduler --location=$(REGION)
+	@echo "✅ スケジューラーを一時停止しました"
+
+scheduler-resume-article: check-project ## 記事要約スケジューラーを再開
+	@echo "▶️  記事要約スケジューラーを再開中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
+	gcloud scheduler jobs resume article-summary-scheduler --location=$(REGION)
+	@echo "✅ スケジューラーを再開しました"
+
+scheduler-resume-daily: check-project ## 日次要約スケジューラーを再開
+	@echo "▶️  日次要約スケジューラーを再開中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
+	gcloud scheduler jobs resume daily-summary-scheduler --location=$(REGION)
+	@echo "✅ スケジューラーを再開しました"
+
+scheduler-pause-all: scheduler-pause-article scheduler-pause-daily ## 全スケジューラーを一時停止
+
+scheduler-resume-all: scheduler-resume-article scheduler-resume-daily ## 全スケジューラーを再開
+
+scheduler-logs: check-project ## Cloud Schedulerのログを表示
+	@echo "📜 Cloud Schedulerのログ:"
+	@echo "プロジェクト: $(PROJECT_ID)"
+	@echo ""
+	@echo "どのスケジューラーのログを表示しますか？"
+	@echo "1) article-summary-scheduler"
+	@echo "2) daily-summary-scheduler"
+	@echo "3) 全て"
+	@read -p "選択してください (1-3): " choice; \
+	case $$choice in \
+		1) gcloud logging read "resource.type=cloud_scheduler_job AND resource.labels.job_id=article-summary-scheduler" --limit=50 --format="table(timestamp,severity,jsonPayload.message)" ;; \
+		2) gcloud logging read "resource.type=cloud_scheduler_job AND resource.labels.job_id=daily-summary-scheduler" --limit=50 --format="table(timestamp,severity,jsonPayload.message)" ;; \
+		3) gcloud logging read "resource.type=cloud_scheduler_job" --limit=50 --format="table(timestamp,severity,resource.labels.job_id,jsonPayload.message)" ;; \
+		*) echo "❌ 無効な選択です" ;; \
+	esac
+
+plan-scheduler: check-project ## Cloud Schedulerのみプラン表示
+	terraform plan \
+		-target=google_service_account.cloud_scheduler \
+		-target=google_project_iam_member.cloud_scheduler_run_invoker \
+		-target=google_cloud_scheduler_job.article_summary \
+		-target=google_cloud_scheduler_job.daily_summary
+
+apply-scheduler: check-project ## Cloud Schedulerのみ更新
+	terraform apply -auto-approve \
+		-target=google_service_account.cloud_scheduler \
+		-target=google_project_iam_member.cloud_scheduler_run_invoker \
+		-target=google_cloud_scheduler_job.article_summary \
+		-target=google_cloud_scheduler_job.daily_summary
+
+import-scheduler: check-project ## 既存のCloud Schedulerジョブをインポート
+	@echo "Cloud Schedulerジョブをインポート中..."
+	@echo "プロジェクト: $(PROJECT_ID)"
+	@if gcloud scheduler jobs describe article-summary-scheduler --location=$(REGION) >/dev/null 2>&1; then \
+		terraform import google_cloud_scheduler_job.article_summary projects/$(PROJECT_ID)/locations/$(REGION)/jobs/article-summary-scheduler; \
+		echo "✅ article-summary-scheduler をインポートしました"; \
+	else \
+		echo "❌ article-summary-scheduler が見つかりません"; \
+	fi
+	@if gcloud scheduler jobs describe daily-summary-scheduler --location=$(REGION) >/dev/null 2>&1; then \
+		terraform import google_cloud_scheduler_job.daily_summary projects/$(PROJECT_ID)/locations/$(REGION)/jobs/daily-summary-scheduler; \
+		echo "✅ daily-summary-scheduler をインポートしました"; \
+	else \
+		echo "❌ daily-summary-scheduler が見つかりません"; \
+	fi
+
 # インポート操作
 import-cloud-run: check-project ## 既存のCloud Runサービスをインポート
 	@echo "Cloud Runサービスをインポート中..."
@@ -338,7 +440,7 @@ import-service-accounts: check-project ## 既存のサービスアカウント�
 import-apis: check-project ## 既存のAPIサービスをインポート
 	@echo "APIサービスをインポート中..."
 	@echo "プロジェクト: $(PROJECT_ID)"
-	@for api in run.googleapis.com sqladmin.googleapis.com secretmanager.googleapis.com cloudbuild.googleapis.com containerregistry.googleapis.com artifactregistry.googleapis.com logging.googleapis.com monitoring.googleapis.com compute.googleapis.com servicenetworking.googleapis.com vpcaccess.googleapis.com storage.googleapis.com; do \
+	@for api in run.googleapis.com sqladmin.googleapis.com secretmanager.googleapis.com cloudbuild.googleapis.com containerregistry.googleapis.com artifactregistry.googleapis.com logging.googleapis.com monitoring.googleapis.com compute.googleapis.com servicenetworking.googleapis.com vpcaccess.googleapis.com storage.googleapis.com cloudscheduler.googleapis.com; do \
 		echo "インポート中: $$api"; \
 		terraform import "google_project_service.required_apis[\"$$api\"]" $(PROJECT_ID)/$$api || echo "$$api のインポートに失敗（既に有効化済みの可能性）"; \
 	done
@@ -514,7 +616,7 @@ setup: init setup-prod validate ## 初期セットアップを実行
 	@echo "3. make apply でリソースを作成"
 
 # 全体インポート
-import-all: import-apis import-service-accounts import-cloud-sql import-cloud-sql-database import-cloud-run import-cloud-run-job import-secret import-artifact-registry import-storage import-storage-iam ## 全てのリソースをインポート
+import-all: import-apis import-service-accounts import-cloud-sql import-cloud-sql-database import-cloud-run import-cloud-run-job import-scheduler import-secret import-artifact-registry import-storage import-storage-iam ## 全てのリソースをインポート
 
 # 状態管理
 init-local: check-project ## ローカル状態でTerraformを初期化
