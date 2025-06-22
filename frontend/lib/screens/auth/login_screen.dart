@@ -181,20 +181,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   SizedBox(height: isTablet ? 48 : 40),
 
                   // Google login button
-                  Container(
+                  SizedBox(
                     height: 56,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: const Color(0xFFE8E8E8)),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 10,
-                          offset: const Offset(0, 4),
-                        ),
-                      ],
-                    ),
+                    width: double.infinity,
                     child: ElevatedButton.icon(
                       onPressed: _isLoading ? null : _googleLogin,
                       icon: _isLoading
@@ -237,10 +226,14 @@ class _LoginScreenState extends State<LoginScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         foregroundColor: Colors.black87,
-                        elevation: 0,
+                        elevation: 2,
+                        shadowColor: Colors.black.withValues(alpha: 0.1),
+                        side: const BorderSide(color: Color(0xFFE8E8E8)),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         ),
+                        // PWA用のタッチ改善
+                        splashFactory: InkRipple.splashFactory,
                       ),
                     ),
                   ),
