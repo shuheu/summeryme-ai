@@ -1,4 +1,4 @@
-# Summeryme AI Backend
+# Summaryme AI Backend
 
 Hono + TypeScript + Prisma + MySQL を使用したバックエンドAPI
 

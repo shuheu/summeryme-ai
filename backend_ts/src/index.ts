@@ -5,7 +5,7 @@ import { logger } from 'hono/logger';
 
 import savedArticleRouter from './apis/savedArticle.js';
 import userRouter from './apis/user.js';
-import userDailySummaryRouter from './apis/userDailySummery.js';
+import userDailySummaryRouter from './apis/userDailySummary.js';
 
 import type { PrismaClient } from '@prisma/client/extension';
 
@@ -31,7 +31,7 @@ app.use(
 );
 
 app.get('/', (c) => {
-  return c.text('Hello summeryme.ai!');
+  return c.text('Hello summaryme.ai!');
 });
 
 // 基本的なヘルスチェック（データベース接続なし）

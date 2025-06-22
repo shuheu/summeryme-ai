@@ -121,7 +121,7 @@ class SettingsScreen extends StatelessWidget {
                 child: Column(
                   children: [
                     Text(
-                      'summeryme.ai',
+                      'summaryme.ai',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey[600],
@@ -135,7 +135,7 @@ class SettingsScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      '© 2025 summeryme.ai',
+                      '© 2025 summaryme.ai',
                       style: TextStyle(fontSize: 11, color: Colors.grey[400]),
                     ),
                   ],

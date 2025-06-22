@@ -132,7 +132,7 @@ class _SignupScreenState extends State<SignupScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'summeryme.aiを始めましょう',
+                      'summaryme.aiを始めましょう',
                       style: TextStyle(
                         fontSize: isTablet ? 18 : 16,
                         color: Colors.grey,

@@ -1,4 +1,4 @@
-# summeryme-ai
+# summaryme-ai
 
 ## About The Project
 
