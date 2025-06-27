@@ -4,7 +4,8 @@ export async function fetchPageTitle(url: string): Promise<string | null> {
   try {
     const response = await fetch(url, {
       headers: {
-        'User-Agent': "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36",
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/137.0.0.0 Safari/537.36',
       },
     });
 
@@ -17,10 +18,11 @@ export async function fetchPageTitle(url: string): Promise<string | null> {
     const $ = cheerio.load(html);
 
     // Try multiple selectors for title
-    let title = $('meta[property="og:title"]').attr('content') ||
-                $('meta[name="twitter:title"]').attr('content') ||
-                $('title').text() ||
-                $('h1').first().text();
+    let title =
+      $('meta[property="og:title"]').attr('content') ||
+      $('meta[name="twitter:title"]').attr('content') ||
+      $('title').text() ||
+      $('h1').first().text();
 
     // Clean up the title
     if (title) {
