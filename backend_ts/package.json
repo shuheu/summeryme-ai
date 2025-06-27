@@ -28,6 +28,7 @@
     "@hono/node-server": "^1.14.2",
     "@hono/zod-validator": "^0.7.0",
     "@prisma/client": "6.8.2",
+    "cheerio": "^1.1.0",
     "hono": "^4.7.10",
     "mime": "^4.0.7",
     "prisma": "6.8.2",
@@ -38,6 +39,7 @@
   "devDependencies": {
     "@eslint/js": "^9.28.0",
     "@openapitools/openapi-generator-cli": "^2.20.2",
+    "@types/cheerio": "^1.0.0",
     "@types/node": "^20.11.17",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",

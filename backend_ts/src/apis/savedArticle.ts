@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { globalPrisma } from '../lib/dbClient.js';
 import { requireAuth } from '../middleware/auth.js';
+import { fetchPageTitle } from '../utils/webScraper.js';
 
 import type { ZodIssue } from 'zod';
 
@@ -17,8 +18,8 @@ const getUserSavedArticlesSchema = z.object({
 const createSavedArticleSchema = z.object({
   title: z
     .string()
-    .min(1, 'タイトルは必須です')
-    .max(255, 'タイトルは255文字以内である必要があります'),
+    .max(255, 'タイトルは255文字以内である必要があります')
+    .optional(),
   url: z
     .string()
     .url('有効なURLである必要があります')
@@ -120,6 +121,8 @@ savedArticleRouter.post('/', requireAuth, async (c) => {
   try {
     const body = await c.req.json();
 
+    console.log('body', body);
+
     const validationResult = createSavedArticleSchema.safeParse(body);
 
     if (!validationResult.success) {
@@ -135,11 +138,23 @@ savedArticleRouter.post('/', requireAuth, async (c) => {
       );
     }
 
-    const { title, url } = validationResult.data;
+    let { title, url } = validationResult.data;
 
     // 認証されたユーザーのIDを取得
     const user = c.get('user');
     const userId = user.id;
+
+    // titleが提供されていない場合、URLからタイトルを取得
+    if (!title?.trim()) {
+      const fetchedTitle = await fetchPageTitle(url);
+      if (fetchedTitle) {
+        title = fetchedTitle;
+        console.log('title', title);
+      } else {
+        // タイトルが取得できなかった場合はURLをタイトルとして使用
+        title = url;
+      }
+    }
 
     // ユーザーが存在するかチェック
     const userExists = await globalPrisma.user.findUnique({

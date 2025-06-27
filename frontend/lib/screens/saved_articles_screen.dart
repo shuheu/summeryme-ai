@@ -564,7 +564,7 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
     try {
       final title = _titleController.text.trim().isNotEmpty
           ? _titleController.text.trim()
-          : 'Untitled Article';
+          : '';
 
       await _apiService.createSavedArticle(
         title: title,

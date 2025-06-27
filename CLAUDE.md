@@ -63,6 +63,7 @@ docker compose exec db mysql -uroot -ppassword summerymeai_development  # Access
 - For Docker: `DATABASE_URL=mysql://root:password@db:3306/summerymeai_development`
 - For local MySQL: `DATABASE_URL=mysql://root:password@localhost:3306/summerymeai_development`
 - The backend service runs on port 8080 when using Docker, port 8787 when using `pnpm dev` directly
+- 基本的にはdocker上でコマンドを実行する
 
 **Environment Variables**:
 
