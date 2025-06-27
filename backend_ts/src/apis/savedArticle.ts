@@ -121,8 +121,6 @@ savedArticleRouter.post('/', requireAuth, async (c) => {
   try {
     const body = await c.req.json();
 
-    console.log('body', body);
-
     const validationResult = createSavedArticleSchema.safeParse(body);
 
     if (!validationResult.success) {
@@ -149,7 +147,6 @@ savedArticleRouter.post('/', requireAuth, async (c) => {
       const fetchedTitle = await fetchPageTitle(url);
       if (fetchedTitle) {
         title = fetchedTitle;
-        console.log('title', title);
       } else {
         // タイトルが取得できなかった場合はURLをタイトルとして使用
         title = url;
