@@ -174,7 +174,7 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: Text('Daily Summary', style: AppTextStyles.headline2(isTablet)),
+        title: Text('AI Summary', style: AppTextStyles.headline2(isTablet)),
       ),
       body: Center(
         child: Container(
@@ -283,15 +283,15 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
               const SizedBox(height: 16),
 
               // Digest title
-              const Text(
-                'デイリーダイジェスト',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textPrimary,
-                  height: 1.3,
-                ),
-              ),
+              // const Text(
+              //   'デイリーダイジェスト',
+              //   style: TextStyle(
+              //     fontSize: 18,
+              //     fontWeight: FontWeight.bold,
+              //     color: AppColors.textPrimary,
+              //     height: 1.3,
+              //   ),
+              // ),
               const SizedBox(height: 8),
               // Article date and metadata
               Row(
@@ -407,23 +407,23 @@ class _SummaryListScreenState extends State<SummaryListScreen> {
                             ),
                           ),
                           const SizedBox(width: 8),
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 8,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withValues(alpha: 0.2),
-                              borderRadius: BorderRadius.circular(12),
-                            ),
-                            child: Text(
-                              showPlayingState ? '🎵' : '約3分',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.white,
-                              ),
-                            ),
-                          ),
+                          // Container(
+                          //   padding: const EdgeInsets.symmetric(
+                          //     horizontal: 8,
+                          //     vertical: 2,
+                          //   ),
+                          //   decoration: BoxDecoration(
+                          //     color: Colors.white.withValues(alpha: 0.2),
+                          //     borderRadius: BorderRadius.circular(12),
+                          //   ),
+                          //   child: Text(
+                          //     showPlayingState ? '🎵' : '約3分',
+                          //     style: const TextStyle(
+                          //       fontSize: 12,
+                          //       color: Colors.white,
+                          //     ),
+                          //   ),
+                          // ),
                         ],
                       ),
                       style: ElevatedButton.styleFrom(

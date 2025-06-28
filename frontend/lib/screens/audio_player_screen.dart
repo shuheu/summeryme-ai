@@ -22,10 +22,10 @@ class AudioPlayerScreen extends StatelessWidget {
           icon: const Icon(Icons.keyboard_arrow_down, size: 32),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text(
-          '音声プレイヤー',
-          style: AppTextStyles.headline3(isTablet),
-        ),
+        // title: Text(
+        //   '音声プレイヤー',
+        //   style: AppTextStyles.headline3(isTablet),
+        // ),
         centerTitle: true,
       ),
       body: Consumer<AudioPlayerService>(
@@ -69,10 +69,10 @@ class AudioPlayerScreen extends StatelessWidget {
                 // コントロールボタン
                 _buildControlButtons(audioService, playbackState),
 
-                const Spacer(),
+                // const Spacer(),
 
                 // 追加コントロール
-                _buildAdditionalControls(audioService, playbackState, isTablet),
+                // _buildAdditionalControls(audioService, playbackState, isTablet),
 
                 const SizedBox(height: 32),
               ],
@@ -124,17 +124,17 @@ class AudioPlayerScreen extends StatelessWidget {
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
         ),
-        const SizedBox(height: 8),
-        Text(
-          currentTrack.description ?? 'デイリーサマリー',
-          style: TextStyle(
-            fontSize: isTablet ? 16 : 14,
-            color: AppColors.textSecondary,
-          ),
-          textAlign: TextAlign.center,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+        // const SizedBox(height: 8),
+        // Text(
+        //   currentTrack.description ?? 'デイリーサマリー',
+        //   style: TextStyle(
+        //     fontSize: isTablet ? 16 : 14,
+        //     color: AppColors.textSecondary,
+        //   ),
+        //   textAlign: TextAlign.center,
+        //   maxLines: 1,
+        //   overflow: TextOverflow.ellipsis,
+        // ),
       ],
     );
   }
@@ -202,16 +202,16 @@ class AudioPlayerScreen extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         // 前のトラック
-        IconButton(
-          onPressed: audioService.currentPlaylist?.hasPrevious == true
-              ? () => audioService.previous()
-              : null,
-          icon: const Icon(Icons.skip_previous),
-          iconSize: 40,
-          color: audioService.currentPlaylist?.hasPrevious == true
-              ? AppColors.textPrimary
-              : AppColors.textTertiary,
-        ),
+        // IconButton(
+        //   onPressed: audioService.currentPlaylist?.hasPrevious == true
+        //       ? () => audioService.previous()
+        //       : null,
+        //   icon: const Icon(Icons.skip_previous),
+        //   iconSize: 40,
+        //   color: audioService.currentPlaylist?.hasPrevious == true
+        //       ? AppColors.textPrimary
+        //       : AppColors.textTertiary,
+        // ),
 
         // 15秒戻る
         IconButton(
@@ -283,16 +283,16 @@ class AudioPlayerScreen extends StatelessWidget {
         ),
 
         // 次のトラック
-        IconButton(
-          onPressed: audioService.currentPlaylist?.hasNext == true
-              ? () => audioService.next()
-              : null,
-          icon: const Icon(Icons.skip_next),
-          iconSize: 40,
-          color: audioService.currentPlaylist?.hasNext == true
-              ? AppColors.textPrimary
-              : AppColors.textTertiary,
-        ),
+        // IconButton(
+        //   onPressed: audioService.currentPlaylist?.hasNext == true
+        //       ? () => audioService.next()
+        //       : null,
+        //   icon: const Icon(Icons.skip_next),
+        //   iconSize: 40,
+        //   color: audioService.currentPlaylist?.hasNext == true
+        //       ? AppColors.textPrimary
+        //       : AppColors.textTertiary,
+        // ),
       ],
     );
   }

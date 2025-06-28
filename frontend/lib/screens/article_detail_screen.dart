@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import '../models/article.dart';
 import '../models/saved_article.dart';
 import '../services/api_service.dart';
@@ -128,6 +129,10 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                   color: Colors.black.withValues(alpha: 0.3),
                   shape: BoxShape.circle,
                 ),
+                child: IconButton(
+                  icon: const Icon(Icons.delete_outline, color: Colors.white),
+                  onPressed: () => _showDeleteConfirmation(),
+                ),
               ),
             ],
             flexibleSpace: FlexibleSpaceBar(
@@ -158,33 +163,6 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                     SizedBox(height: isTablet ? 32 : 24),
 
                     // Article metadata
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            color: AppColors.primary.withValues(alpha: 0.1),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          child: Text(
-                            widget.article.source,
-                            style: AppTextStyles.bodySmall(isTablet).copyWith(
-                              color: AppColors.primary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Text(
-                          widget.article.timeAgo,
-                          style: AppTextStyles.bodySmall(isTablet),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 20),
 
                     // Article title
                     Text(
@@ -193,6 +171,27 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                         isTablet,
                       ).copyWith(fontSize: isTablet ? 36 : 32),
                     ),
+                    const SizedBox(height: 8),
+
+                    Row(
+                      children: [
+                        const Spacer(),
+                        const Icon(
+                          Icons.calendar_today,
+                          size: 14,
+                          color: AppColors.textSecondary,
+                        ),
+                        const SizedBox(width: 4),
+                        Text(
+                          widget.article.createdAt != null
+                              ? DateFormat('yyyy年MM月dd日')
+                                  .format(widget.article.createdAt!)
+                              : widget.article.timeAgo,
+                          style: AppTextStyles.bodySmall(isTablet),
+                        ),
+                      ],
+                    ),
+
                     const SizedBox(height: 24),
 
                     // Article summary/intro
@@ -218,7 +217,7 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                               ),
                               const SizedBox(width: 8),
                               Text(
-                                'AI Summary',
+                                'AI Generated Summary',
                                 style: AppTextStyles.labelMedium(
                                   isTablet,
                                 ).copyWith(color: AppColors.primary),
@@ -412,6 +411,99 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
           ),
         );
       }
+    }
+  }
+
+  Future<void> _showDeleteConfirmation() async {
+    final isTablet = AppResponsive.isTablet(context);
+
+    final shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+        ),
+        title: Text(
+          '記事を削除しますか？',
+          style: AppTextStyles.headline3(isTablet),
+        ),
+        content: Text(
+          '「${widget.article.title}」を削除します。この操作は取り消せません。',
+          style: AppTextStyles.bodyMedium(isTablet).copyWith(
+            color: AppColors.textSecondary,
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(
+              'キャンセル',
+              style: AppTextStyles.labelMedium(isTablet).copyWith(
+                color: AppColors.textSecondary,
+              ),
+            ),
+          ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(
+              '削除',
+              style: AppTextStyles.labelMedium(isTablet).copyWith(
+                color: AppColors.error,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    if (shouldDelete == true) {
+      await _deleteArticle();
+    }
+  }
+
+  Future<void> _deleteArticle() async {
+    // Show loading indicator
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => const Center(
+        child: CircularProgressIndicator(),
+      ),
+    );
+
+    try {
+      await _apiService.deleteSavedArticle(widget.article.id);
+
+      // Check if widget is still mounted before using context
+      if (!mounted) return;
+
+      // Close loading dialog
+      Navigator.pop(context);
+
+      // Show success message
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('記事を削除しました'),
+          backgroundColor: AppColors.success,
+        ),
+      );
+
+      // Navigate back to the previous screen
+      Navigator.pop(context, true); // Return true to indicate deletion
+    } catch (e) {
+      // Check if widget is still mounted before using context
+      if (!mounted) return;
+
+      // Close loading dialog
+      Navigator.pop(context);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('記事の削除に失敗しました: $e'),
+          backgroundColor: AppColors.error,
+        ),
+      );
     }
   }
 

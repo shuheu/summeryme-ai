@@ -160,7 +160,7 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                           ),
                           const SizedBox(height: 16),
                           Text(
-                            'AI Digest',
+                            'AI Summary',
                             style: AppTextStyles.headline2(isTablet).copyWith(
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
@@ -177,65 +177,19 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
 
           // Content section
           SliverToBoxAdapter(
-            child: Container(
-              constraints: BoxConstraints(maxWidth: maxWidth),
-              margin: EdgeInsets.symmetric(horizontal: isTablet ? 48.0 : 24.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 24),
+            child: Center(
+              child: Container(
+                constraints: BoxConstraints(maxWidth: maxWidth),
+                margin: AppResponsive.getHorizontalPadding(context),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
 
-                  // Article metadata
-                  Container(
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: AppColors.surface,
-                      borderRadius: BorderRadius.circular(16),
-                      boxShadow: AppShadows.light,
-                    ),
-                    child: Column(
+                    // Article metadata
+                    Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 12,
-                                vertical: 6,
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: const LinearGradient(
-                                  colors: [
-                                    Color(0xFF4A90E2),
-                                    Color(0xFF357ABD),
-                                  ],
-                                ),
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              child: Text(
-                                'AI要約',
-                                style: AppTextStyles.bodySmall(
-                                  isTablet,
-                                ).copyWith(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                            const Spacer(),
-                            const SizedBox(width: 4),
-                          ],
-                        ),
-                        const SizedBox(height: 16),
-                        const Text(
-                          'AIダイジェスト',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
                         Row(
                           children: [
                             const Spacer(),
@@ -255,305 +209,296 @@ class _DigestDetailScreenState extends State<DigestDetailScreen> {
                         ),
                       ],
                     ),
-                  ),
 
-                  const SizedBox(height: 24),
+                    const SizedBox(height: 24),
 
-                  // AI Summary section
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppColors.primary.withValues(alpha: 0.05),
-                          AppColors.primary.withValues(alpha: 0.1),
-                        ],
-                      ),
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.2),
-                        width: 1,
-                      ),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            Container(
-                              padding: const EdgeInsets.all(8),
-                              decoration: BoxDecoration(
-                                color: AppColors.primary,
-                                borderRadius: BorderRadius.circular(8),
-                              ),
-                              child: const Icon(
-                                Icons.auto_awesome,
-                                color: Colors.white,
-                                size: 20,
-                              ),
-                            ),
-                            const SizedBox(width: 12),
-                            Text(
-                              'AI Generated Summary',
-                              style: AppTextStyles.headline3(
-                                isTablet,
-                              ).copyWith(color: AppColors.primary),
-                            ),
+                    // AI Summary section
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppColors.primary.withValues(alpha: 0.05),
+                            AppColors.primary.withValues(alpha: 0.1),
                           ],
                         ),
-                        const SizedBox(height: 20),
-                        Text(
-                          userDailySummary.summary,
-                          style: AppTextStyles.bodyLarge(
-                            isTablet,
-                          ).copyWith(height: 1.7),
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(
+                          color: AppColors.primary.withValues(alpha: 0.2),
+                          width: 1,
                         ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Play Audio - Main Action
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                        colors: [
-                          AppColors.primary.withValues(alpha: 0.1),
-                          AppColors.primary.withValues(alpha: 0.05),
-                        ],
                       ),
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: AppColors.primary.withValues(alpha: 0.3),
-                        width: 1,
-                      ),
-                    ),
-                    child: Column(
-                      children: [
-                        // Audio icon with animation placeholder
-                        Container(
-                          width: 80,
-                          height: 80,
-                          decoration: BoxDecoration(
-                            gradient: AppGradients.primary,
-                            shape: BoxShape.circle,
-                            boxShadow: [
-                              BoxShadow(
-                                color: AppColors.primary.withValues(alpha: 0.3),
-                                blurRadius: 20,
-                                offset: const Offset(0, 8),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.auto_awesome,
+                                color: AppColors.primary,
+                                size: isTablet ? 24 : 20,
+                              ),
+                              const SizedBox(width: 8),
+                              Text(
+                                'AI Generated Summary',
+                                style: AppTextStyles.labelMedium(
+                                  isTablet,
+                                ).copyWith(color: AppColors.primary),
                               ),
                             ],
                           ),
-                          child: const Icon(
-                            Icons.play_arrow,
-                            color: Colors.white,
-                            size: 40,
+                          const SizedBox(height: 12),
+                          Text(
+                            userDailySummary.summary,
+                            style: AppTextStyles.bodyLarge(
+                              isTablet,
+                            ).copyWith(height: 1.7),
                           ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Play Audio - Main Action
+                    Container(
+                      padding: const EdgeInsets.all(24),
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [
+                            AppColors.primary.withValues(alpha: 0.1),
+                            AppColors.primary.withValues(alpha: 0.05),
+                          ],
                         ),
-                        const SizedBox(height: 20),
-
-                        Text(
-                          'Audio Summary',
-                          style: AppTextStyles.headline3(
-                            isTablet,
-                          ).copyWith(color: AppColors.primary),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(
+                          color: AppColors.primary.withValues(alpha: 0.3),
+                          width: 1,
                         ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'AIが生成した音声サマリーを聞く',
-                          style: AppTextStyles.bodyMedium(
-                            isTablet,
-                          ).copyWith(color: AppColors.textSecondary),
-                          textAlign: TextAlign.center,
-                        ),
-                        const SizedBox(height: 24),
+                      ),
+                      child: Column(
+                        children: [
+                          // Audio icon with animation placeholder
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              gradient: AppGradients.primary,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color:
+                                      AppColors.primary.withValues(alpha: 0.3),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: const Icon(
+                              Icons.play_arrow,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                          ),
+                          const SizedBox(height: 20),
 
-                        // Play button
-                        Consumer<AudioPlayerService>(
-                          builder: (context, audioPlayerService, child) {
-                            final currentPlaylistId =
-                                'daily_summary_${userDailySummary.id}';
-                            final isCurrentlyPlaying =
-                                audioPlayerService.currentPlaylist?.id ==
-                                    currentPlaylistId;
-                            final isPlaying = audioPlayerService.isPlaying;
-                            final isLoading = audioPlayerService.isLoading;
+                          Text(
+                            'Audio Summary',
+                            style: AppTextStyles.headline3(
+                              isTablet,
+                            ).copyWith(color: AppColors.primary),
+                          ),
+                          const SizedBox(height: 24),
 
-                            // ボタンの状態を決定
-                            final bool isButtonEnabled =
-                                !isCurrentlyPlaying || !isPlaying;
-                            final bool showPlayingState =
-                                isCurrentlyPlaying && (isPlaying || isLoading);
+                          // Play button
+                          Consumer<AudioPlayerService>(
+                            builder: (context, audioPlayerService, child) {
+                              final currentPlaylistId =
+                                  'daily_summary_${userDailySummary.id}';
+                              final isCurrentlyPlaying =
+                                  audioPlayerService.currentPlaylist?.id ==
+                                      currentPlaylistId;
+                              final isPlaying = audioPlayerService.isPlaying;
+                              final isLoading = audioPlayerService.isLoading;
 
-                            return SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton.icon(
-                                onPressed: isButtonEnabled
-                                    ? () => _playAudioSummary(
-                                          context,
-                                          userDailySummary,
-                                        )
-                                    : null,
-                                icon: showPlayingState
-                                    ? (isLoading
-                                        ? const SizedBox(
-                                            width: 24,
-                                            height: 24,
-                                            child: CircularProgressIndicator(
-                                              strokeWidth: 2,
-                                              valueColor:
-                                                  AlwaysStoppedAnimation<Color>(
-                                                Colors.white,
-                                              ),
-                                            ),
+                              // ボタンの状態を決定
+                              final bool isButtonEnabled =
+                                  !isCurrentlyPlaying || !isPlaying;
+                              final bool showPlayingState =
+                                  isCurrentlyPlaying &&
+                                      (isPlaying || isLoading);
+
+                              return SizedBox(
+                                width: double.infinity,
+                                child: ElevatedButton.icon(
+                                  onPressed: isButtonEnabled
+                                      ? () => _playAudioSummary(
+                                            context,
+                                            userDailySummary,
                                           )
-                                        : const Icon(Icons.volume_up, size: 24))
-                                    : const Icon(Icons.headphones, size: 24),
-                                label: Text(
-                                  showPlayingState
-                                      ? (isLoading ? '読み込み中...' : '再生中')
-                                      : '音声で聞く',
-                                  style: AppTextStyles.labelLarge(isTablet)
-                                      .copyWith(
-                                    color: isButtonEnabled
-                                        ? Colors.white
-                                        : Colors.white70,
+                                      : null,
+                                  icon: showPlayingState
+                                      ? (isLoading
+                                          ? const SizedBox(
+                                              width: 24,
+                                              height: 24,
+                                              child: CircularProgressIndicator(
+                                                strokeWidth: 2,
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                        Color>(
+                                                  Colors.white,
+                                                ),
+                                              ),
+                                            )
+                                          : const Icon(Icons.volume_up,
+                                              size: 24))
+                                      : const Icon(Icons.headphones, size: 24),
+                                  label: Text(
+                                    showPlayingState
+                                        ? (isLoading ? '読み込み中...' : '再生中')
+                                        : '音声で聞く',
+                                    style: AppTextStyles.labelLarge(isTablet)
+                                        .copyWith(
+                                      color: isButtonEnabled
+                                          ? Colors.white
+                                          : Colors.white70,
+                                    ),
+                                  ),
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: showPlayingState
+                                        ? const Color(0xFF4CAF50)
+                                        : AppColors.primary,
+                                    foregroundColor: Colors.white,
+                                    padding: const EdgeInsets.symmetric(
+                                        vertical: 18),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(16),
+                                    ),
+                                    elevation: 0,
+                                    disabledBackgroundColor: AppColors.primary
+                                        .withValues(alpha: 0.6),
+                                    disabledForegroundColor: Colors.white70,
                                   ),
                                 ),
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: showPlayingState
-                                      ? const Color(0xFF4CAF50)
-                                      : AppColors.primary,
-                                  foregroundColor: Colors.white,
-                                  padding:
-                                      const EdgeInsets.symmetric(vertical: 18),
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  elevation: 0,
-                                  disabledBackgroundColor:
-                                      AppColors.primary.withValues(alpha: 0.6),
-                                  disabledForegroundColor: Colors.white70,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-
-                        const SizedBox(height: 12),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 32),
-
-                  // Related Articles section
-                  if (userDailySummary.userDailySummarySavedArticles != null &&
-                      userDailySummary
-                          .userDailySummarySavedArticles!.isNotEmpty) ...[
-                    Text(
-                      '要約元の記事',
-                      style: AppTextStyles.headline3(isTablet),
-                    ),
-                    const SizedBox(height: 16),
-                    ...userDailySummary.userDailySummarySavedArticles!
-                        .map((article) {
-                      final savedArticle = article.savedArticle;
-                      if (savedArticle == null) return const SizedBox.shrink();
-
-                      return Container(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        decoration: BoxDecoration(
-                          color: AppColors.surface,
-                          borderRadius: BorderRadius.circular(16),
-                          boxShadow: AppShadows.light,
-                        ),
-                        child: Material(
-                          color: Colors.transparent,
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(16),
-                            onTap: () {
-                              _navigateToArticleDetail(context, savedArticle);
+                              );
                             },
-                            child: Padding(
-                              padding: const EdgeInsets.all(20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: AppColors.primary
-                                              .withValues(alpha: 0.1),
-                                          borderRadius:
-                                              BorderRadius.circular(8),
-                                        ),
-                                        child: Icon(
-                                          Icons.article_outlined,
-                                          color: AppColors.primary,
-                                          size: isTablet ? 24 : 20,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 12),
-                                      Expanded(
-                                        child: Text(
-                                          savedArticle.title,
-                                          style:
-                                              AppTextStyles.bodyLarge(isTablet)
-                                                  .copyWith(
-                                            fontWeight: FontWeight.w600,
+                          ),
+
+                          const SizedBox(height: 12),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 32),
+
+                    // Related Articles section
+                    if (userDailySummary.userDailySummarySavedArticles !=
+                            null &&
+                        userDailySummary
+                            .userDailySummarySavedArticles!.isNotEmpty) ...[
+                      Text(
+                        '要約元の記事',
+                        style: AppTextStyles.headline3(isTablet),
+                      ),
+                      const SizedBox(height: 16),
+                      ...userDailySummary.userDailySummarySavedArticles!
+                          .map((article) {
+                        final savedArticle = article.savedArticle;
+                        if (savedArticle == null)
+                          return const SizedBox.shrink();
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: AppColors.surface,
+                            borderRadius: BorderRadius.circular(16),
+                            boxShadow: AppShadows.light,
+                          ),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(16),
+                              onTap: () {
+                                _navigateToArticleDetail(context, savedArticle);
+                              },
+                              child: Padding(
+                                padding: const EdgeInsets.all(20),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          padding: const EdgeInsets.all(8),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.primary
+                                                .withValues(alpha: 0.1),
+                                            borderRadius:
+                                                BorderRadius.circular(8),
                                           ),
-                                          maxLines: 2,
-                                          overflow: TextOverflow.ellipsis,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 12),
-                                  Row(
-                                    children: [
-                                      const Icon(
-                                        Icons.link,
-                                        size: 16,
-                                        color: AppColors.textSecondary,
-                                      ),
-                                      const SizedBox(width: 4),
-                                      Expanded(
-                                        child: Text(
-                                          savedArticle.url,
-                                          style:
-                                              AppTextStyles.bodySmall(isTablet)
-                                                  .copyWith(
-                                            color: AppColors.textSecondary,
+                                          child: Icon(
+                                            Icons.article_outlined,
+                                            color: AppColors.primary,
+                                            size: isTablet ? 24 : 20,
                                           ),
-                                          maxLines: 1,
-                                          overflow: TextOverflow.ellipsis,
                                         ),
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                                        const SizedBox(width: 12),
+                                        Expanded(
+                                          child: Text(
+                                            savedArticle.title,
+                                            style: AppTextStyles.bodyLarge(
+                                                    isTablet)
+                                                .copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                            maxLines: 2,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                    const SizedBox(height: 12),
+                                    Row(
+                                      children: [
+                                        const Icon(
+                                          Icons.link,
+                                          size: 16,
+                                          color: AppColors.textSecondary,
+                                        ),
+                                        const SizedBox(width: 4),
+                                        Expanded(
+                                          child: Text(
+                                            savedArticle.url,
+                                            style: AppTextStyles.bodySmall(
+                                                    isTablet)
+                                                .copyWith(
+                                              color: AppColors.textSecondary,
+                                            ),
+                                            maxLines: 1,
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                      );
-                    }),
-                  ],
+                        );
+                      }),
+                    ],
 
-                  SizedBox(
-                    height: 48 + MediaQuery.of(context).padding.bottom,
-                  ),
-                ],
+                    SizedBox(
+                      height: 48 + MediaQuery.of(context).padding.bottom,
+                    ),
+                  ],
+                ),
               ),
             ),
           ),
