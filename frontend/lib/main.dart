@@ -33,14 +33,14 @@ class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
   // プラットフォーム別のフォント取得
-  String get _platformFont {
-    if (kIsWeb) return 'system-ui';
-    if (Platform.isMacOS) return '.AppleSystemUIFont';
-    if (Platform.isIOS) return '.SF UI Text';
-    if (Platform.isAndroid) return 'Roboto';
-    if (Platform.isWindows) return 'Segoe UI';
-    return 'system-ui';
-  }
+  // String get _platformFont {
+  //   if (kIsWeb) return 'system-ui';
+  //   if (Platform.isMacOS) return '.AppleSystemUIFont';
+  //   if (Platform.isIOS) return '.SF UI Text';
+  //   if (Platform.isAndroid) return 'Roboto';
+  //   if (Platform.isWindows) return 'Segoe UI';
+  //   return 'system-ui';
+  // }
 
   @override
   Widget build(BuildContext context) {
