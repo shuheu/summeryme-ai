@@ -297,62 +297,62 @@ class AudioPlayerScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildAdditionalControls(AudioPlayerService audioService,
-      models.PlaybackState playbackState, bool isTablet) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-      children: [
-        // 再生速度
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceVariant,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.speed, size: 16, color: AppColors.textSecondary),
-              const SizedBox(width: 4),
-              Text(
-                '${playbackState.speed.toStringAsFixed(1)}x',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
+  // Widget _buildAdditionalControls(AudioPlayerService audioService,
+  //     models.PlaybackState playbackState, bool isTablet) {
+  //   return Row(
+  //     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+  //     children: [
+  //       // 再生速度
+  //       Container(
+  //         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+  //         decoration: BoxDecoration(
+  //           color: AppColors.surfaceVariant,
+  //           borderRadius: BorderRadius.circular(16),
+  //         ),
+  //         child: Row(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             const Icon(Icons.speed, size: 16, color: AppColors.textSecondary),
+  //             const SizedBox(width: 4),
+  //             Text(
+  //               '${playbackState.speed.toStringAsFixed(1)}x',
+  //               style: const TextStyle(
+  //                 fontSize: 12,
+  //                 color: AppColors.textSecondary,
+  //                 fontWeight: FontWeight.w500,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
 
-        // 音量
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-          decoration: BoxDecoration(
-            color: AppColors.surfaceVariant,
-            borderRadius: BorderRadius.circular(16),
-          ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              const Icon(Icons.volume_up,
-                  size: 16, color: AppColors.textSecondary),
-              const SizedBox(width: 4),
-              Text(
-                '${(playbackState.volume * 100).round()}%',
-                style: const TextStyle(
-                  fontSize: 12,
-                  color: AppColors.textSecondary,
-                  fontWeight: FontWeight.w500,
-                ),
-              ),
-            ],
-          ),
-        ),
-      ],
-    );
-  }
+  //       // 音量
+  //       Container(
+  //         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+  //         decoration: BoxDecoration(
+  //           color: AppColors.surfaceVariant,
+  //           borderRadius: BorderRadius.circular(16),
+  //         ),
+  //         child: Row(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: [
+  //             const Icon(Icons.volume_up,
+  //                 size: 16, color: AppColors.textSecondary),
+  //             const SizedBox(width: 4),
+  //             Text(
+  //               '${(playbackState.volume * 100).round()}%',
+  //               style: const TextStyle(
+  //                 fontSize: 12,
+  //                 color: AppColors.textSecondary,
+  //                 fontWeight: FontWeight.w500,
+  //               ),
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ],
+  //   );
+  // }
 
   String _formatDuration(Duration duration) {
     final minutes = duration.inMinutes;
