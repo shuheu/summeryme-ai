@@ -69,12 +69,12 @@ class AudioPlayerScreen extends StatelessWidget {
                 // コントロールボタン
                 _buildControlButtons(audioService, playbackState),
 
-                // const Spacer(),
+                const Spacer(),
 
                 // 追加コントロール
                 // _buildAdditionalControls(audioService, playbackState, isTablet),
 
-                const SizedBox(height: 32),
+                const SizedBox(height: 64),
               ],
             ),
           );
