@@ -39,13 +39,13 @@ class SettingsScreen extends StatelessWidget {
               // Account section
               _buildSectionHeader('アカウント'),
               _buildSettingsCard([
-                _buildSettingsItem(
-                  'メールアドレスを変更',
-                  Icons.email_outlined,
-                  onTap: () {},
-                  showArrow: true,
-                ),
-                const Divider(height: 1, color: Color(0xFFE8E8E8)),
+                // _buildSettingsItem(
+                //   'メールアドレスを変更',
+                //   Icons.email_outlined,
+                //   onTap: () {},
+                //   showArrow: true,
+                // ),
+                // const Divider(height: 1, color: Color(0xFFE8E8E8)),
                 _buildSettingsItem(
                   'ログアウト',
                   Icons.logout_outlined,
@@ -56,30 +56,30 @@ class SettingsScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               // Content section
-              _buildSectionHeader('コンテンツ'),
-              _buildSettingsCard([
-                _buildSettingsItem(
-                  '言語',
-                  Icons.language_outlined,
-                  trailing: const Text(
-                    '日本語',
-                    style: TextStyle(color: Colors.grey, fontSize: 16),
-                  ),
-                ),
-              ]),
-              const SizedBox(height: 24),
+              // _buildSectionHeader('コンテンツ'),
+              // _buildSettingsCard([
+              //   _buildSettingsItem(
+              //     '言語',
+              //     Icons.language_outlined,
+              //     trailing: const Text(
+              //       '日本語',
+              //       style: TextStyle(color: Colors.grey, fontSize: 16),
+              //     ),
+              //   ),
+              // ]),
+              // const SizedBox(height: 24),
 
               // Notifications section
-              _buildSectionHeader('通知'),
-              _buildSettingsCard([
-                _buildSettingsItem(
-                  'プッシュ通知',
-                  Icons.notifications_outlined,
-                  onTap: () {},
-                  showArrow: true,
-                ),
-              ]),
-              const SizedBox(height: 24),
+              // _buildSectionHeader('通知'),
+              // _buildSettingsCard([
+              //   _buildSettingsItem(
+              //     'プッシュ通知',
+              //     Icons.notifications_outlined,
+              //     onTap: () {},
+              //     showArrow: true,
+              //   ),
+              // ]),
+              // const SizedBox(height: 24),
 
               // About section
               _buildSectionHeader('アプリについて'),
@@ -96,7 +96,7 @@ class SettingsScreen extends StatelessWidget {
                   onTap: () {},
                 ),
                 const Divider(height: 1, color: Color(0xFFE8E8E8)),
-                _buildSettingsItem('ヘルプセンター', Icons.help_outline, onTap: () {}),
+                // _buildSettingsItem('ヘルプセンター', Icons.help_outline, onTap: () {}),
               ]),
               const SizedBox(height: 32),
 
@@ -261,10 +261,10 @@ class SettingsScreen extends StatelessWidget {
             ),
           ),
           // Edit button
-          IconButton(
-            onPressed: () {},
-            icon: const Icon(Icons.edit_outlined, color: Colors.grey, size: 20),
-          ),
+          // IconButton(
+          //   onPressed: () {},
+          //   icon: const Icon(Icons.edit_outlined, color: Colors.grey, size: 20),
+          // ),
         ],
       ),
     );
