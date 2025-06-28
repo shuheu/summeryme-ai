@@ -36,7 +36,7 @@ erDiagram
         int userId FK "ユーザーID（外部キー）"
         text summary "日次要約"
         varchar audioUrl "音声ファイルURL（オプション）"
-        date generatedDate "生成日付"
+        datetime generatedDate "生成日時"
         datetime createdAt "作成日時"
         datetime updatedAt "更新日時"
     }
@@ -87,8 +87,9 @@ erDiagram
 - ユーザーの日次要約情報を管理
 - `summary`: 日次要約（TEXT）
 - `audioUrl`: 音声合成されたファイルのURL（VARCHAR(255)、オプション）
-- `generatedDate`: 要約対象の日付（DATE）
-- ユーザーと日付の組み合わせで一意制約（userId, generatedDate）
+- `generatedDate`: 要約生成日時（DATETIME、ミリ秒精度）
+- ユーザーと生成日時の組み合わせで一意制約（userId, generatedDate）
+- 1日に複数回実行可能（それぞれ異なる時刻で記録）
 - インデックスが`userId`と`createdAt`に設定されている
 
 ### user_daily_summary_saved_articles（関連テーブル）

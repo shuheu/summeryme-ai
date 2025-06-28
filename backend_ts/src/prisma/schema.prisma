@@ -63,7 +63,7 @@ model UserDailySummary {
   userId    Int
   summary   String   @db.Text
   audioUrl  String?  @db.VarChar(255)
-  generatedDate DateTime @db.Date
+  generatedDate DateTime
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

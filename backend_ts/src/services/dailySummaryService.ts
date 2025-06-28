@@ -120,7 +120,7 @@ export class DailySummaryService {
 
       // ステップ2: 日次要約をDBに保存（音声URLなしで初期作成）
       console.log('ステップ2: 日次要約をDBに保存します');
-      await this.createUserDailySummary(
+      const userDailySummaryId = await this.createUserDailySummary(
         config.userId,
         userDailySummary,
         articles,
@@ -135,7 +135,10 @@ export class DailySummaryService {
 
       // ステップ4: 音声URLでDBをアップデート
       console.log('ステップ4: 音声URLでDBをアップデートします');
-      await this.updateUserDailySummaryWithAudio(config.userId, audioFileName);
+      await this.updateUserDailySummaryWithAudio(
+        userDailySummaryId,
+        audioFileName,
+      );
 
       const processingTime = Date.now() - startTime;
       console.log(`日次要約バッチ処理完了 - 処理時間: ${processingTime}ms`);
@@ -297,21 +300,22 @@ export class DailySummaryService {
    * @param {number} userId - ユーザーID
    * @param {string} summary - 生成された日次要約
    * @param {SavedArticleWithUser[]} articles - 要約に含まれる記事
-   * @returns {Promise<void>}
+   * @returns {Promise<number>} 作成されたUserDailySummaryのID
    * @throws {Error} UserDailySummaryの保存に失敗した場合
    */
   private async createUserDailySummary(
     userId: number,
     summary: string,
     articles: SavedArticleWithUser[],
-  ): Promise<void> {
+  ): Promise<number> {
     try {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // 時刻を00:00:00に設定
+      const now = new Date(); // 現在時刻を使用（時刻部分も含む）
 
       console.log(
-        `UserDailySummary作成開始 - ユーザーID: ${userId}, 日付: ${today.toISOString().slice(0, 10)}`,
+        `UserDailySummary作成開始 - ユーザーID: ${userId}, 日時: ${now.toISOString()}`,
       );
+
+      let userDailySummaryId: number;
 
       // トランザクションでUserDailySummaryとUserDailySummarySavedArticleを作成
       await globalPrisma.$transaction(async (prisma) => {
@@ -320,11 +324,12 @@ export class DailySummaryService {
           data: {
             userId: userId,
             summary: summary,
-            generatedDate: today,
+            generatedDate: now, // 現在時刻を使用
             audioUrl: null, // 初期は音声URLなし
           },
         });
 
+        userDailySummaryId = userDailySummary.id;
         console.log(`UserDailySummary作成完了 - ID: ${userDailySummary.id}`);
 
         // UserDailySummarySavedArticleレコードを作成
@@ -344,7 +349,10 @@ export class DailySummaryService {
         }
       });
 
-      console.log(`UserDailySummary保存完了 - ユーザーID: ${userId}`);
+      console.log(
+        `UserDailySummary保存完了 - ユーザーID: ${userId}, ID: ${userDailySummaryId!}`,
+      );
+      return userDailySummaryId!;
     } catch (error) {
       console.error(
         `UserDailySummary保存エラー - ユーザーID: ${userId}:`,
@@ -358,39 +366,35 @@ export class DailySummaryService {
    * UserDailySummaryレコードの音声URLを更新
    * @async
    * @private
-   * @param {number} userId - ユーザーID
+   * @param {number} userDailySummaryId - UserDailySummaryのID
    * @param {string} audioFileName - 音声ファイル名
    * @returns {Promise<void>}
    * @throws {Error} UserDailySummaryの音声URL更新に失敗した場合
    */
   private async updateUserDailySummaryWithAudio(
-    userId: number,
+    userDailySummaryId: number,
     audioFileName: string,
   ): Promise<void> {
     try {
-      const today = new Date();
-      today.setHours(0, 0, 0, 0); // 時刻を00:00:00に設定
-
       console.log(
-        `UserDailySummary音声URL更新開始 - ユーザーID: ${userId}, 音声ファイル: ${audioFileName}`,
+        `UserDailySummary音声URL更新開始 - ID: ${userDailySummaryId}, 音声ファイル: ${audioFileName}`,
       );
 
       await globalPrisma.userDailySummary.update({
         where: {
-          userId_generatedDate: {
-            userId: userId,
-            generatedDate: today,
-          },
+          id: userDailySummaryId,
         },
         data: {
           audioUrl: audioFileName,
         },
       });
 
-      console.log(`UserDailySummary音声URL更新完了 - ユーザーID: ${userId}`);
+      console.log(
+        `UserDailySummary音声URL更新完了 - ID: ${userDailySummaryId}`,
+      );
     } catch (error) {
       console.error(
-        `UserDailySummary音声URL更新エラー - ユーザーID: ${userId}:`,
+        `UserDailySummary音声URL更新エラー - ID: ${userDailySummaryId}:`,
         error,
       );
       throw new Error('UserDailySummaryの音声URL更新に失敗しました');
