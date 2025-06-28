@@ -56,7 +56,7 @@ class MyApp extends StatelessWidget {
         theme: AppTheme.lightTheme.copyWith(
           // プラットフォーム別の最適なフォントを使用
           textTheme: AppTheme.lightTheme.textTheme.apply(
-            fontFamily: _platformFont,
+            fontFamily: 'M_PLUS_1p',
           ),
         ),
         home: const AuthWrapper(),
