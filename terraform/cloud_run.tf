@@ -428,7 +428,7 @@ resource "google_cloud_run_v2_job" "daily_summary" {
 
     template {
       service_account = google_service_account.cloud_run.email
-      
+
       # タイムアウト設定 (24時間)
       timeout = "86400s"
 
