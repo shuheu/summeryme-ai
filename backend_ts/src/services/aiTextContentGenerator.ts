@@ -32,6 +32,7 @@ export class AiTextContentGenerator {
     const ai = new GoogleGenAI({
       apiKey: process.env.GEMINI_API_KEY,
     });
+    const tools = [{ urlContext: {} }];
     const config = {
       responseMimeType: 'text/plain',
     };
@@ -39,6 +40,7 @@ export class AiTextContentGenerator {
     const contents = [
       {
         role: 'user',
+        tools,
         parts: [
           {
             text: `
