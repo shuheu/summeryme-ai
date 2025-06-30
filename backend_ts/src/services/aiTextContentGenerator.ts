@@ -35,12 +35,12 @@ export class AiTextContentGenerator {
     const tools = [{ urlContext: {} }];
     const config = {
       responseMimeType: 'text/plain',
+      tools,
     };
     const model = 'gemini-2.5-pro-preview-05-06';
     const contents = [
       {
         role: 'user',
-        tools,
         parts: [
           {
             text: `
