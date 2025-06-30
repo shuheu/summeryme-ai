@@ -37,7 +37,7 @@ export class AiTextContentGenerator {
       responseMimeType: 'text/plain',
       tools,
     };
-    const model = 'gemini-2.5-pro-preview-05-06';
+    const model = 'gemini-2.5-pro';
     const contents = [
       {
         role: 'user',
