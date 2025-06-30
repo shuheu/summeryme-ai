@@ -241,11 +241,15 @@ export class ArticleSummaryService {
     article: SavedArticleWithUser,
   ): Promise<boolean> {
     try {
-      const prompt = buildArticleSummaryPrompt(article.url);
+      const { systemInstruction, prompt } = buildArticleSummaryPrompt(
+        article.url,
+      );
       console.log(`記事要約生成開始 - ID: ${article.id}, URL: ${article.url}`);
 
-      const aiGeneratedSummaryText =
-        await this.aiTextGenerator.generate(prompt);
+      const aiGeneratedSummaryText = await this.aiTextGenerator.generate(
+        systemInstruction,
+        prompt,
+      );
 
       if (!aiGeneratedSummaryText) {
         console.warn(`記事要約生成失敗 - ID: ${article.id}`);
