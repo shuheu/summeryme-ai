@@ -222,6 +222,10 @@ export class DailySummaryService {
       systemInstruction,
       prompt,
     );
+    console.log(
+      '🚀 ~ DailySummaryService ~ aiGeneratedTalkScript:',
+      aiGeneratedTalkScript,
+    );
 
     if (!aiGeneratedTalkScript) {
       throw new Error('トークスクリプトの生成に失敗しました');
