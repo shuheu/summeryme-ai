@@ -23,7 +23,10 @@ export class AiTextContentGenerator {
    * @returns {Promise<string>} 生成されたテキストコンテンツ
    * @throws {Error} API キーが設定されていない場合や API 呼び出しが失敗した場合
    */
-  async generate(prompt: string): Promise<string | undefined> {
+  async generate(
+    systemInstruction: string,
+    prompt: string,
+  ): Promise<string | undefined> {
     // モックモードの場合はダミーテキストを返す
     if (this.isMockMode) {
       return this.generateMockContent(prompt);
@@ -36,6 +39,11 @@ export class AiTextContentGenerator {
     const config = {
       responseMimeType: 'text/plain',
       tools,
+      systemInstruction: [
+        {
+          text: systemInstruction,
+        },
+      ],
     };
     const model = 'gemini-2.5-pro';
     const contents = [

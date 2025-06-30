@@ -214,11 +214,14 @@ export class DailySummaryService {
     console.log('トークスクリプト生成を開始します');
 
     const urls = articles.map((article) => article.url);
-    const prompt = buildSummarizedTalkScriptPrompt(urls);
+    const { systemInstruction, prompt } = buildSummarizedTalkScriptPrompt(urls);
 
     console.log(`トークスクリプト生成 - ${urls.length}件の記事を処理`);
 
-    const aiGeneratedTalkScript = await this.aiTextGenerator.generate(prompt);
+    const aiGeneratedTalkScript = await this.aiTextGenerator.generate(
+      systemInstruction,
+      prompt,
+    );
 
     if (!aiGeneratedTalkScript) {
       throw new Error('トークスクリプトの生成に失敗しました');
@@ -275,11 +278,14 @@ export class DailySummaryService {
   ): Promise<string> {
     try {
       const urls = articles.map((article) => article.url);
-      const prompt = buildUserDailySummaryPrompt(urls);
+      const { systemInstruction, prompt } = buildUserDailySummaryPrompt(urls);
 
       console.log(`日次要約生成 - ${urls.length}件の記事を処理`);
 
-      const aiGeneratedSummary = await this.aiTextGenerator.generate(prompt);
+      const aiGeneratedSummary = await this.aiTextGenerator.generate(
+        systemInstruction,
+        prompt,
+      );
 
       if (!aiGeneratedSummary) {
         throw new Error('日次要約の生成に失敗しました');
