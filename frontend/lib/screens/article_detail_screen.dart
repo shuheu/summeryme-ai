@@ -225,14 +225,38 @@ class _ArticleDetailScreenState extends State<ArticleDetailScreen> {
                             ],
                           ),
                           const SizedBox(height: 12),
-                          Text(
-                            _savedArticle?.savedArticleSummary?.summary ??
-                                widget.article.summary,
-                            style: AppTextStyles.bodyMedium(isTablet).copyWith(
-                              height: 1.6,
-                              fontStyle: FontStyle.normal,
+                          if (_savedArticle?.savedArticleSummary?.summary !=
+                                  null ||
+                              widget.article.summary.isNotEmpty)
+                            Text(
+                              _savedArticle?.savedArticleSummary?.summary ??
+                                  widget.article.summary,
+                              style:
+                                  AppTextStyles.bodyMedium(isTablet).copyWith(
+                                height: 1.6,
+                                fontStyle: FontStyle.normal,
+                              ),
+                            )
+                          else
+                            Center(
+                              child: Column(
+                                children: [
+                                  const SizedBox(height: 20),
+                                  const CircularProgressIndicator(
+                                    color: AppColors.primary,
+                                  ),
+                                  const SizedBox(height: 12),
+                                  Text(
+                                    '要約を生成中です',
+                                    style: AppTextStyles.bodySmall(isTablet)
+                                        .copyWith(
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 12),
+                                ],
+                              ),
                             ),
-                          ),
                         ],
                       ),
                     ),
