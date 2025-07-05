@@ -1,0 +1,5 @@
+[tools]
+firebase = "latest"
+
+[env]
+_.file = '.env'
