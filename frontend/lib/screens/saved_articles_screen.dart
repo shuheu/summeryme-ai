@@ -16,9 +16,12 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
   final _urlController = TextEditingController();
   final _titleController = TextEditingController();
   final _searchController = TextEditingController();
+  final _scrollController = ScrollController();
   Map<String, List<Article>> groupedArticles = {};
   Map<String, List<Article>> filteredGroupedArticles = {};
+  List<Article> allArticles = []; // Keep track of all loaded articles
   bool isLoading = true;
+  bool isLoadingMore = false;
   String? errorMessage;
   int currentPage = 1;
   int totalPages = 1;
@@ -29,6 +32,7 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
   void initState() {
     super.initState();
     _loadSavedArticles();
+    _scrollController.addListener(_onScroll);
   }
 
   @override
@@ -36,13 +40,26 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
     _urlController.dispose();
     _titleController.dispose();
     _searchController.dispose();
+    _scrollController.dispose();
     super.dispose();
+  }
+
+  void _onScroll() {
+    if (_scrollController.position.pixels >=
+            _scrollController.position.maxScrollExtent - 200 &&
+        !isLoadingMore &&
+        hasMorePages &&
+        searchQuery.isEmpty) {
+      _loadMoreArticles();
+    }
   }
 
   Future<void> _loadSavedArticles() async {
     setState(() {
       isLoading = true;
       errorMessage = null;
+      currentPage = 1;
+      allArticles = [];
     });
 
     try {
@@ -54,44 +71,14 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
           .map((json) => Article.fromJson(json as Map<String, dynamic>))
           .toList();
 
-      // Group articles by date
-      final grouped = <String, List<Article>>{};
-      final now = DateTime.now();
-      final today = DateTime(now.year, now.month, now.day);
-      final yesterday = today.subtract(const Duration(days: 1));
-      final weekStart = today.subtract(Duration(days: today.weekday - 1));
-
-      for (final article in articles) {
-        if (article.createdAt != null) {
-          final articleDate = DateTime(
-            article.createdAt!.year,
-            article.createdAt!.month,
-            article.createdAt!.day,
-          );
-
-          String dateGroup;
-          if (articleDate == today) {
-            dateGroup = '今日';
-          } else if (articleDate == yesterday) {
-            dateGroup = '昨日';
-          } else if (articleDate.isAfter(weekStart)) {
-            dateGroup = '今週';
-          } else {
-            dateGroup = '以前';
-          }
-
-          grouped[dateGroup] ??= [];
-          grouped[dateGroup]!.add(article);
-        }
-      }
-
       setState(() {
-        groupedArticles = grouped;
-        filteredGroupedArticles = grouped;
+        allArticles = articles;
         totalPages = pagination['totalPages'] as int;
         hasMorePages = pagination['hasNextPage'] as bool;
         isLoading = false;
       });
+
+      _updateGroupedArticles();
 
       // Apply current search filter
       if (searchQuery.isNotEmpty) {
@@ -103,6 +90,91 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
         isLoading = false;
       });
     }
+  }
+
+  Future<void> _loadMoreArticles() async {
+    if (isLoadingMore || !hasMorePages) return;
+
+    setState(() {
+      isLoadingMore = true;
+    });
+
+    try {
+      final nextPage = currentPage + 1;
+      final response = await _apiService.fetchSavedArticles(page: nextPage);
+      final savedArticlesList = response['savedArticles'] as List<dynamic>;
+      final pagination = response['pagination'] as Map<String, dynamic>;
+
+      final newArticles = savedArticlesList
+          .map((json) => Article.fromJson(json as Map<String, dynamic>))
+          .toList();
+
+      setState(() {
+        allArticles.addAll(newArticles);
+        currentPage = nextPage;
+        totalPages = pagination['totalPages'] as int;
+        hasMorePages = pagination['hasNextPage'] as bool;
+        isLoadingMore = false;
+      });
+
+      _updateGroupedArticles();
+
+      // Apply current search filter
+      if (searchQuery.isNotEmpty) {
+        _filterArticles(searchQuery);
+      }
+    } catch (e) {
+      setState(() {
+        isLoadingMore = false;
+      });
+      // Show error message but don't interrupt the user experience
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('追加の記事の読み込みに失敗しました: $e'),
+            backgroundColor: AppColors.error,
+          ),
+        );
+      }
+    }
+  }
+
+  void _updateGroupedArticles() {
+    // Group all articles by date
+    final grouped = <String, List<Article>>{};
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final weekStart = today.subtract(Duration(days: today.weekday - 1));
+
+    for (final article in allArticles) {
+      if (article.createdAt != null) {
+        final articleDate = DateTime(
+          article.createdAt!.year,
+          article.createdAt!.month,
+          article.createdAt!.day,
+        );
+
+        String dateGroup;
+        if (articleDate == today) {
+          dateGroup = '今日';
+        } else if (articleDate == yesterday) {
+          dateGroup = '昨日';
+        } else if (articleDate.isAfter(weekStart)) {
+          dateGroup = '今週';
+        } else {
+          dateGroup = '以前';
+        }
+
+        grouped[dateGroup] ??= [];
+        grouped[dateGroup]!.add(article);
+      }
+    }
+
+    setState(() {
+      groupedArticles = grouped;
+      filteredGroupedArticles = grouped;
+    });
   }
 
   void _filterArticles(String query) {
@@ -216,12 +288,40 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                             : RefreshIndicator(
                                 onRefresh: _loadSavedArticles,
                                 child: ListView.builder(
+                                  controller: _scrollController,
                                   padding: EdgeInsets.symmetric(
                                     horizontal: isTablet ? 24.0 : 16.0,
                                   ),
-                                  itemCount:
-                                      filteredGroupedArticles.keys.length,
+                                  itemCount: filteredGroupedArticles
+                                          .keys
+                                          .length +
+                                      (isLoadingMore && searchQuery.isEmpty
+                                          ? 1
+                                          : 0),
                                   itemBuilder: (context, index) {
+                                    // Show loading indicator at the bottom
+                                    if (index == filteredGroupedArticles.keys.length) {
+                                      return Padding(
+                                        padding: const EdgeInsets.all(20.0),
+                                        child: Center(
+                                          child: Column(
+                                            children: [
+                                              const CircularProgressIndicator(),
+                                              const SizedBox(height: 12),
+                                              Text(
+                                                '記事を読み込み中...',
+                                                style: AppTextStyles.bodyMedium(
+                                                        isTablet)
+                                                    .copyWith(
+                                                  color: AppColors.textSecondary,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      );
+                                    }
+
                                     final dateGroup = filteredGroupedArticles
                                         .keys
                                         .elementAt(index);
@@ -250,8 +350,7 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
 
                                         // Articles for this date
                                         ...articles.map(
-                                          (article) =>
-                                              _buildArticleCard(article),
+                                          (article) => _buildArticleCard(article),
                                         ),
 
                                         const SizedBox(height: 8),
@@ -323,7 +422,8 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                       Expanded(
                         child: Text(
                           article.title,
-                          style: AppTextStyles.labelMedium(isTablet).copyWith(
+                          style:
+                              AppTextStyles.labelMedium(isTablet).copyWith(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w600,
                           ),
@@ -588,7 +688,7 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
       _titleController.clear();
       Navigator.pop(context);
 
-      // 記事リストを再読み込み
+      // 記事リストを再読み込み（新しい記事が最上部に表示されるように）
       _loadSavedArticles();
     } catch (e) {
       // Check if widget is still mounted before using context
