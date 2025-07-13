@@ -292,11 +292,12 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                                   padding: EdgeInsets.symmetric(
                                     horizontal: isTablet ? 24.0 : 16.0,
                                   ),
-                                  itemCount:
-                                      filteredGroupedArticles.keys.length +
-                                          (isLoadingMore && searchQuery.isEmpty
-                                              ? 1
-                                              : 0),
+                                  itemCount: filteredGroupedArticles
+                                          .keys
+                                          .length +
+                                      (isLoadingMore && searchQuery.isEmpty
+                                          ? 1
+                                          : 0),
                                   itemBuilder: (context, index) {
                                     // Show loading indicator at the bottom
                                     if (index == filteredGroupedArticles.keys.length) {
