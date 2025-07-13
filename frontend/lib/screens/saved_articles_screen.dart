@@ -292,8 +292,11 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                                   padding: EdgeInsets.symmetric(
                                     horizontal: isTablet ? 24.0 : 16.0,
                                   ),
-                                  itemCount: filteredGroupedArticles.keys.length +
-                                      (isLoadingMore && searchQuery.isEmpty ? 1 : 0),
+                                  itemCount:
+                                      filteredGroupedArticles.keys.length +
+                                          (isLoadingMore && searchQuery.isEmpty
+                                              ? 1
+                                              : 0),
                                   itemBuilder: (context, index) {
                                     // Show loading indicator at the bottom
                                     if (index == filteredGroupedArticles.keys.length) {
@@ -306,7 +309,9 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                                               const SizedBox(height: 12),
                                               Text(
                                                 '記事を読み込み中...',
-                                                style: AppTextStyles.bodyMedium(isTablet).copyWith(
+                                                style: AppTextStyles.bodyMedium(
+                                                        isTablet)
+                                                    .copyWith(
                                                   color: AppColors.textSecondary,
                                                 ),
                                               ),
@@ -344,8 +349,7 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
 
                                         // Articles for this date
                                         ...articles.map(
-                                          (article) =>
-                                              _buildArticleCard(article),
+                                          (article) => _buildArticleCard(article),
                                         ),
 
                                         const SizedBox(height: 8),
@@ -417,7 +421,8 @@ class _SavedArticlesScreenState extends State<SavedArticlesScreen> {
                       Expanded(
                         child: Text(
                           article.title,
-                          style: AppTextStyles.labelMedium(isTablet).copyWith(
+                          style:
+                              AppTextStyles.labelMedium(isTablet).copyWith(
                             color: AppColors.textPrimary,
                             fontWeight: FontWeight.w600,
                           ),
